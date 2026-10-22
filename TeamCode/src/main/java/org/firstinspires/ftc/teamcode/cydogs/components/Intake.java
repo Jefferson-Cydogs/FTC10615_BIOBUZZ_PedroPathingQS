@@ -102,8 +102,8 @@ public class Intake {
     private final DcMotorSimple.Direction RIGHT_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
     private final DcMotorSimple.Direction MOTOR_DIRECTION = DcMotorSimple.Direction.FORWARD;
     private final DcMotor.ZeroPowerBehavior MOTOR_ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-    private final double SERVO_POWER = 0.7;
-    private final double MOTOR_INTAKE_POWER = 0.6;
+    private final double SERVO_POWER = 0.8;
+    private final double MOTOR_INTAKE_POWER = 0.75;
     private final double MOTOR_REVERSE_POWER = -0.4;
 
     // =========================================================================================

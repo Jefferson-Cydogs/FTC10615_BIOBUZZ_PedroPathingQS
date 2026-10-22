@@ -44,14 +44,14 @@ public class Launcher extends BaseVelocityMotor {
     private static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR =
             DcMotor.ZeroPowerBehavior.FLOAT;
 
-    private final double MotorsRPM = 312;
-    private final double MotorsTicksPerRevolution = 537.7;
+    private final double MotorsRPM = 6000;
+    private final double MotorsTicksPerRevolution = 28;
 
     // The motor's top speed in ticks per second (free-speed RPM x ticks per revolution / 60).
     private final double MAX_TICKS_PER_SECOND = MotorsRPM * MotorsTicksPerRevolution / 60;
 
     // Starting launch speed as a fraction of top speed (0.7 = 70%). Tune on the robot.
-    private static final double LAUNCH_PERCENT = 0.7;
+    private static final double LAUNCH_PERCENT = 0.45;
 
     // How much one adjustment changes the launch speed (0.01 = 1% of top speed).
     private static final double PERCENT_STEP = 0.01;
@@ -61,10 +61,10 @@ public class Launcher extends BaseVelocityMotor {
     // How fast the flywheel is slowed, in ticks per second lost every second.
     // Bigger = stops sooner but brakes harder (more current, more stress on the drivetrain).
     // At 2000 a flywheel at top speed (about 2800) stops in about 1.4 seconds.
-    private static final double SPINDOWN_TPS_PER_SEC = 1000;
+    private static final double SPINDOWN_TPS_PER_SEC = 35000;
 
     // Below this speed (ticks per second) the spin-down is finished and the motor is stopped.
-    private static final double SPINDOWN_MIN_TPS = 50;
+    private static final double SPINDOWN_MIN_TPS = 1000;
 
     // The launcher is always in exactly one of these states.
     private enum State {

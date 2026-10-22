@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 public class BioBuzzTeleop extends LinearOpMode {
 
     // Power used while a loader motor button is held. Flip the sign if a motor runs the wrong way.
-    private static final double MOVE_TO_LAUNCHER_POWER = 0.5;
+    private static final double MOVE_TO_LAUNCHER_POWER = 0.65;
 
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;

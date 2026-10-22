@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseServo;
         private final static double min=0.02;
         private final static double max=0.9;
 
-        private final static double NECTAR_SIZE=0.08;
-        private final static double POLLEN_SIZE=0.86;
+        private final static double NECTAR_SIZE=0.39;
+        private final static double POLLEN_SIZE=0.9;
         private final static double startingPosition=0.7;
 
         public LauncherSizeServo(OpMode opMode) {
