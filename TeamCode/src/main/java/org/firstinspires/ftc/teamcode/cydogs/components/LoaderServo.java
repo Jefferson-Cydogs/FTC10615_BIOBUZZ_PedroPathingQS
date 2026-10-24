@@ -43,12 +43,12 @@ public class LoaderServo extends BaseServo {
         private static final double MAX_POSITION = 1.0;
 
         // The two gate positions, measured on the robot. Both must be between MIN and MAX.
-        private static final double LOAD_POSITION = 0.16;
-        private static final double LAUNCH_POSITION = 0.68;
+        private static final double LOAD_POSITION = 0.4;
+        private static final double LAUNCH_POSITION = 0.75;
 
         public LoaderServo(OpMode opMode)
         {
-            super(opMode, HARDWARE_NAME,DIRECTION, MIN_POSITION, MAX_POSITION, .5);
+            super(opMode, HARDWARE_NAME,DIRECTION, MIN_POSITION, MAX_POSITION, .4);
 
         }
 
