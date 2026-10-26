@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.cydogs.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseLED;
 import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseVelocityMotor;
+import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 
 /**
  * Launcher - the spinning motor that throws scoring elements, plus an LED that shows whether
@@ -33,39 +32,6 @@ import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseVelocityMotor;
  */
 public class Launcher extends BaseVelocityMotor {
 
-    // Must match the names in the Robot Configuration on the Driver Hub.
-    private static final String HARDWARE_NAME = "LauncherMotor";
-    private static final String LED_NAME = "LauncherSpeedLED";
-
-    // Use REVERSE if the launcher spins the wrong way.
-    private static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
-
-    // FLOAT lets the wheel coast when power is cut. The controlled spin-down does the braking.
-    private static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR =
-            DcMotor.ZeroPowerBehavior.FLOAT;
-
-    private final double MotorsRPM = 6000;
-    private final double MotorsTicksPerRevolution = 28;
-
-    // The motor's top speed in ticks per second (free-speed RPM x ticks per revolution / 60).
-    private final double MAX_TICKS_PER_SECOND = MotorsRPM * MotorsTicksPerRevolution / 60;
-
-    // Starting launch speed as a fraction of top speed (0.7 = 70%). Tune on the robot.
-    private static final double LAUNCH_PERCENT = 0.45;
-
-    // How much one adjustment changes the launch speed (0.01 = 1% of top speed).
-    private static final double PERCENT_STEP = 0.01;
-
-    // ----- Spin-down settings (tune on the robot) -----
-
-    // How fast the flywheel is slowed, in ticks per second lost every second.
-    // Bigger = stops sooner but brakes harder (more current, more stress on the drivetrain).
-    // At 2000 a flywheel at top speed (about 2800) stops in about 1.4 seconds.
-    private static final double SPINDOWN_TPS_PER_SEC = 35000;
-
-    // Below this speed (ticks per second) the spin-down is finished and the motor is stopped.
-    private static final double SPINDOWN_MIN_TPS = 1000;
-
     // The launcher is always in exactly one of these states.
     private enum State {
         IDLE,           // stopped, nothing running
@@ -81,19 +47,19 @@ public class Launcher extends BaseVelocityMotor {
     // The speed indicator light.
     private final BaseLED speedLed;
 
-    // Current launch speed as a fraction of top speed. Starts at LAUNCH_PERCENT and can be adjusted.
-    private double launchVelocityPercent = LAUNCH_PERCENT;
+    // Current launch speed as a fraction of top speed. Starts at BeethovenHardware.Launcher.LAUNCH_PERCENT and can be adjusted.
+    private double launchVelocityPercent = BeethovenHardware.Launcher.LAUNCH_PERCENT;
 
     public Launcher(OpMode opMode) {
-        super(opMode, HARDWARE_NAME, DIRECTION, ZERO_POWER_BEHAVIOR);
-        speedLed = new BaseLED(opMode.hardwareMap, LED_NAME);
+        super(opMode, BeethovenHardware.Launcher.MOTOR_NAME, BeethovenHardware.Launcher.DIRECTION, BeethovenHardware.Launcher.ZERO_POWER_BEHAVIOR);
+        speedLed = new BaseLED(opMode.hardwareMap, BeethovenHardware.Launcher.LED_NAME);
     }
 
     /** Spins the launcher up to the current launch speed. Returns immediately.
      *  Also cancels a spin-down that is in progress. */
     public void StartLauncher() {
         state = State.RUNNING;
-        SetVelocity(MAX_TICKS_PER_SECOND * launchVelocityPercent);
+        SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * launchVelocityPercent);
     }
 
     /**
@@ -130,9 +96,9 @@ public class Launcher extends BaseVelocityMotor {
         double secondsSinceLastUpdate = spinDownTimer.seconds();
         spinDownTimer.reset();
 
-        double nextTargetTps = Math.abs(GetVelocity()) - SPINDOWN_TPS_PER_SEC * secondsSinceLastUpdate;
+        double nextTargetTps = Math.abs(GetVelocity()) - BeethovenHardware.Launcher.SPINDOWN_TPS_PER_SEC * secondsSinceLastUpdate;
 
-        if (nextTargetTps < SPINDOWN_MIN_TPS) {
+        if (nextTargetTps < BeethovenHardware.Launcher.SPINDOWN_MIN_TPS) {
             Stop();
             state = State.IDLE;
         } else {
@@ -162,17 +128,17 @@ public class Launcher extends BaseVelocityMotor {
 
     /** Raises the launch speed by one step. If the launcher is running, applies it right away. */
     public void IncreaseLaunchPercent() {
-        adjustLaunchPercent(PERCENT_STEP);
+        adjustLaunchPercent(BeethovenHardware.Launcher.PERCENT_STEP);
     }
 
     /** Lowers the launch speed by one step. If the launcher is running, applies it right away. */
     public void DecreaseLaunchPercent() {
-        adjustLaunchPercent(-PERCENT_STEP);
+        adjustLaunchPercent(-BeethovenHardware.Launcher.PERCENT_STEP);
     }
 
     /** The ACTUAL (measured) launch speed as a fraction of top speed (0.5 = 50%), for telemetry. */
     public double GetLaunchVelocityPercent() {
-        return GetVelocity() / MAX_TICKS_PER_SECOND;
+        return GetVelocity() / BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND;
     }
 
     /** The TARGET launch speed as a fraction of top speed (what the D-pad adjusts), for telemetry. */

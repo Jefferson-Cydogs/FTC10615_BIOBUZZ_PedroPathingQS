@@ -1,54 +1,20 @@
 package org.firstinspires.ftc.teamcode.cydogs.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseServo;
+import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 
-    public class LauncherSizeServo extends BaseServo {
+public class LauncherSizeServo extends BaseServo {
 
-        private final static String hardwareName="LauncherSizeServo";
-        private final static Servo.Direction direction= Servo.Direction.FORWARD;
-        private final static double min=0.02;
-        private final static double max=0.9;
-
-        private final static double NECTAR_SIZE=0.11;
-        private final static double POLLEN_SIZE=0.66;
-        private final static double startingPosition=0.5;
-        public LauncherSizeServo(OpMode opMode) {
-            super(opMode, hardwareName, direction, min, max, startingPosition);
-
-        }
-
-        public void SetNectar(){SetPosition(NECTAR_SIZE);}
-        public void SetPollen(){SetPosition(POLLEN_SIZE);}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public LauncherSizeServo(OpMode opMode) {
+        super(opMode, BeethovenHardware.LauncherSize.NAME, BeethovenHardware.LauncherSize.DIRECTION,
+                BeethovenHardware.LauncherSize.MIN_POSITION, BeethovenHardware.LauncherSize.MAX_POSITION,
+                BeethovenHardware.LauncherSize.STARTING_POSITION);
 
     }
+
+    public void SetNectar(){SetPosition(BeethovenHardware.LauncherSize.NECTAR_POSITION);}
+    public void SetPollen(){SetPosition(BeethovenHardware.LauncherSize.POLLEN_POSITION);}
+
+}

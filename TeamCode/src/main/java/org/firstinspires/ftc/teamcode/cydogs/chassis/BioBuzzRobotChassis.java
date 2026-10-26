@@ -15,17 +15,16 @@ public class BioBuzzRobotChassis {
     public DcMotor FrontRightWheel;
     public DcMotor BackLeftWheel;
     public DcMotor BackRightWheel;
-    private final double DriveControlDeadZone = 0.05;
     private float RightStickYValue;
     private float RightStickXValue;
     private float LeftStickYValue;
     private float LeftStickXValue;
     private float TriggersValue;
     private float BumpersValue;
-    private double highSpeedDrive = 0.7;
-    private double lowSpeedDrive = 0.3;
-    private double rotateSpeedDrive = 0.6;
-    private float rotateLowSpeedDrive = 0.3f;
+    private double highSpeedDrive = BeethovenHardware.Drive.HIGH_SPEED;
+    private double lowSpeedDrive = BeethovenHardware.Drive.LOW_SPEED;
+    private double rotateSpeedDrive = BeethovenHardware.Drive.ROTATE_SPEED;
+    private float rotateLowSpeedDrive = (float) BeethovenHardware.Drive.ROTATE_LOW_SPEED;
     private double FastStraight;
     private double Straight;
     private double FastStrafe;
@@ -37,16 +36,6 @@ public class BioBuzzRobotChassis {
     private double BackLeftPower;
     private double BackRightPower;
     public LinearOpMode myOpMode;
-    private final int WheelsDiameter =104;
-    // Specs for typical motors we use:
-    //    GoBilda 5203 Series Yellow Jacket 223 RPM, 751.8 PPR
-    //    GoBilda 5203 Series Yellow Jacket 312 RPM, 537.7 PPR
-    //    GoBilda 5203 Series Yellow Jacket 435 RPM, 384.5 PPR
-    private final int MotorsRPM = 312;
-    private final double MotorsTicksPerRevolution = 537.7;
-    // mmPer90DegreeRotation needs to be configured for each robot based on it's chassis size
-    private final double mmPer90DegreesRotation=785;
-    private final double strafeCompensation = 1.081;
     //public static final int OneTileMM = 610;
 
     /** This is the constructor for the class.  It takes a parameter for currentOp, which allows
@@ -63,15 +52,15 @@ public class BioBuzzRobotChassis {
         //    configuration, and trust me it can be mapped to the DCMotor class. If it's
         //    not a motor, then code later on will throw errors when it tries to do motor
         //    things with a non motor.
-        FrontLeftWheel = hardwareMap.get(DcMotor.class, "FrontLeftWheel");
-        FrontRightWheel = hardwareMap.get(DcMotor.class, "FrontRightWheel");
-        BackLeftWheel = hardwareMap.get(DcMotor.class, "BackLeftWheel");
-        BackRightWheel = hardwareMap.get(DcMotor.class, "BackRightWheel");
+        FrontLeftWheel = hardwareMap.get(DcMotor.class, BeethovenHardware.Drive.FRONT_LEFT_NAME);
+        FrontRightWheel = hardwareMap.get(DcMotor.class, BeethovenHardware.Drive.FRONT_RIGHT_NAME);
+        BackLeftWheel = hardwareMap.get(DcMotor.class, BeethovenHardware.Drive.BACK_LEFT_NAME);
+        BackRightWheel = hardwareMap.get(DcMotor.class, BeethovenHardware.Drive.BACK_RIGHT_NAME);
 
-        FrontLeftWheel.setDirection(DcMotor.Direction.REVERSE);
-        //FrontRightWheel.setDirection(DcMotor.Direction.FORWARD); * not needed as FORWARD is default
-        //BackLeftWheel.setDirection(DcMotor.Direction.FORWARD); * not needed as FORWARD is default
-        BackLeftWheel.setDirection(DcMotor.Direction.REVERSE);
+        FrontLeftWheel.setDirection(BeethovenHardware.Drive.FRONT_LEFT_DIRECTION);
+        FrontRightWheel.setDirection(BeethovenHardware.Drive.FRONT_RIGHT_DIRECTION);
+        BackLeftWheel.setDirection(BeethovenHardware.Drive.BACK_LEFT_DIRECTION);
+        BackRightWheel.setDirection(BeethovenHardware.Drive.BACK_RIGHT_DIRECTION);
     }
 
     public void InitializeChassisTeleop(double highSpeed, double lowSpeed, double rotateSpeed)
@@ -81,10 +70,10 @@ public class BioBuzzRobotChassis {
         rotateSpeedDrive = rotateSpeed;
 
         // Set motors' ZeroPower behavior
-        FrontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        FrontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BackLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        BackRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        FrontLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_ZERO_POWER_BEHAVIOR);
+        FrontRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_ZERO_POWER_BEHAVIOR);
+        BackLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_ZERO_POWER_BEHAVIOR);
+        BackRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_ZERO_POWER_BEHAVIOR);
 
         // Clear Encoders of prior data; only necessary if motors will be configured to RUN_USING_ENCODER (for Velocity instead of Power)
         // or their encoders data will be read (even when using RUN_WITHOUT_ENCODER)
@@ -108,19 +97,19 @@ public class BioBuzzRobotChassis {
 
     public void ChassisTeleopBrakeWheels()
     {
-        FrontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FrontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FrontLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_BRAKE_ZERO_POWER_BEHAVIOR);
+        FrontRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_BRAKE_ZERO_POWER_BEHAVIOR);
+        BackLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_BRAKE_ZERO_POWER_BEHAVIOR);
+        BackRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.TELEOP_BRAKE_ZERO_POWER_BEHAVIOR);
     }
 
     public void InitializeChassisAutonomous()
     {
         // Set motors' ZeroPower behavior
-        FrontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FrontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FrontLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.AUTON_ZERO_POWER_BEHAVIOR);
+        FrontRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.AUTON_ZERO_POWER_BEHAVIOR);
+        BackLeftWheel.setZeroPowerBehavior(BeethovenHardware.Drive.AUTON_ZERO_POWER_BEHAVIOR);
+        BackRightWheel.setZeroPowerBehavior(BeethovenHardware.Drive.AUTON_ZERO_POWER_BEHAVIOR);
 
         // Clear Encoders of prior data
         FrontLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -141,10 +130,10 @@ public class BioBuzzRobotChassis {
         BackRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Set the PIDF coefficients per wheel motor; only applies for RUN_USING_ENCODER / RUN_TO_POSITION and after selecting one of them
-        ((DcMotorEx) FrontLeftWheel).setVelocityPIDFCoefficients(0,0,0,11.754006);
-        ((DcMotorEx) FrontRightWheel).setVelocityPIDFCoefficients(0,0,0,10.175712);
-        ((DcMotorEx) BackLeftWheel).setVelocityPIDFCoefficients(0,0,0,11.752998);
-        ((DcMotorEx) BackRightWheel).setVelocityPIDFCoefficients(0,0,0,11.398002);
+        ((DcMotorEx) FrontLeftWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.FRONT_LEFT_VELOCITY_F);
+        ((DcMotorEx) FrontRightWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.FRONT_RIGHT_VELOCITY_F);
+        ((DcMotorEx) BackLeftWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.BACK_LEFT_VELOCITY_F);
+        ((DcMotorEx) BackRightWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.BACK_RIGHT_VELOCITY_F);
         // back right wheel parameter 1 was 0.7
 
         // Ensure motors are stopped, for predictable behavior and avoiding unintended motion
@@ -207,11 +196,11 @@ public class BioBuzzRobotChassis {
 
         // Use a third-degree polynomial function on fast movements for better control, less important on slow movements
         // Calculate each variable only when the joystick value is higher than the DeadZone number, otherwise make it 0
-        FastStraight = abs(RightStickYValue) > DriveControlDeadZone ? (float)(highSpeedDrive * (0.75 * pow(RightStickYValue, 3) + 0.25 * RightStickYValue)) : 0;
-        Straight = abs(LeftStickYValue) > DriveControlDeadZone ? (float)(lowSpeedDrive * LeftStickYValue) : 0;
-        FastStrafe = abs(RightStickXValue) > DriveControlDeadZone ? (float)(highSpeedDrive * (0.75 * pow(RightStickXValue, 3) + 0.25 * RightStickXValue)) : 0;
-        Strafe = abs(LeftStickXValue) > DriveControlDeadZone ? (float)(lowSpeedDrive * LeftStickXValue) : 0;
-        FastRotate = abs(TriggersValue) > DriveControlDeadZone ? (float)(rotateSpeedDrive * (0.75 * pow(TriggersValue, 3) + 0.25 * TriggersValue)): 0;
+        FastStraight = abs(RightStickYValue) > BeethovenHardware.Drive.DEAD_ZONE ? (float)(highSpeedDrive * (0.75 * pow(RightStickYValue, 3) + 0.25 * RightStickYValue)) : 0;
+        Straight = abs(LeftStickYValue) > BeethovenHardware.Drive.DEAD_ZONE ? (float)(lowSpeedDrive * LeftStickYValue) : 0;
+        FastStrafe = abs(RightStickXValue) > BeethovenHardware.Drive.DEAD_ZONE ? (float)(highSpeedDrive * (0.75 * pow(RightStickXValue, 3) + 0.25 * RightStickXValue)) : 0;
+        Strafe = abs(LeftStickXValue) > BeethovenHardware.Drive.DEAD_ZONE ? (float)(lowSpeedDrive * LeftStickXValue) : 0;
+        FastRotate = abs(TriggersValue) > BeethovenHardware.Drive.DEAD_ZONE ? (float)(rotateSpeedDrive * (0.75 * pow(TriggersValue, 3) + 0.25 * TriggersValue)): 0;
         Rotate = BumpersValue;
 
         FrontLeftPower = FastStraight + Straight + FastStrafe + Strafe + FastRotate + Rotate;
@@ -240,9 +229,9 @@ public class BioBuzzRobotChassis {
     public void MoveStraight(int mmToTarget, double VelocityPercentage, int WaitTime)
     {
         // Ticks to move = (distance to move / wheels circumference) * ticks for 1 full turn of wheel
-        double TicksToTarget = (mmToTarget / (WheelsDiameter * Math.PI)) * MotorsTicksPerRevolution;
+        double TicksToTarget = (mmToTarget / (BeethovenHardware.Drive.WHEEL_DIAMETER_MM * Math.PI)) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV;
         // Ticks per second = Motor's revolutions per second * ticks for 1 full turn of wheel, then use a fraction/percentage of that
-        double TicksPerSecond = VelocityPercentage * ((double)(MotorsRPM / 60) * MotorsTicksPerRevolution);
+        double TicksPerSecond = VelocityPercentage * ((double)(BeethovenHardware.Drive.MOTOR_RPM / 60) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV);
 
         FrontLeftWheel.setTargetPosition((int)(FrontLeftWheel.getCurrentPosition() + TicksToTarget));
         FrontRightWheel.setTargetPosition((int)(FrontRightWheel.getCurrentPosition() + TicksToTarget));
@@ -270,9 +259,9 @@ public class BioBuzzRobotChassis {
     public void StrafeRight(int mmToTarget, double VelocityPercentage, int WaitTime)
     {
         // Ticks to move = (distance to move / wheels circumference) * ticks for 1 full turn of wheel. Apply a compensation for friction impact to strafing
-        double TicksToTarget = ((mmToTarget / (WheelsDiameter * Math.PI)) * MotorsTicksPerRevolution) * strafeCompensation;
+        double TicksToTarget = ((mmToTarget / (BeethovenHardware.Drive.WHEEL_DIAMETER_MM * Math.PI)) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV) * BeethovenHardware.Drive.STRAFE_COMPENSATION;
         // Ticks per second = Motor's revolutions per second * ticks for 1 full turn of wheel, then use a fraction/percentage of that
-        double TicksPerSecond = VelocityPercentage * ((double)(MotorsRPM / 60) * MotorsTicksPerRevolution);
+        double TicksPerSecond = VelocityPercentage * ((double)(BeethovenHardware.Drive.MOTOR_RPM / 60) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV);
 
         FrontLeftWheel.setTargetPosition((int)(FrontLeftWheel.getCurrentPosition() + TicksToTarget));
         FrontRightWheel.setTargetPosition((int)(FrontRightWheel.getCurrentPosition() - TicksToTarget));
@@ -303,12 +292,12 @@ public class BioBuzzRobotChassis {
     public void RotateLeft(double degrees, double VelocityPercentage, int WaitTime)
     {
         // Convert degrees to a distance in mm
-        double mmToTarget = degrees * (mmPer90DegreesRotation / 90.0);
+        double mmToTarget = degrees * (BeethovenHardware.Drive.MM_PER_90_DEGREES_ROTATION / 90.0);
         // Uses the formula we've always had for rotation
         // Ticks to move = (distance to move / wheels circumference) * ticks for 1 full turn of wheel
-        double TicksToTarget = (mmToTarget / (WheelsDiameter * Math.PI)) * MotorsTicksPerRevolution;
+        double TicksToTarget = (mmToTarget / (BeethovenHardware.Drive.WHEEL_DIAMETER_MM * Math.PI)) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV;
         // Ticks per second = Motor's revolutions per second * ticks for 1 full turn of wheel, then use a fraction/percentage of that
-        double TicksPerSecond = VelocityPercentage * ((double)(MotorsRPM / 60) * MotorsTicksPerRevolution);
+        double TicksPerSecond = VelocityPercentage * ((double)(BeethovenHardware.Drive.MOTOR_RPM / 60) * BeethovenHardware.Drive.MOTOR_TICKS_PER_REV);
 
         FrontLeftWheel.setTargetPosition((int) (FrontLeftWheel.getCurrentPosition() - TicksToTarget));
         FrontRightWheel.setTargetPosition((int) (FrontRightWheel.getCurrentPosition() + TicksToTarget));

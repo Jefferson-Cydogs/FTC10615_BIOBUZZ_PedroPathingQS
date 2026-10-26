@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.components.Turret;
+import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 import org.firstinspires.ftc.teamcode.cydogs.core.EventTracker;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
@@ -21,8 +22,10 @@ import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 @TeleOp(name="Beetoven TeleOp", group= "TeleOp")
 public class BioBuzzTeleop extends LinearOpMode {
 
-    // Power used while a loader motor button is held. Flip the sign if a motor runs the wrong way.
-    private static final double MOVE_TO_LAUNCHER_POWER = 0.65;
+    // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
+    private static final double HIGH_SPEED_DRIVE = 0.6;   // right stick (fast movement)
+    private static final double LOW_SPEED_DRIVE = 0.3;    // left stick (slow, precise movement)
+    private static final double ROTATE_SPEED_DRIVE = 0.5; // trigger rotation
 
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;
@@ -120,7 +123,7 @@ public class BioBuzzTeleop extends LinearOpMode {
 
         if(gamepad1.triangleWasPressed())
         {
-            myTurret.preset(Turret.STRAIGHT_DEGREES);
+            myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed())
         {
@@ -165,11 +168,11 @@ public class BioBuzzTeleop extends LinearOpMode {
         // ----- Move to launcher: hold right bumper -----
         if(gamepad2.right_bumper)
         {
-            moveToLauncherMotor.SetPower(MOVE_TO_LAUNCHER_POWER);
+            moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
         }
         else if(gamepad2.left_bumper)
         {
-            moveToLauncherMotor.SetPower(-MOVE_TO_LAUNCHER_POWER);
+            moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
         }
         else
         {
@@ -210,7 +213,7 @@ public class BioBuzzTeleop extends LinearOpMode {
 
     private void initializeDevices()
     {
-        Wheels.InitializeChassisTeleop(.6,.3,.5);
+        Wheels.InitializeChassisTeleop(HIGH_SPEED_DRIVE, LOW_SPEED_DRIVE, ROTATE_SPEED_DRIVE);
 
         IggyTheIntake.Initialize();
         LarryTheLauncher.Initialize();
