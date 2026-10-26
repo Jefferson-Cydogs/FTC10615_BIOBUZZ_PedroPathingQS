@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.cydogs.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.cydogs.chassis.BioBuzzRobotChassis;
@@ -19,8 +18,11 @@ import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 
 
-@TeleOp(name="Beetoven TeleOp", group= "TeleOp")
-public class BioBuzzTeleop extends LinearOpMode {
+/**
+ * Common teleop for both alliances. It has no @TeleOp annotation, so it does not show up on the
+ * Driver Hub. Use BioBuzzTeleopRED or BioBuzzTeleopBLUE, which pass in the alliance.
+ */
+public abstract class BioBuzzTeleop extends LinearOpMode {
 
     // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
     private static final double HIGH_SPEED_DRIVE = 0.6;   // right stick (fast movement)
@@ -48,7 +50,13 @@ public class BioBuzzTeleop extends LinearOpMode {
 
     private Aimer myTurret;
 
-    public String Team = "blue";
+    // The alliance this teleop is running for (set by BioBuzzTeleopRED / BioBuzzTeleopBLUE)
+    private final TagSight.Alliance alliance;
+
+    protected BioBuzzTeleop(TagSight.Alliance alliance)
+    {
+        this.alliance = alliance;
+    }
 
     @Override
     public void runOpMode()
@@ -205,7 +213,7 @@ public class BioBuzzTeleop extends LinearOpMode {
         LanceTheLoaderServo = new LoaderServo(this);
         // FrankTheFlowerSlider = new FlowerSlider(this);
         // FinnTheFlowerScoringServo = new FlowerScoringServo(this);
-        myTurret = new Aimer(this, TagSight.Alliance.BLUE);
+        myTurret = new Aimer(this, alliance);
         LauncherSize = new LauncherSizeServo(this);
 
         moveToLauncherMotor = new MoveToLauncherMotor(this);
