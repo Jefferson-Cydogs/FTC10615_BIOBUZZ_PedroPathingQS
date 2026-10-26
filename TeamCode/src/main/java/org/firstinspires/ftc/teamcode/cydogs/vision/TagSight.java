@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.cydogs.vision;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -40,7 +41,7 @@ public class TagSight {
         BOTH   // any color
     }
 
-    private static final String WEBCAM_NAME = "Webcam 1";
+    private static final String WEBCAM_NAME = BeethovenHardware.Webcam.NAME;
 
     // |roll| below this = right-side-up / scorable face
     private static final double UPRIGHT_LIMIT = 90.0;
