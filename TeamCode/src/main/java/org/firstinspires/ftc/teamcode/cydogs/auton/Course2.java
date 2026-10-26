@@ -23,19 +23,14 @@ public class Course2 extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(58.3239, 2.0611, 90);
-    private final Pose shoot = poseFactory.of(58.2267, 15.7509, 90);
-    private final Pose colectfromGardenStart = poseFactory.of(58.2267, 15.7509, 90);
-    private final Pose colectfromGarden = poseFactory.of(6.2363, 8.5693, 90);
+    private final Pose start = poseFactory.of(56, 9.8125, 90);
+    private final Pose shoot = poseFactory.of(56, 14, 90);
+    private final Pose colectfromGarden = poseFactory.of(9, 12.8125, 90);
     private final Pose colectfromGardenControl1 = poseFactory.of(25.6113, 21.2454, 0);
-    private final Pose shoot2Start = poseFactory.of(6.2363, 8.5693, 90);
-    private final Pose shoot2 = poseFactory.of(30.7938, 14.0484, 90);
-    private final Pose flowerStart = poseFactory.of(30.7938, 14.0484, 90);
-    private final Pose flower = poseFactory.of(11.0529, 45.4562, 0);
-    private final Pose shoot3Start = poseFactory.of(11.0529, 45.4562, 0);
-    private final Pose shoot3 = poseFactory.of(26.6907, 21.6305, 90);
-    private final Pose parkStart = poseFactory.of(26.6907, 21.6305, 90);
-    private final Pose park = poseFactory.of(5.4051, 91.6807, 0);
+    private final Pose shoot2 = poseFactory.of(56, 14, 90);
+    private final Pose flower = poseFactory.of(14.8125, 48, 0);
+    private final Pose shoot3 = poseFactory.of(56, 14, 90);
+    private final Pose park = poseFactory.of(9.8125, 94.5, 0);
 
     // Autonomous routine
     public Command autoRoutine() {
@@ -81,22 +76,22 @@ public class Course2 extends LinearOpMode {
     }
 
     public Path colectfromGarden() {
-        return Paths.curve(colectfromGardenStart, colectfromGardenControl1, colectfromGarden).linear(colectfromGardenStart, colectfromGarden);
+        return Paths.curve(shoot, colectfromGardenControl1, colectfromGarden).linear(shoot, colectfromGarden);
     }
 
     public Path shoot2() {
-        return Paths.line(shoot2Start, shoot2).linear(shoot2Start, shoot2);
+        return Paths.line(colectfromGarden, shoot2).linear(colectfromGarden, shoot2);
     }
 
     public Path flower() {
-        return Paths.line(flowerStart, flower).linear(flowerStart, flower);
+        return Paths.line(shoot2, flower).linear(shoot2, flower);
     }
 
     public Path shoot3() {
-        return Paths.line(shoot3Start, shoot3).linear(shoot3Start, shoot3);
+        return Paths.line(flower, shoot3).linear(flower, shoot3);
     }
 
     public Path park() {
-        return Paths.line(parkStart, park).linear(parkStart, park);
+        return Paths.line(shoot3, park).linear(shoot3, park);
     }
 }

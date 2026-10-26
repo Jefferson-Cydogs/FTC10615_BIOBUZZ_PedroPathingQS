@@ -23,13 +23,11 @@ public class Course3 extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(60.6478, 140.4626, 270);
-    private final Pose shoot1 = poseFactory.of(60.1314, 125.083, 270);
-    private final Pose flowerStart = poseFactory.of(60.1314, 125.083, 270);
-    private final Pose flower = poseFactory.of(46.0046, 130.5055, 270);
+    private final Pose start = poseFactory.of(56, 132.6875, 270);
+    private final Pose shoot1 = poseFactory.of(56, 127.5, 270);
+    private final Pose flower = poseFactory.of(48, 127.6875, -90);
     private final Pose flowerControl1 = poseFactory.of(47.8983, 112.5803, 0);
-    private final Pose parkStart = poseFactory.of(46.0046, 130.5055, 270);
-    private final Pose park = poseFactory.of(3.6204, 121.1068, 360);
+    private final Pose park = poseFactory.of(9.8125, 94.5, 0);
 
     // Autonomous routine
     public Command autoRoutine() {
@@ -72,10 +70,10 @@ public class Course3 extends LinearOpMode {
     }
 
     public Path flower() {
-        return Paths.curve(flowerStart, flowerControl1, flower).linear(flowerStart, flower);
+        return Paths.curve(shoot1, flowerControl1, flower).linear(shoot1, flower);
     }
 
     public Path park() {
-        return Paths.line(parkStart, park).linear(parkStart, park);
+        return Paths.line(flower, park).linear(flower, park);
     }
 }
