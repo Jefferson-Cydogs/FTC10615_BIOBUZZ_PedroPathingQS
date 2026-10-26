@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * directions, zero-power behavior, limits, preset positions, and preset speeds. Mechanism
  * classes should reference these constants and never hold a literal name or number of their own.
  *
- * One static nested class per device or mechanism, e.g. BeethovenHardware.Launcher.NAME.
+ * One static nested class per device or mechanism, e.g. BeethovenHardware.Launcher.MOTOR_NAME.
  *
  * All values below were taken from the code as it stood in the repo when this file was written.
  * Where two files disagreed about the same device, the conflict is called out with "CONFLICT".
@@ -77,8 +77,8 @@ public final class BeethovenHardware {
         public static final DcMotorSimple.Direction MOTOR_DIRECTION       = DcMotorSimple.Direction.FORWARD;
         public static final DcMotor.ZeroPowerBehavior MOTOR_ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
-        public static final double SERVO_POWER         = 0.7;
-        public static final double MOTOR_INTAKE_POWER  = 0.6;
+        public static final double SERVO_POWER         = 0.8;
+        public static final double MOTOR_INTAKE_POWER  = 0.75;
         public static final double MOTOR_REVERSE_POWER = -0.4;
     }
 
@@ -94,18 +94,18 @@ public final class BeethovenHardware {
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
-        // Motor specs (312 RPM, 537.7 PPR); max speed = RPM * ticks per rev / 60
-        public static final double MOTOR_RPM = 312;
-        public static final double MOTOR_TICKS_PER_REV = 537.7;
+        // Motor specs (6000 RPM, 28 PPR); max speed = RPM * ticks per rev / 60
+        public static final double MOTOR_RPM = 6000;
+        public static final double MOTOR_TICKS_PER_REV = 28;
         public static final double MAX_TICKS_PER_SECOND = MOTOR_RPM * MOTOR_TICKS_PER_REV / 60;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
-        public static final double LAUNCH_PERCENT = 0.7;
+        public static final double LAUNCH_PERCENT = 0.45;
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
-        public static final double SPINDOWN_TPS_PER_SEC = 1000;
-        public static final double SPINDOWN_MIN_TPS = 50;
+        public static final double SPINDOWN_TPS_PER_SEC = 35000;
+        public static final double SPINDOWN_MIN_TPS = 1000;
     }
 
     // ------------------------------------------------------------------
@@ -121,8 +121,8 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 1.0;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double LOAD_POSITION = 0.26;
-        public static final double LAUNCH_POSITION = 0.68;
+        public static final double LOAD_POSITION = 0.4;
+        public static final double LAUNCH_POSITION = 0.75;
 
         public static final double LAUNCH_HOLD_SECONDS = 0.8;
     }
@@ -137,11 +137,11 @@ public final class BeethovenHardware {
         public static final Servo.Direction DIRECTION = Servo.Direction.FORWARD;
 
         public static final double MIN_POSITION = 0.02;
-        public static final double MAX_POSITION = 0.8;
-        public static final double STARTING_POSITION = 0.7;
+        public static final double MAX_POSITION = 0.9;
+        public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.08;
-        public static final double POLLEN_POSITION = 0.86; // NOTE: above MAX_POSITION (0.8), so it gets limited
+        public static final double NECTAR_POSITION = 0.11;
+        public static final double POLLEN_POSITION = 0.66;
     }
 
     // ------------------------------------------------------------------
@@ -183,7 +183,7 @@ public final class BeethovenHardware {
         public static final String NAME = "MoveToLauncherMotor";
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.REVERSE;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.5; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
+        public static final double RUN_POWER = 0.65; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
     // ------------------------------------------------------------------
