@@ -24,15 +24,15 @@ public class Course1 extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56, 9.8125, 90);
-    private final Pose shoot = poseFactory.of(56, 14, 90);
-    private final Pose gardenCollect = poseFactory.of(9, 12.8125, 90);
+    private final Pose start = poseFactory.of(60.25, 9.8125, 270);
+    private final Pose shoot = poseFactory.of(60.25, 14, 270);
+    private final Pose gardenCollect = poseFactory.of(8, 12, 270);
     private final Pose gardenCollectControl1 = poseFactory.of(27.7305, 22.4141, 0);
-    private final Pose shoot2 = poseFactory.of(56, 127.5, -90);
-    private final Pose shoot2Control1 = poseFactory.of(24.043, 109.375, 0);
-    private final Pose flowerCollect = poseFactory.of(48, 127.6875, -90);
-    private final Pose flowerCollectControl1 = poseFactory.of(47.7961, 126.7883, 0);
-    private final Pose shoot3 = poseFactory.of(56, 127.5, -90);
+    private final Pose shoot2 = poseFactory.of(60.25, 129, 90);
+    private final Pose shoot2Control1 = poseFactory.of(24.043, 104.375, 0);
+    private final Pose flowerCollect = poseFactory.of(48, 125.6875, 90);
+    private final Pose flowerCollectControl1 = poseFactory.of(47.7961, 123.7883, 0);
+    private final Pose shoot3 = poseFactory.of(60.25, 129, 90);
     private final Pose park = poseFactory.of(9.8125, 94.5, 0);
 
     // Autonomous routine
