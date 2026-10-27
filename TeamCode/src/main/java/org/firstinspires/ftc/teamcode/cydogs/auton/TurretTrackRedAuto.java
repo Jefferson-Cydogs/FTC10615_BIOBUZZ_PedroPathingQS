@@ -42,9 +42,9 @@ public class TurretTrackRedAuto extends LinearOpMode {
         turret.initialize();
 
         telemetry.addLine("Turret Track RED ready");
-        telemetry.addData("min deg", "%.1f", Turret.MIN_DEGREES);
-        telemetry.addData("straight deg", "%.1f", Turret.STRAIGHT_DEGREES);
-        telemetry.addData("max deg", "%.1f", Turret.MAX_DEGREES);
+     //   telemetry.addData("min deg", "%.1f", Turret.MIN_DEGREES);
+     //   telemetry.addData("straight deg", "%.1f", Turret.STRAIGHT_DEGREES);
+     //   telemetry.addData("max deg", "%.1f", Turret.MAX_DEGREES);
         telemetry.update();
         waitForStart();
 
