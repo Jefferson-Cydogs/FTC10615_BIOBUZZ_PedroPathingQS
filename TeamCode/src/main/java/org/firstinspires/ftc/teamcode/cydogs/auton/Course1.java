@@ -164,11 +164,11 @@ public class Course1 extends LinearOpMode {
         follower.setPose(start);
         follower.update();
 // Shooting Hardware
-        LauncherSizeServo launcherSize = new LauncherSizeServo(this);
-        Launcher launcher = new Launcher(this);
-        LoaderServo loader = new LoaderServo(this);
-        MoveToLauncherMotor moveToLauncher = new MoveToLauncherMotor(this);
-        Intake intake = new Intake(this);
+        launcherSize = new LauncherSizeServo(this);
+        launcher = new Launcher(this);
+        loader = new LoaderServo(this);
+         moveToLauncher = new MoveToLauncherMotor(this);
+        intake = new Intake(this);
 //Initialize
         launcherSize.Initialize();
         launcher.Initialize();
