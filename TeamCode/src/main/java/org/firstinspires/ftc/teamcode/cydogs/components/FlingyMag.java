@@ -64,6 +64,7 @@ public class FlingyMag {
         {
             flingyNext = "none";
         }
+        return true;
     }
 }
 
