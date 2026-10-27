@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.cydogs.basedevices;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -21,7 +22,7 @@ public class BaseColorSensor {
     private LinearOpMode opMode;
     private NormalizedColorSensor colorSensor;
 
-    public BaseColorSensor(LinearOpMode opMode, String ColorDistanceSensor)
+    public BaseColorSensor(OpMode opMode, String ColorDistanceSensor)
     {
         this.opMode = opMode;
         HardwareMap hw = opMode.hardwareMap;
