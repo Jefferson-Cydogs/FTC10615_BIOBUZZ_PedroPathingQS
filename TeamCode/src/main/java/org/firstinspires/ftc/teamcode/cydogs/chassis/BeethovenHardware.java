@@ -280,4 +280,16 @@ public final class BeethovenHardware {
 
         public static final String NAME = "Webcam 1";
     }
+
+
+
+
+
+
+
+
+
+
+
+
 }

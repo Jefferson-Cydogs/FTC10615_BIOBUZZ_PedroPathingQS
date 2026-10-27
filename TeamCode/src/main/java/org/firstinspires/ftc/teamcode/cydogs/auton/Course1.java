@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.cydogs.auton;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -15,11 +16,21 @@ import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.cydogs.components.Intake;
+import org.firstinspires.ftc.teamcode.cydogs.components.Launcher;
+import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
+import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
+import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
     private Follower follower;
+    private LauncherSizeServo launcherSize;
+    private Launcher launcher;
+    private LoaderServo loader;
+    private MoveToLauncherMotor moveToLauncher;
+    private Intake intake;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -59,7 +70,7 @@ public class Course1 extends LinearOpMode {
     public Command autoRoutine() {
         return sequential(
                 follow(follower, shoot()),
-                waitMs(1000),
+                shootFourPollen(),
                 follow(follower, gardenCollect()),
                 waitMs(1500),
                 follow(follower, shoot2()),
@@ -72,12 +83,99 @@ public class Course1 extends LinearOpMode {
         );
     }
 
+    private static final long SPIN_UP_MS=2000;
+    private static final long POP_MS=500;
+    private static final long FEED_MS=400;
+    private static final long INTAKE_MS=400;
+    private static final double FEED_POWER=0.8;
+
+    private Command popOnce(){
+      return sequential(
+              instant(()->loader.LaunchOnce()),
+                    waitMs(POP_MS));
+    }
+
+    private Command feedOnce(){
+        return sequential(
+                instant(()->moveToLauncher.SetPower(FEED_POWER)),
+                waitMs(FEED_MS),
+                instant(()->moveToLauncher.Stop()));
+    }
+
+    private Command intakeOnce(){
+        return sequential(
+                instant(()->intake.RunIntake()),
+                waitMs(INTAKE_MS),
+                instant(()->intake.StopIntake()));
+    }
+
+    private Command shootFourPollen(){
+        return sequential(
+                instant(()->launcher.StartLauncher()),
+                waitMs(SPIN_UP_MS),
+
+                popOnce(),
+                feedOnce(),
+                intakeOnce(),
+
+                popOnce(),
+                feedOnce(),
+                intakeOnce(),
+
+                popOnce(),
+                feedOnce(),
+                intakeOnce(),
+
+                popOnce(),
+
+                instant(()->{
+                    intake.StopIntake();
+                    moveToLauncher.Stop();
+                    launcher.StopLauncher();
+                })
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public void runOpMode() {
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
         follower.setPose(start);
         follower.update();
+// Shooting Hardware
+        LauncherSizeServo launcherSize = new LauncherSizeServo(this);
+        Launcher launcher = new Launcher(this);
+        LoaderServo loader = new LoaderServo(this);
+        MoveToLauncherMotor moveToLauncher = new MoveToLauncherMotor(this);
+        Intake intake = new Intake(this);
+//Initialize
+        launcherSize.Initialize();
+        launcher.Initialize();
+        loader.Initialize();
+        moveToLauncher.Initialize();
+        intake.Initialize();
+        launcherSize.SetPollen();
 
         waitForStart();
         schedule(autoRoutine());
@@ -94,6 +192,8 @@ public class Course1 extends LinearOpMode {
                 telemetry.addData("Current path distance remaining", follower.distanceToEndpoint());
                 telemetry.addData("Path number", follower.pathIndex());
             }
+            launcher.Update();
+            loader.Update();
 
             telemetry.update();
         }
