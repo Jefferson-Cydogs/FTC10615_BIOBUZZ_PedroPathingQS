@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.cydogs.basedevices;
 
 import android.graphics.Color;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.cydogs.core.TargetColor;
 
 
 public class BaseColorSensor {
-
     private static final double DISTANCE_THRESHOLD_CM = 5.5;
     private static final int REQUIRED_MATCHES = 2;
 
@@ -56,23 +53,6 @@ public class BaseColorSensor {
         return (matchCount >= REQUIRED_MATCHES);
     }
 
-    public boolean SeeSquareColor(TargetColor targetColor)
-    {
-        int matchCount = 0;
-
-        for (int i = 0; i < 3; i++) {
-            NormalizedRGBA NormalizedColors = colorSensor.getNormalizedColors();
-            int RawColor = NormalizedColors.toColor();
-            float Hue = JavaUtil.colorToHue(RawColor);
-
-            if (targetColor.matches(Hue)) {
-                matchCount++;
-            }
-        }
-
-        return (matchCount >= REQUIRED_MATCHES);
-    }
-
     public void WhatDoISee()
     {
         NormalizedRGBA colors = colorSensor.getNormalizedColors();
@@ -90,5 +70,4 @@ public class BaseColorSensor {
         opMode.telemetry.addData("RGB", "(%d, %d, %d)", r, g, b);
         opMode.telemetry.addData("HSV", "H: %.1f  S: %.3f  V: %.3f", hsv[0], hsv[1], hsv[2]);
     }
-
 }
