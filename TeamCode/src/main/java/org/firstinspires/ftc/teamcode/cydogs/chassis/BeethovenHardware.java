@@ -94,10 +94,13 @@ public final class BeethovenHardware {
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
-        // Motor specs (6000 RPM, 28 PPR); max speed = RPM * ticks per rev / 60
+        // Specs for typical launcher motor: GoBILDA 5203 Series Yellow Jacket 312 RPM, 537.7 PPR
+        //    Without gearbox, theoretical 6,000RPM, empirical needs to be calculated.
+        //    PPR = Ticks/second is always 28 at the motor shaft for goBILDA Yellow Jacket motors
+        // Max velocity = (RPM / 60) * ticks per rev
         public static final double MOTOR_RPM = 6000;
         public static final double MOTOR_TICKS_PER_REV = 28;
-        public static final double MAX_TICKS_PER_SECOND = MOTOR_RPM * MOTOR_TICKS_PER_REV / 60;
+        public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
         public static final double LAUNCH_PERCENT = 0.45;
@@ -257,7 +260,7 @@ public final class BeethovenHardware {
     public static final class HuskyLens {
         private HuskyLens() {}
 
-        public static final String NAME = "huskylens";
+        public static final String NAME = "HuskyLens";
 
         // IDs match the order the colors were trained on the camera
         public static final int YELLOW_ID = 1;
