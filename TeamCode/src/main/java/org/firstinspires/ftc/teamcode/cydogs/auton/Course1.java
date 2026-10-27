@@ -19,11 +19,11 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
-
     private Follower follower;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
+    // Poses
     private final Pose start = poseFactory.of(60.25, 9.8125, 270);
     private final Pose shoot = poseFactory.of(60.25, 14, 270);
     private final Pose gardenCollect = poseFactory.of(8, 12, 270);
@@ -34,6 +34,26 @@ public class Course1 extends LinearOpMode {
     private final Pose flowerCollectControl1 = poseFactory.of(47.7961, 123.7883, 0);
     private final Pose shoot3 = poseFactory.of(60.25, 129, 90);
     private final Pose park = poseFactory.of(9.8125, 94.5, 0);
+
+    // Paths
+    public Path shoot() {
+        return Paths.line(start, shoot).linear(start, shoot);
+    }
+    public Path gardenCollect() {
+        return Paths.curve(shoot, gardenCollectControl1, gardenCollect).linear(shoot ,gardenCollect);
+    }
+    public Path shoot2() {
+        return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
+    }
+    public Path flowerCollect() {
+        return Paths.curve(shoot2, flowerCollectControl1, flowerCollect).linear(shoot2, flowerCollect);
+    }
+    public Path shoot3() {
+        return Paths.line(flowerCollect, shoot3).linear(flowerCollect, shoot3);
+    }
+    public Path park() {
+        return Paths.line(shoot3, park).linear(shoot3, park);
+    }
 
     // Autonomous routine
     public Command autoRoutine() {
@@ -78,29 +98,4 @@ public class Course1 extends LinearOpMode {
             telemetry.update();
         }
     }
-
-    public Path shoot() {
-        return Paths.line(start, shoot).linear(start, shoot);
-    }
-
-    public Path gardenCollect() {
-        return Paths.curve(shoot, gardenCollectControl1, gardenCollect).linear(shoot ,gardenCollect);
-    }
-
-    public Path shoot2() {
-        return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
-    }
-
-    public Path flowerCollect() {
-        return Paths.curve(shoot2, flowerCollectControl1, flowerCollect).linear(shoot2, flowerCollect);
-    }
-
-    public Path shoot3() {
-        return Paths.line(flowerCollect, shoot3).linear(flowerCollect, shoot3);
-    }
-
-    public Path park() {
-        return Paths.line(shoot3, park).linear(shoot3, park);
-    }
 }
-
