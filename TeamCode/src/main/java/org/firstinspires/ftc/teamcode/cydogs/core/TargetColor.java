@@ -4,14 +4,10 @@ import androidx.annotation.NonNull;
 
 
 public enum TargetColor {
-    //ARTIFACTGREEN(110, 190), //Joe's empirical values
-    ARTIFACTGREEN(140, 170), //Francisco's empirical values
-    //GREEN(90, 150), //Standard Color Sensor values
-    //ARTIFACTPURPLE(200, 270), //Joe's empirical values
-    ARTIFACTPURPLE(180, 240), //Francisco's empirical values
-    //PURPLE(225, 350), //Standard Color Sensor values
+
     RED(0, 30, 350, 360), //Standard Color Sensor values. RED wraps around the hue circle
-    BLUE(150, 225); //Standard Color Sensor values
+    BLUE(150, 225), //Standard Color Sensor values
+    YELLOW(40, 75); //Yellow pollen. Starting guess (yellow is about hue 60): measure with BaseColorSensor.WhatDoISee() and tune
 
     private final float low1, high1;
     private final float low2, high2;
