@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.cydogs.vision;
 
+import android.util.Size;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -97,6 +99,8 @@ public class TagSight {
         portal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, WEBCAM_NAME))
                 .addProcessor(processor)
+                .setCameraResolution(new Size(640, 480))
+                //.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
         // Start with camera OFF to save CPU (Aimer turns it on for track/search)
