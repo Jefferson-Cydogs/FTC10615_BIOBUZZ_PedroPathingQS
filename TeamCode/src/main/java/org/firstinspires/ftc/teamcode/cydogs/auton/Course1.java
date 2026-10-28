@@ -91,7 +91,7 @@ public class Course1 extends LinearOpMode {
     private static final long FEED_MS=350;
     private static final long INTAKE_MS=400;
     private static final long INTAKE_MS_GARDEN=2000;
-    private static final double FEED_POWER=0.8;
+    private static final double FEED_POWER=0.4;
 
     private Command popOnce(){
       return sequential(
