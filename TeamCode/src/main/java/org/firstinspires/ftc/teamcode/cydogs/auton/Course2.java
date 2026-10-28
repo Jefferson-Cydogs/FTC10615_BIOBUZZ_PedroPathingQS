@@ -14,7 +14,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Course2", group = "Autonomous")

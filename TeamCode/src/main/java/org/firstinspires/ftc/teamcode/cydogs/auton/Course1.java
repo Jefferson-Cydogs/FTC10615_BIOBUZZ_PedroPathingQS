@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
 
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
@@ -74,10 +75,11 @@ public class Course1 extends LinearOpMode {
                 follow(follower, shoot()),
                 skills.shootFourPollen(),
                 follow(follower, gardenApproach()),
-
+                skills.startIntake(),
                 follow(follower,gardenCollect()),
+                skills.stopIntake(),
                 follow(follower, shoot2()),
-                waitMs(1000),
+                skills.shootFourPollen(),
                 follow(follower, flowerCollect()),
                 waitMs(1500),
                 follow(follower, shoot3()),
