@@ -130,11 +130,11 @@ public class BioBuzzRobotChassis {
         BackRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Set the PIDF coefficients per wheel motor; only applies for RUN_USING_ENCODER / RUN_TO_POSITION and after selecting one of them
-        ((DcMotorEx) FrontLeftWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.FRONT_LEFT_VELOCITY_F);
+        //    Need to calculate this for Beethoven, depends on each motor even with identical specs
+        /*((DcMotorEx) FrontLeftWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.FRONT_LEFT_VELOCITY_F);
         ((DcMotorEx) FrontRightWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.FRONT_RIGHT_VELOCITY_F);
         ((DcMotorEx) BackLeftWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.BACK_LEFT_VELOCITY_F);
-        ((DcMotorEx) BackRightWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.BACK_RIGHT_VELOCITY_F);
-        // back right wheel parameter 1 was 0.7
+        ((DcMotorEx) BackRightWheel).setVelocityPIDFCoefficients(0,0,0,BeethovenHardware.Drive.BACK_RIGHT_VELOCITY_F);*/
 
         // Ensure motors are stopped, for predictable behavior and avoiding unintended motion
         FrontLeftWheel.setPower(0);

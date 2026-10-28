@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.cydogs.auton;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -33,7 +34,9 @@ public class Course3 extends LinearOpMode {
     public Command autoRoutine() {
         return sequential(
                 follow(follower, shoot1()),
+                waitMs(1000),
                 follow(follower, flower()),
+                waitMs(1500),
                 follow(follower, park())
         );
     }
