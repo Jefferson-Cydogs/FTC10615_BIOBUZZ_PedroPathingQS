@@ -23,7 +23,7 @@ public class Course2 extends LinearOpMode {
     private Follower follower;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
-
+    private AutoSkills skills;
     private final Pose start = poseFactory.of(56, 9.8125, 90);
     private final Pose shoot = poseFactory.of(56, 14, 90);
     private final Pose colectfromGarden = poseFactory.of(9, 12.8125, 90);
@@ -37,15 +37,15 @@ public class Course2 extends LinearOpMode {
     public Command autoRoutine() {
         return sequential(
                 follow(follower, shoot()),
-                waitMs(1000),
+                skills.shootFourPollen(),
                 follow(follower, colectfromGarden()),
-                waitMs(1500),
+                skills.intakeGardenAndFeed(),
                 follow(follower, shoot2()),
-                waitMs(1000),
+                skills.shootFourPollen(),
                 follow(follower, flower()),
-                waitMs(1500),
+                skills.intakeFlowerAndFeed(),
                 follow(follower, shoot3()),
-                waitMs(1000),
+                skills.shootFourPollen(),
                 follow(follower, park())
         );
     }
@@ -56,11 +56,14 @@ public class Course2 extends LinearOpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(start);
         follower.update();
+        skills= new AutoSkills(this);
+        skills.initialize();
 
         waitForStart();
         schedule(autoRoutine());
 
         while (opModeIsActive()) {
+            skills.update();
             follower.update();
             Scheduler.execute();
 
