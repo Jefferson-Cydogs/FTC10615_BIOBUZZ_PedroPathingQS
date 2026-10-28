@@ -51,10 +51,10 @@ public class Course1 extends LinearOpMode {
         return Paths.line(start, shoot).linear(start, shoot);
     }
     public Path gardenApproach() {
-        return Paths.curve(shoot, gardenApproach).linear(shoot ,gardenApproach);
+        return Paths.line(shoot, gardenApproach).linear(shoot ,gardenApproach);
     }
     public Path gardenCollect() {
-        return Paths.curve(gardenApproach, gardenCollect).linear(gardenApproach,gardenCollect);
+        return Paths.line(gardenApproach, gardenCollect).linear(gardenApproach,gardenCollect);
     }
     public Path shoot2() {
         return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
