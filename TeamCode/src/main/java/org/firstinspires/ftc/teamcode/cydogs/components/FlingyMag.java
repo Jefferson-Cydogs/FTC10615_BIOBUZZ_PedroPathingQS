@@ -21,13 +21,13 @@ public class FlingyMag {
     }
     public boolean Identify()
     {
-        boolean leftYellow = ball0ScannerLeft.SeeArtifactColor(TargetColor.ARTIFACTGREEN);
+        boolean leftYellow = ball0ScannerLeft.SeeArtifactColor(TargetColor.YELLOW);
         boolean leftRed = ball0ScannerLeft.SeeArtifactColor(TargetColor.RED);
         boolean leftBlue = ball0ScannerLeft.SeeArtifactColor(TargetColor.BLUE);
-        boolean rightYellow = ball0ScannerRight.SeeArtifactColor(TargetColor.ARTIFACTGREEN);
+        boolean rightYellow = ball0ScannerRight.SeeArtifactColor(TargetColor.YELLOW);
         boolean rightRed = ball0ScannerRight.SeeArtifactColor(TargetColor.RED);
         boolean rightBlue = ball0ScannerRight.SeeArtifactColor(TargetColor.BLUE);
-        boolean launcherYellow = ball0ScannerMid.SeeArtifactColor(TargetColor.ARTIFACTGREEN);
+        boolean launcherYellow = ball0ScannerMid.SeeArtifactColor(TargetColor.YELLOW);
         boolean launcherRed = ball0ScannerMid.SeeArtifactColor(TargetColor.RED);
         boolean launcherBlue = ball0ScannerMid.SeeArtifactColor(TargetColor.BLUE);
 

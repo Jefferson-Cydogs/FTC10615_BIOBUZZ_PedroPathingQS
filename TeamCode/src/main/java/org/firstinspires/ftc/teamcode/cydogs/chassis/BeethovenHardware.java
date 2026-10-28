@@ -143,8 +143,8 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.11;
-        public static final double POLLEN_POSITION = 0.66;
+        public static final double NECTAR_POSITION = 0.16;
+        public static final double POLLEN_POSITION = 0.64;
     }
 
     // ------------------------------------------------------------------
@@ -186,7 +186,7 @@ public final class BeethovenHardware {
         public static final String NAME = "MoveToLauncherMotor";
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.REVERSE;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.5; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
+        public static final double RUN_POWER = 0.25; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
     // ------------------------------------------------------------------
