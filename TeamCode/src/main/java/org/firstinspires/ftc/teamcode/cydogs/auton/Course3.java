@@ -14,13 +14,14 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Course3", group = "Autonomous")
 public class Course3 extends LinearOpMode {
 
     private Follower follower;
+    private AutoSkills skills;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -47,6 +48,8 @@ public class Course3 extends LinearOpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(start);
         follower.update();
+        skills = new AutoSkills( this);
+        skills.initialize();
 
         waitForStart();
         schedule(autoRoutine());
@@ -54,6 +57,7 @@ public class Course3 extends LinearOpMode {
         while (opModeIsActive()) {
             follower.update();
             Scheduler.execute();
+            skills.update();
 
             telemetry.addData("x", follower.pose().x());
             telemetry.addData("y", follower.pose().y());

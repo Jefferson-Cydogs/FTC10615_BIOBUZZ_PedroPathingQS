@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
 
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
