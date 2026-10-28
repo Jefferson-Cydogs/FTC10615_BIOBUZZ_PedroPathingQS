@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.cydogs.components;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.basedevices.BaseColorSensor;
+import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 import org.firstinspires.ftc.teamcode.cydogs.core.TargetColor;
 
 public class FlingyMag {
@@ -11,12 +12,13 @@ public class FlingyMag {
     public BaseColorSensor ball0ScannerMid;
     public String flingyReady;
     public String flingyNext;
-   public void FlinglyMag(OpMode opMode)
-   {
-       ball0ScannerRight = new BaseColorSensor(opMode,"IntakeSensorRight");
-       ball0ScannerLeft = new BaseColorSensor(opMode,"IntakeSensorLeft");
-       ball0ScannerMid = new BaseColorSensor(opMode,"LauncherSensor");
-   }
+    // Constructor: creates the three color sensors (names come from BeethovenHardware.FlingyMag)
+    public FlingyMag(OpMode opMode)
+    {
+        ball0ScannerRight = new BaseColorSensor(opMode,BeethovenHardware.FlingyMag.INTAKE_SENSOR_RIGHT_NAME);
+        ball0ScannerLeft = new BaseColorSensor(opMode,BeethovenHardware.FlingyMag.INTAKE_SENSOR_LEFT_NAME);
+        ball0ScannerMid = new BaseColorSensor(opMode,BeethovenHardware.FlingyMag.LAUNCHER_SENSOR_NAME);
+    }
     public boolean Identify()
     {
         boolean leftYellow = ball0ScannerLeft.SeeArtifactColor(TargetColor.ARTIFACTGREEN);
@@ -67,5 +69,3 @@ public class FlingyMag {
         return true;
     }
 }
-
-

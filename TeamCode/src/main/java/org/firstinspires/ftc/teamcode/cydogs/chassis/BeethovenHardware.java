@@ -274,6 +274,16 @@ public final class BeethovenHardware {
         public static final double READ_INTERVAL_MS = 50;
     }
 
+    /** Color/distance sensors that identify the elements in the magazine (FlingyMag.java). */
+    public static final class FlingyMag {
+        private FlingyMag() {}
+
+        public static final String INTAKE_SENSOR_RIGHT_NAME = "IntakeSensorRight";
+        public static final String INTAKE_SENSOR_LEFT_NAME  = "IntakeSensorLeft";
+        public static final String LAUNCHER_SENSOR_NAME     = "LauncherSensor";
+    }
+
+
     /** AprilTag webcam (TagSight.java). */
     public static final class Webcam {
         private Webcam() {}
