@@ -152,6 +152,16 @@ public class AutoSkills {
         );
     }
 
+    /** Turn intake on (stays on until stopIntake). */
+    public Command startIntake() {
+        return instant(() -> intake.RunIntake());
+    }
+
+    /** Turn intake off. */
+    public Command stopIntake() {
+        return instant(() -> intake.StopIntake());
+    }
+
     /**
      * Garden intake while also running the move-to-launcher belt
      * so balls advance and make room (uses BeethovenHardware power).
@@ -185,5 +195,19 @@ public class AutoSkills {
                     moveToLauncher.Stop();
                 })
         );
+    }
+
+    public Command startIntakeAndFeed() {
+        return instant(() -> {
+            intake.RunIntake();
+            moveToLauncher.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+        });
+    }
+
+    public Command stopIntakeAndFeed() {
+        return instant(() -> {
+            intake.StopIntake();
+            moveToLauncher.Stop();
+        });
     }
 }

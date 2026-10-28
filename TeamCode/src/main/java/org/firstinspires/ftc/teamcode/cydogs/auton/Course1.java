@@ -36,8 +36,8 @@ public class Course1 extends LinearOpMode {
     // Poses
     private final Pose start = poseFactory.of(60.25, 9.8125, 270);
     private final Pose shoot = poseFactory.of(60.25, 14, 270);
-    private final Pose gardenCollect = poseFactory.of(8, 12, 270);
-    private final Pose gardenCollectControl1 = poseFactory.of(27.7305, 22.4141, 0);
+    private final Pose gardenApproach = poseFactory.of(33, 10, 270);
+    private final Pose gardenCollect = poseFactory.of(10, 10, 270);
     private final Pose shoot2 = poseFactory.of(60.25, 129, 90);
     private final Pose shoot2Control1 = poseFactory.of(26.043, 104.375, 0);
     private final Pose flowerCollect = poseFactory.of(48, 125.6875, 90);
@@ -49,8 +49,11 @@ public class Course1 extends LinearOpMode {
     public Path shoot() {
         return Paths.line(start, shoot).linear(start, shoot);
     }
+    public Path gardenApproach() {
+        return Paths.curve(shoot, gardenApproach).linear(shoot ,gardenApproach);
+    }
     public Path gardenCollect() {
-        return Paths.curve(shoot, gardenCollectControl1, gardenCollect).linear(shoot ,gardenCollect);
+        return Paths.curve(gardenApproach, gardenCollect).linear(gardenApproach,gardenCollect);
     }
     public Path shoot2() {
         return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
@@ -70,8 +73,9 @@ public class Course1 extends LinearOpMode {
         return sequential(
                 follow(follower, shoot()),
                 skills.shootFourPollen(),
-                follow(follower, gardenCollect()),
-                skills.intakeGarden(),
+                follow(follower, gardenApproach()),
+
+                follow(follower,gardenCollect()),
                 follow(follower, shoot2()),
                 waitMs(1000),
                 follow(follower, flowerCollect()),
