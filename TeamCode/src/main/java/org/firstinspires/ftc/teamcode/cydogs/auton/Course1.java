@@ -36,8 +36,8 @@ public class Course1 extends LinearOpMode {
     // Poses
     private final Pose start = poseFactory.of(60.25, 9.8125, 270);
     private final Pose shoot = poseFactory.of(60.25, 14, 270);
-    private final Pose gardenCollect = poseFactory.of(8, 12, 270);
-    private final Pose gardenCollectControl1 = poseFactory.of(27.7305, 22.4141, 0);
+    private final Pose gardenCollect1 = poseFactory.of(33, 10, 270);
+    private final Pose gardenCollect2 = poseFactory.of(10, 10, 270);
     private final Pose shoot2 = poseFactory.of(60.25, 129, 90);
     private final Pose shoot2Control1 = poseFactory.of(26.043, 104.375, 0);
     private final Pose flowerCollect = poseFactory.of(48, 125.6875, 90);
@@ -49,11 +49,14 @@ public class Course1 extends LinearOpMode {
     public Path shoot() {
         return Paths.line(start, shoot).linear(start, shoot);
     }
-    public Path gardenCollect() {
-        return Paths.curve(shoot, gardenCollectControl1, gardenCollect).linear(shoot ,gardenCollect);
+    public Path gardenCollect1() {
+        return Paths.curve(shoot, gardenCollect1).linear(shoot ,gardenCollect1);
+    }
+    public Path gardenCollect2() {
+        return Paths.curve(gardenCollect1, gardenCollect2).linear(gardenCollect1,gardenCollect2);
     }
     public Path shoot2() {
-        return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
+        return Paths.curve(gardenCollect2, shoot2Control1, shoot2).linear(gardenCollect2, shoot2);
     }
     public Path flowerCollect() {
         return Paths.curve(shoot2, flowerCollectControl1, flowerCollect).linear(shoot2, flowerCollect);
@@ -70,8 +73,8 @@ public class Course1 extends LinearOpMode {
         return sequential(
                 follow(follower, shoot()),
                 skills.shootFourPollen(),
-                follow(follower, gardenCollect()),
-                skills.intakeGarden(),
+                follow(follower, gardenCollect1()),
+                follow(follower,gardenCollect2()),
                 follow(follower, shoot2()),
                 waitMs(1000),
                 follow(follower, flowerCollect()),
