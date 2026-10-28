@@ -28,7 +28,7 @@ public class MotorRPMReader extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        motor = hardwareMap.get(DcMotor.class, "Launcher");
+        motor = hardwareMap.get(DcMotor.class, "LauncherMotor");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

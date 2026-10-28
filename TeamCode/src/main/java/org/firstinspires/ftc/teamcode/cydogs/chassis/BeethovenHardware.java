@@ -98,7 +98,7 @@ public final class BeethovenHardware {
         //    Without gearbox, theoretical 6,000RPM, empirical needs to be calculated.
         //    PPR = Ticks/second is always 28 at the motor shaft for goBILDA Yellow Jacket motors
         // Max velocity = (RPM / 60) * ticks per rev
-        public static final double MOTOR_RPM = 6000;
+        public static final double MOTOR_RPM = 5334; //Calculated with code for specific motor
         public static final double MOTOR_TICKS_PER_REV = 28;
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
@@ -186,7 +186,7 @@ public final class BeethovenHardware {
         public static final String NAME = "MoveToLauncherMotor";
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.REVERSE;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.65; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
+        public static final double RUN_POWER = 0.5; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
     // ------------------------------------------------------------------
