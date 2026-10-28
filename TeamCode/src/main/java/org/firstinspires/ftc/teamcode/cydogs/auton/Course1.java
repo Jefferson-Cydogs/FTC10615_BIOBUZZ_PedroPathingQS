@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.cydogs.components.Launcher;
 import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
+import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
+import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Course 1", group = "Autonomous")
@@ -29,6 +31,7 @@ public class Course1 extends LinearOpMode {
     private LauncherSizeServo launcherSize;
     private Launcher launcher;
     private LoaderServo loader;
+   // private Aimer aimer;
     private MoveToLauncherMotor moveToLauncher;
     private Intake intake;
 
@@ -40,7 +43,7 @@ public class Course1 extends LinearOpMode {
     private final Pose gardenCollect = poseFactory.of(8, 12, 270);
     private final Pose gardenCollectControl1 = poseFactory.of(27.7305, 22.4141, 0);
     private final Pose shoot2 = poseFactory.of(60.25, 129, 90);
-    private final Pose shoot2Control1 = poseFactory.of(24.043, 104.375, 0);
+    private final Pose shoot2Control1 = poseFactory.of(26.043, 104.375, 0);
     private final Pose flowerCollect = poseFactory.of(48, 125.6875, 90);
     private final Pose flowerCollectControl1 = poseFactory.of(47.7961, 123.7883, 0);
     private final Pose shoot3 = poseFactory.of(60.25, 129, 90);
@@ -72,7 +75,7 @@ public class Course1 extends LinearOpMode {
                 follow(follower, shoot()),
                 shootFourPollen(),
                 follow(follower, gardenCollect()),
-                waitMs(1500),
+                intakeGarden(),
                 follow(follower, shoot2()),
                 waitMs(1000),
                 follow(follower, flowerCollect()),
@@ -85,8 +88,9 @@ public class Course1 extends LinearOpMode {
 
     private static final long SPIN_UP_MS=2000;
     private static final long POP_MS=500;
-    private static final long FEED_MS=400;
+    private static final long FEED_MS=350;
     private static final long INTAKE_MS=400;
+    private static final long INTAKE_MS_GARDEN=2000;
     private static final double FEED_POWER=0.8;
 
     private Command popOnce(){
@@ -109,6 +113,12 @@ public class Course1 extends LinearOpMode {
                 instant(()->intake.StopIntake()));
     }
 
+    private Command intakeGarden(){
+        return sequential(
+                instant(()->intake.RunIntake()),
+                waitMs(INTAKE_MS_GARDEN),
+                instant(()->intake.StopIntake()));
+    }
     private Command shootFourPollen(){
         return sequential(
                 instant(()->launcher.StartLauncher()),
@@ -117,15 +127,15 @@ public class Course1 extends LinearOpMode {
                 popOnce(),
                 feedOnce(),
                 intakeOnce(),
-
+                waitMs(400),
                 popOnce(),
                 feedOnce(),
                 intakeOnce(),
-
+                waitMs(400),
                 popOnce(),
                 feedOnce(),
                 intakeOnce(),
-
+                waitMs(400),
                 popOnce(),
 
                 instant(()->{
@@ -169,6 +179,7 @@ public class Course1 extends LinearOpMode {
         loader = new LoaderServo(this);
          moveToLauncher = new MoveToLauncherMotor(this);
         intake = new Intake(this);
+      //  aimer =new Aimer(this, TagSight.Alliance.BLUE);
 //Initialize
         launcherSize.Initialize();
         launcher.Initialize();
@@ -176,6 +187,7 @@ public class Course1 extends LinearOpMode {
         moveToLauncher.Initialize();
         intake.Initialize();
         launcherSize.SetPollen();
+       // aimer.preset(0);
 
         waitForStart();
         schedule(autoRoutine());
