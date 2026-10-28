@@ -28,12 +28,8 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
     private Follower follower;
-    private LauncherSizeServo launcherSize;
-    private Launcher launcher;
-    private LoaderServo loader;
-   // private Aimer aimer;
-    private MoveToLauncherMotor moveToLauncher;
-    private Intake intake;
+    private AutoSkills skills;
+
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -73,9 +69,9 @@ public class Course1 extends LinearOpMode {
     public Command autoRoutine() {
         return sequential(
                 follow(follower, shoot()),
-                shootFourPollen(),
+                skills.shootFourPollen(),
                 follow(follower, gardenCollect()),
-                intakeGarden(),
+                skills.intakeGarden(),
                 follow(follower, shoot2()),
                 waitMs(1000),
                 follow(follower, flowerCollect()),
@@ -85,82 +81,6 @@ public class Course1 extends LinearOpMode {
                 follow(follower, park())
         );
     }
-
-    private static final long SPIN_UP_MS=2000;
-    private static final long POP_MS=500;
-    private static final long FEED_MS=350;
-    private static final long INTAKE_MS=400;
-    private static final long INTAKE_MS_GARDEN=2000;
-    private static final double FEED_POWER=0.4;
-
-    private Command popOnce(){
-      return sequential(
-              instant(()->loader.LaunchOnce()),
-                    waitMs(POP_MS));
-    }
-
-    private Command feedOnce(){
-        return sequential(
-                instant(()->moveToLauncher.SetPower(FEED_POWER)),
-                waitMs(FEED_MS),
-                instant(()->moveToLauncher.Stop()));
-    }
-
-    private Command intakeOnce(){
-        return sequential(
-                instant(()->intake.RunIntake()),
-                waitMs(INTAKE_MS),
-                instant(()->intake.StopIntake()));
-    }
-
-    private Command intakeGarden(){
-        return sequential(
-                instant(()->intake.RunIntake()),
-                waitMs(INTAKE_MS_GARDEN),
-                instant(()->intake.StopIntake()));
-    }
-    private Command shootFourPollen(){
-        return sequential(
-                instant(()->launcher.StartLauncher()),
-                waitMs(SPIN_UP_MS),
-
-                popOnce(),
-                feedOnce(),
-                intakeOnce(),
-                waitMs(400),
-                popOnce(),
-                feedOnce(),
-                intakeOnce(),
-                waitMs(400),
-                popOnce(),
-                feedOnce(),
-                intakeOnce(),
-                waitMs(400),
-                popOnce(),
-
-                instant(()->{
-                    intake.StopIntake();
-                    moveToLauncher.Stop();
-                    launcher.StopLauncher();
-                })
-        );
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -173,26 +93,14 @@ public class Course1 extends LinearOpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(start);
         follower.update();
-// Shooting Hardware
-        launcherSize = new LauncherSizeServo(this);
-        launcher = new Launcher(this);
-        loader = new LoaderServo(this);
-         moveToLauncher = new MoveToLauncherMotor(this);
-        intake = new Intake(this);
-      //  aimer =new Aimer(this, TagSight.Alliance.BLUE);
-//Initialize
-        launcherSize.Initialize();
-        launcher.Initialize();
-        loader.Initialize();
-        moveToLauncher.Initialize();
-        intake.Initialize();
-        launcherSize.SetPollen();
-       // aimer.preset(0);
+        skills = new AutoSkills( this);
+        skills.initialize();
 
         waitForStart();
         schedule(autoRoutine());
 
         while (opModeIsActive()) {
+            skills.update();
             follower.update();
             Scheduler.execute();
 
@@ -204,8 +112,6 @@ public class Course1 extends LinearOpMode {
                 telemetry.addData("Current path distance remaining", follower.distanceToEndpoint());
                 telemetry.addData("Path number", follower.pathIndex());
             }
-            launcher.Update();
-            loader.Update();
 
             telemetry.update();
         }
