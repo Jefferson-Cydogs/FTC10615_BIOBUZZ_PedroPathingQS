@@ -226,6 +226,21 @@ public class AutoSkills {
         });
     }
 
+    /**
+     * Create vision and open the camera so Driver Station Camera Stream works from Init.
+     * Call once after initialize(), before waitForStart().
+     * Does not move the turret.
+     */
+    /**
+     * Create Aimer/TagSight and open the webcam so Driver Station
+     * Camera Stream works from Init. Does not move the turret.
+     * Call once after initialize(), before waitForStart().
+     */
+    public void prepareVision(TagSight.Alliance alliance) {
+        ensureAimer(alliance);
+        aimer.getEyes().openCamera();  // TagSight: resumeStreaming
+    }
+
     /** Last tip check: true = did not lock (treat as tipped), false = locked (basket still up). */
     public boolean hiveTipped() {
         return hiveTipped;

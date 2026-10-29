@@ -181,6 +181,7 @@ public class Course1HT extends LinearOpMode {
 
         skills = new AutoSkills(this);
         skills.initialize();
+        skills.prepareVision(TagSight.Alliance.BLUE);  // or RED
 
         waitForStart();
         schedule(autoRoutine());
