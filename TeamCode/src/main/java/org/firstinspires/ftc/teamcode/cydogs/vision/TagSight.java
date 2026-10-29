@@ -1,21 +1,19 @@
 package org.firstinspires.ftc.teamcode.cydogs.vision;
 
 import android.util.Size;
-
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import java.util.List;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
+import org.firstinspires.ftc.vision.VisionPortal;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import java.util.List;
 
 /**
  * TagSight = the robot's "eyes" for BIOBUZZ AprilTags.
@@ -44,6 +42,8 @@ public class TagSight {
     }
 
     private static final String WEBCAM_NAME = BeethovenHardware.Webcam.NAME;
+    private static final int WEBCAM_FRAME_WIDTH = BeethovenHardware.Webcam.FRAME_WIDTH;
+    private static final int WEBCAM_FRAME_HEIGHT  = BeethovenHardware.Webcam.FRAME_HEIGHT;
 
     // |roll| below this = right-side-up / scorable face
     private static final double UPRIGHT_LIMIT = 90.0;
@@ -99,7 +99,7 @@ public class TagSight {
         portal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, WEBCAM_NAME))
                 .addProcessor(processor)
-                .setCameraResolution(new Size(640, 480))
+                .setCameraResolution(new Size(WEBCAM_FRAME_WIDTH, WEBCAM_FRAME_HEIGHT))
                 //.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 

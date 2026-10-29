@@ -1,103 +1,88 @@
 package org.firstinspires.ftc.teamcode.cydogs.auton;
 
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+import static com.pedropathing.ivy.Scheduler.schedule;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import org.firstinspires.ftc.teamcode.cydogs.components.Intake;
-import org.firstinspires.ftc.teamcode.cydogs.components.Launcher;
-import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
-import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
-import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
-import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
-import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
+
 
 @Autonomous(name = "Course 1", group = "Autonomous")
 public class Course1 extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
 
-
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     // Poses
-    private final Pose start = poseFactory.of(60.25, 9.8125, 270);
-    private final Pose shoot = poseFactory.of(60.25, 14, 270);
-    private final Pose gardenApproach = poseFactory.of(33, 10, 270);
-    private final Pose gardenCollect = poseFactory.of(10, 10, 270);
-    private final Pose shoot2 = poseFactory.of(60.25, 129, 90);
-    private final Pose shoot2Control1 = poseFactory.of(26.043, 104.375, 0);
-    private final Pose flowerCollect = poseFactory.of(48, 125.6875, 90);
-    private final Pose flowerCollectControl1 = poseFactory.of(47.7961, 123.7883, 0);
-    private final Pose shoot3 = poseFactory.of(60.25, 129, 90);
-    private final Pose park = poseFactory.of(9.8125, 94.5, 0);
+    private final Pose Start = poseFactory.of(60.25, 9.8125, 270);
+    private final Pose Shoot1 = poseFactory.of(60.25, 12, 270);
+    private final Pose GardenApproach = poseFactory.of(22, 9, 180);
+    private final Pose GardenApproachControl1 = poseFactory.of(30, 20, 0);
+    private final Pose GardenCollect = poseFactory.of(12, 9, 180);
+    private final Pose Shoot2 = poseFactory.of(60.25, 127, 90);
+    private final Pose Shoot2Control1 = poseFactory.of(25, 110, 0);
+    private final Pose FlowerCollect = poseFactory.of(48, 127.5, 90);
+    private final Pose FlowerCollectControl1 = poseFactory.of(50, 122, 0);
+    private final Pose Shoot3 = poseFactory.of(60.25, 127, 90);
+    private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
 
     // Paths
-    public Path shoot() {
-        return Paths.line(start, shoot).linear(start, shoot);
+    public Path Shoot1() {
+        return Paths.line(Start, Shoot1).linear(Start, Shoot1);
     }
-    public Path gardenApproach() {
-        return Paths.curve(shoot, gardenApproach).linear(shoot ,gardenApproach);
+    public Path GardenApproach() {
+        return Paths.curve(Shoot1, GardenApproachControl1, GardenApproach).linear(Shoot1, GardenApproach);
     }
-    public Path gardenCollect() {
-        return Paths.curve(gardenApproach, gardenCollect).linear(gardenApproach,gardenCollect);
+    public Path GardenCollect() {
+        return Paths.line(GardenApproach, GardenCollect).linear(GardenApproach, GardenCollect);
     }
-    public Path shoot2() {
-        return Paths.curve(gardenCollect, shoot2Control1, shoot2).linear(gardenCollect, shoot2);
+    public Path Shoot2() {
+        return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
-    public Path flowerCollect() {
-        return Paths.curve(shoot2, flowerCollectControl1, flowerCollect).linear(shoot2, flowerCollect);
+    public Path FlowerCollect() {
+        return Paths.curve(Shoot2, FlowerCollectControl1, FlowerCollect).linear(Shoot2, FlowerCollect);
     }
-    public Path shoot3() {
-        return Paths.line(flowerCollect, shoot3).linear(flowerCollect, shoot3);
+    public Path Shoot3() {
+        return Paths.line(FlowerCollect, Shoot3).linear(FlowerCollect, Shoot3);
     }
-    public Path park() {
-        return Paths.line(shoot3, park).linear(shoot3, park);
+    public Path Park() {
+        return Paths.line(Shoot3, Park).linear(Shoot3, Park);
     }
 
     // Autonomous routine
     public Command autoRoutine() {
         return sequential(
-                follow(follower, shoot()),
+                follow(follower, Shoot1()),
                 skills.shootFourPollen(),
-                follow(follower, gardenApproach()),
+                follow(follower, GardenApproach()),
                 skills.startIntake(),
-                follow(follower,gardenCollect()),
+                follow(follower, GardenCollect()),
                 skills.stopIntake(),
-                follow(follower, shoot2()),
+                follow(follower, Shoot2()),
                 skills.shootFourPollen(),
-                follow(follower, flowerCollect()),
+                follow(follower, FlowerCollect()),
                 waitMs(1500),
-                follow(follower, shoot3()),
-                waitMs(1000),
-                follow(follower, park())
+                follow(follower, Shoot3()),
+                skills.shootFourPollen(),
+                follow(follower, Park())
         );
     }
-
-
-
-
-
 
     @Override
     public void runOpMode() {
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
-        follower.setPose(start);
+        follower.setPose(Start);
         follower.update();
         skills = new AutoSkills( this);
         skills.initialize();
@@ -106,8 +91,8 @@ public class Course1 extends LinearOpMode {
         schedule(autoRoutine());
 
         while (opModeIsActive()) {
-            skills.update();
             follower.update();
+            skills.update();
             Scheduler.execute();
 
             telemetry.addData("x", follower.pose().x());
