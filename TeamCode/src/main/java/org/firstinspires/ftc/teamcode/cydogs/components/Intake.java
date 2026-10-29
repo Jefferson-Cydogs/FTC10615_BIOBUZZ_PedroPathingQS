@@ -18,50 +18,36 @@ import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 public class Intake {
 
     // The three parts of the intake
-    private final BaseContinuousServo leftServo;
-    private final BaseContinuousServo rightServo;
     private final BasePowerMotor rollerMotor;
 
     // Creates the three parts using the settings in BeethovenHardware.Intake
     public Intake(OpMode opMode){
-        leftServo = new BaseContinuousServo (opMode,BeethovenHardware.Intake.LEFT_SERVO_NAME,BeethovenHardware.Intake.LEFT_SERVO_DIRECTION,BeethovenHardware.Intake.SERVO_POWER);
-        rightServo = new BaseContinuousServo (opMode,BeethovenHardware.Intake.RIGHT_SERVO_NAME,BeethovenHardware.Intake.RIGHT_SERVO_DIRECTION,BeethovenHardware.Intake.SERVO_POWER);
         rollerMotor = new BasePowerMotor (opMode,BeethovenHardware.Intake.MOTOR_NAME,BeethovenHardware.Intake.MOTOR_DIRECTION,BeethovenHardware.Intake.MOTOR_ZERO_POWER_BEHAVIOR);
     }
 
     // Gets all three parts ready. Call once before using the intake.
     public void Initialize(){
-        leftServo.Initialize();
-        rightServo.Initialize();
         rollerMotor.Initialize();
 
     }
 
     // Pulls elements in: both side servos and the roller run inward
     public void RunIntake(){
-        leftServo.RunForward();
-        rightServo.RunForward();
         rollerMotor.SetPower(BeethovenHardware.Intake.MOTOR_INTAKE_POWER);
     }
 
     // Spits elements out: side servos stop and the roller runs backwards
     public void ReverseIntake (){
-        leftServo.Stop();
-        rightServo.Stop();
         rollerMotor.SetPower(BeethovenHardware.Intake.MOTOR_REVERSE_POWER);
     }
 
     // Stops all three parts
     public void StopIntake(){
-        leftServo.Stop();
-        rightServo.Stop();
         rollerMotor.Stop();
     }
 
     // Runs only the roller inward; the side servos stay stopped
     public void RunRollerOnly(){
-        rightServo.Stop();
-        leftServo.Stop();
         rollerMotor.SetPower(BeethovenHardware.Intake.MOTOR_INTAKE_POWER);
     }
 }
