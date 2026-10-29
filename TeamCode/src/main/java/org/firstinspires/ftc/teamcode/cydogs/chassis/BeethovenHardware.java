@@ -103,7 +103,7 @@ public final class BeethovenHardware {
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
-        public static final double LAUNCH_PERCENT = 0.4;
+        public static final double LAUNCH_PERCENT = 0.44;
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
@@ -186,7 +186,7 @@ public final class BeethovenHardware {
         public static final String NAME = "MoveToLauncherMotor";
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.REVERSE;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.1; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
+        public static final double RUN_POWER = 0.3; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
     // ------------------------------------------------------------------
