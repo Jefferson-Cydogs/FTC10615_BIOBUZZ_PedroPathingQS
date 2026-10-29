@@ -100,7 +100,7 @@ public class TagSight {
                 .setCamera(hardwareMap.get(WebcamName.class, WEBCAM_NAME))
                 .addProcessor(processor)
                 .setCameraResolution(new Size(WEBCAM_FRAME_WIDTH, WEBCAM_FRAME_HEIGHT))
-                //.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
         // Start with camera OFF to save CPU (Aimer turns it on for track/search)
