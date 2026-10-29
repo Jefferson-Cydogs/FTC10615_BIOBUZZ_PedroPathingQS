@@ -171,22 +171,13 @@ public final class BeethovenHardware {
     // ------------------------------------------------------------------
     // Conveyors that move elements through the robot
     // ------------------------------------------------------------------
-    public static final class MoveToMiddle {
-        private MoveToMiddle() {}
-
-        public static final String NAME = "MoveToMiddleMotor";
-        public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
-        public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.5;
-    }
-
     public static final class MoveToLauncher {
         private MoveToLauncher() {}
 
         public static final String NAME = "MoveToLauncherMotor";
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.REVERSE;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
-        public static final double RUN_POWER = 0.3; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
+        public static final double RUN_POWER = 0.75; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
     // ------------------------------------------------------------------
@@ -289,6 +280,9 @@ public final class BeethovenHardware {
         private Webcam() {}
 
         public static final String NAME = "Webcam 1";
+
+        public static final int FRAME_WIDTH = 640;
+        public static final int FRAME_HEIGHT = 480;
     }
 
 
