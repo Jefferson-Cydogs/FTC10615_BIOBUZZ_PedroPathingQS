@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.cydogs.components.Launcher;
 import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
+import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
+import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 
 /**
  * Shared autonomous skills for every Course.
@@ -33,7 +35,7 @@ public class AutoSkills {
     // --- Auto-only timings (strategy, not device wiring) ---
     // Move these into BeethovenHardware.Auto later if you want one constants file.
     private static final long SPIN_UP_MS = 2000;
-    private static final long BETWEEN_SHOTS_MS = 400;
+    private static final long BETWEEN_SHOTS_MS = 1500;
     private static final long FEED_MS = 1000;
     private static final long INTAKE_SHOT_MS = 400;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
@@ -42,6 +44,15 @@ public class AutoSkills {
     /** Wait long enough for LoaderServo.Update() to finish LaunchOnce. */
     private static final long POP_MS = (long) (BeethovenHardware.Loader.LAUNCH_HOLD_SECONDS * 1000.0) + 100;
 
+    /** How long to watch after a preset aim (ms). Lock = no tip. */
+    private static final long TIP_WATCH_MS = 2000;
+
+    /** How long to SEARCH full sweep when no preset (ms). Tune so turret can cover range. */
+    private static final long TIP_SEARCH_MS = 6000;
+
+    /** true = no lock after looking (tipped); false = locked on basket (no tip) */
+    private boolean hiveTipped = true;
+
     private final OpMode opMode;
 
     private LauncherSizeServo launcherSize;
@@ -49,6 +60,7 @@ public class AutoSkills {
     private LoaderServo loader;
     private MoveToLauncherMotor moveToLauncher;
     private Intake intake;
+    private Aimer aimer;
 
     public AutoSkills(OpMode opMode) {
         this.opMode = opMode;
@@ -78,6 +90,9 @@ public class AutoSkills {
         }
         if (loader != null) {
             loader.Update();
+        }
+        if (aimer != null) {
+            aimer.update();
         }
     }
 
@@ -209,5 +224,59 @@ public class AutoSkills {
             intake.StopIntake();
             moveToLauncher.Stop();
         });
+    }
+
+    /** Last tip check: true = did not lock (treat as tipped), false = locked (basket still up). */
+    public boolean hiveTipped() {
+        return hiveTipped;
+    }
+
+    /** SEARCH full range, then decide. */
+    public Command checkForTip(TagSight.Alliance alliance) {
+        return checkForTipCommand(alliance, null);
+    }
+
+    /** Preset aim, watch ~2 s, then decide. */
+    public Command checkForTip(TagSight.Alliance alliance, double presetDegrees) {
+        return checkForTipCommand(alliance, presetDegrees);
+    }
+
+    private Command checkForTipCommand(TagSight.Alliance alliance, Double presetDegrees) {
+        final long[] startMs = {0L};
+
+        return Command.build()
+                .setStart(() -> {
+                    ensureAimer(alliance);
+                    startMs[0] = System.currentTimeMillis();
+                    hiveTipped = true;
+
+                    if (presetDegrees != null) {
+                        aimer.preset(presetDegrees);
+                        aimer.track();
+                    } else {
+                        aimer.search();
+                    }
+                })
+                .setDone(() -> {
+                    if (aimer.isLocked()) {
+                        hiveTipped = false;
+                        aimer.hold();
+                        return true;
+                    }
+
+                    long limitMs = (presetDegrees != null) ? TIP_WATCH_MS : TIP_SEARCH_MS;
+                    if (System.currentTimeMillis() - startMs[0] >= limitMs) {
+                        hiveTipped = true;
+                        aimer.hold();
+                        return true;
+                    }
+                    return false;
+                });
+    }
+
+    private void ensureAimer(TagSight.Alliance alliance) {
+        if (aimer == null) {
+            aimer = new Aimer(opMode, alliance);
+        }
     }
 }

@@ -53,6 +53,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     // The alliance this teleop is running for (set by BioBuzzTeleopRED / BioBuzzTeleopBLUE)
     private final TagSight.Alliance alliance;
 
+    private boolean isLauncherAtSpeed = false;
+
     protected BioBuzzTeleop(TagSight.Alliance alliance)
     {
         this.alliance = alliance;
@@ -83,9 +85,11 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             // Returns the loader servo to Load once a launch has been held long enough
             LanceTheLoaderServo.Update();
             LarryTheLauncher.Update();
+            isLauncherAtSpeed = LarryTheLauncher.IsLauncherAtSpeed();
       //      myTurret.update();
 
             if (eventTracker.doEvent("Telemetry",currentTimer.seconds(),0.5)) {
+
                 telemetry.addData("launcher target %:", LarryTheLauncher.GetTargetLaunchPercent());
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.update();
