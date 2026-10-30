@@ -195,7 +195,7 @@ public final class BeethovenHardware {
         public static final int HOME_TICKS = 0;
         public static final int FLOWER_TICKS = 300;
 
-        public static final double RAISE_POWER = 0.7;
+        public static final double RAISE_POWER = 0.8;
         public static final double LOWER_POWER = 0.4;
     }
 
