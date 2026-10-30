@@ -36,14 +36,14 @@ public class AutoSkills {
     // --- Auto-only timings (strategy, not device wiring) ---
     // Move these into BeethovenHardware.Auto later if you want one constants file.
     private static final long SPIN_UP_MS = 2000;
-    private static final long BETWEEN_SHOTS_MS = 750;
+    private static final long BETWEEN_SHOTS_MS = 350;
     private static final long FEED_MS = 650;
     private static final long INTAKE_SHOT_MS = 400;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
     private static final long FLOWER_INTAKE_MS = 2000;
 
     /** How long feed + intake run together (tune this). */
-    private static final long FEED_AND_INTAKE_MS = 650;
+    private static final long FEED_AND_INTAKE_MS = 300;
 
     /** Wait long enough for LoaderServo.Update() to finish LaunchOnce. */
     private static final long POP_MS = (long) (BeethovenHardware.Loader.LAUNCH_HOLD_SECONDS * 1000.0) + 100;
