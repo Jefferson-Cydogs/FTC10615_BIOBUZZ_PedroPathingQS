@@ -51,6 +51,7 @@ public class Course1HT extends LinearOpMode {
     private final Pose GardenApproach = poseFactory.of(27, 9, 180);
     private final Pose GardenApproachControl1 = poseFactory.of(30, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12, 9, 180);
+    private final Pose FlowerCollectBad = poseFactory.of(48, 127.5, 90);
     private final Pose FlowerCollectBadControl1 = poseFactory.of(6.77, 71.73, 0);
     private final Pose FlowerParkControl1 = poseFactory.of(37.1, 92.64, 0);
     private final Pose Shoot2 = poseFactory.of(60.25, 127, 90);
@@ -76,7 +77,7 @@ public class Course1HT extends LinearOpMode {
         return Paths.line(GardenCollect,Shoot1).linear(GardenCollect, Shoot1);
     }
     public Path FlowerCollectBad() {
-        return Paths.curve(Shoot1,FlowerCollectBadControl1,FlowerCollect).linear(Shoot1,FlowerCollect);
+        return Paths.curve(Shoot1,FlowerCollectBadControl1,FlowerCollectBad).linear(Shoot1,FlowerCollectBad);
     }
     public Path FlowerPark() {
         return Paths.curve(FlowerCollect,FlowerParkControl1,Park).linear(FlowerCollect,Park);
