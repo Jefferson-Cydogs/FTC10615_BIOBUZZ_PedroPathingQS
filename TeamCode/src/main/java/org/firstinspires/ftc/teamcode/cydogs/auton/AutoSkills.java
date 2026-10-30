@@ -227,9 +227,15 @@ public class AutoSkills {
         );
     }
 
-    /** Wait until the flywheel reports ready. */
+    /** Wait until flywheel is ready, or give up after timeout. */
     private Command waitLauncherReady() {
-        return waitUntil(() -> launcher.IsLauncherAtSpeed());
+        final long[] startMs = {0L};
+        return Command.build()
+                .setStart(() -> startMs[0] = System.currentTimeMillis())
+                .setDone(() ->
+                        launcher.IsLauncherAtSpeed()
+                                || System.currentTimeMillis() - startMs[0] >= SPIN_UP_MS
+                );
     }
 
     /** Long intake at the garden. */
