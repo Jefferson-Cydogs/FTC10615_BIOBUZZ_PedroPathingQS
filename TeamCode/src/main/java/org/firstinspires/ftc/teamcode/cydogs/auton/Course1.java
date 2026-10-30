@@ -31,7 +31,7 @@ public class Course1 extends LinearOpMode {
     private final Pose GardenCollect = poseFactory.of(12, 9, 180);
     private final Pose FlowerCollectBadControl1 = poseFactory.of(6.77, 71.73, 0);
     private final Pose FlowerParkControl1 = poseFactory.of(37.1, 92.64, 0);
-    private final Pose Shoot2 = poseFactory.of(62.25, 127, 90);
+    private final Pose Shoot2 = poseFactory.of(61.25, 127, 90);
     private final Pose Shoot2Control1 = poseFactory.of(30, 105, 0);
     private final Pose FlowerCollect = poseFactory.of(48, 127.5, 90);
     private final Pose FlowerCollectControl1 = poseFactory.of(50, 122, 0);
