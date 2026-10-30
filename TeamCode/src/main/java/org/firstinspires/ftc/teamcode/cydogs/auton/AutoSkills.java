@@ -171,7 +171,7 @@ public class AutoSkills {
         );
     }
 
-    public Command shootFourPollen() {
+    public Command shootFourPollen2() {
         return sequential(
                 instant(() -> launcher.StartLauncher()),
                 waitLauncherReady(),
@@ -180,6 +180,33 @@ public class AutoSkills {
                 popOnce(),
                 feedOnce(),
                 intakeShort(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 2
+                popOnce(),
+                feedAndIntakeOnce(),   // feeder + intake together
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 3
+                popOnce(),
+                feedAndIntakeOnce(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 4
+                popOnce(),
+
+                stopShootingHardware()
+        );
+    }
+
+    public Command shootFourPollen() {
+        return sequential(
+                instant(() -> launcher.StartLauncher()),
+                waitLauncherReady(),
+
+                // Ball 1 — already at the popper
+                popOnce(),
+                feedOnce(),
                 waitMs(BETWEEN_SHOTS_MS),
 
                 // Ball 2
