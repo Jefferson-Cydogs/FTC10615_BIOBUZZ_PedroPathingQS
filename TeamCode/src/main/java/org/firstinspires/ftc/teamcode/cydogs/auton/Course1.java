@@ -31,8 +31,9 @@ public class Course1 extends LinearOpMode {
     private final Pose GardenCollect = poseFactory.of(12.5, 8.75, 180);
     private final Pose Shoot2 = poseFactory.of(61.25, 126, 90);
     private final Pose Shoot2Control1 = poseFactory.of(35, 105, 0);
+    private final Pose FlowerApproach = poseFactory.of(48, 115, 90);
+    private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
     private final Pose FlowerCollect = poseFactory.of(48, 127, 90);
-    private final Pose FlowerCollectControl1 = poseFactory.of(50, 122, 0);
     private final Pose Shoot3 = poseFactory.of(61.25, 126, 90);
     private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
 
@@ -44,13 +45,18 @@ public class Course1 extends LinearOpMode {
         return Paths.curve(Shoot1, GardenApproachControl1, GardenApproach).linear(Shoot1, GardenApproach);
     }
     public Path GardenCollect() {
-        return Paths.line(GardenApproach, GardenCollect).linear(GardenApproach, GardenCollect);
+        return Paths.line(GardenApproach, GardenCollect)
+                .linear(GardenApproach, GardenCollect)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
     public Path Shoot2() {
         return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
+    public Path FlowerApproach() {
+        return Paths.curve(Shoot2, FlowerApproachControl1, FlowerApproach).linear(Shoot2, FlowerApproach);
+    }
     public Path FlowerCollect() {
-        return Paths.curve(Shoot2, FlowerCollectControl1, FlowerCollect).linear(Shoot2, FlowerCollect);
+        return Paths.curve(FlowerApproach, FlowerCollect).linear(FlowerApproach, FlowerCollect);
     }
     public Path Shoot3() {
         return Paths.line(FlowerCollect, Shoot3).linear(FlowerCollect, Shoot3);
@@ -70,8 +76,10 @@ public class Course1 extends LinearOpMode {
                 skills.stopIntake(),
                 follow(follower, Shoot2()),
                 skills.shootFourPollen(),
+                follow(follower, FlowerApproach()),
+                skills.startIntake(),
                 follow(follower, FlowerCollect()),
-                waitMs(1500),
+                skills.stopIntake(),
                 follow(follower, Shoot3()),
                 skills.shootFourPollen(),
                 follow(follower, Park())
