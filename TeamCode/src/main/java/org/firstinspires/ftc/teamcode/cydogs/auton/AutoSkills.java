@@ -37,10 +37,13 @@ public class AutoSkills {
     // Move these into BeethovenHardware.Auto later if you want one constants file.
     private static final long SPIN_UP_MS = 2000;
     private static final long BETWEEN_SHOTS_MS = 750;
-    private static final long FEED_MS = 1000;
+    private static final long FEED_MS = 650;
     private static final long INTAKE_SHOT_MS = 400;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
     private static final long FLOWER_INTAKE_MS = 2000;
+
+    /** How long feed + intake run together (tune this). */
+    private static final long FEED_AND_INTAKE_MS = 650;
 
     /** Wait long enough for LoaderServo.Update() to finish LaunchOnce. */
     private static final long POP_MS = (long) (BeethovenHardware.Loader.LAUNCH_HOLD_SECONDS * 1000.0) + 100;
@@ -122,6 +125,24 @@ public class AutoSkills {
         );
     }
 
+    /**
+     * Run move-to-launcher and intake at the same time, then stop both.
+     * Helps keep balls 3 and 4 from jamming.
+     */
+    private Command feedAndIntakeOnce() {
+        return sequential(
+                instant(() -> {
+                    moveToLauncher.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+                    intake.RunIntake();
+                }),
+                waitMs(FEED_AND_INTAKE_MS),
+                instant(() -> {
+                    moveToLauncher.Stop();
+                    intake.StopIntake();
+                })
+        );
+    }
+
     private Command stopShootingHardware() {
         return instant(() -> {
             intake.StopIntake();
@@ -136,7 +157,7 @@ public class AutoSkills {
      * Start launcher, fire up to four pollen balls, then stop.
      * Sequence: (pop → feed → short intake) × 3, then final pop.
      */
-    public Command shootFourPollen() {
+    public Command shootFourPollen_old() {
         return sequential(
                 instant(() -> launcher.StartLauncher()),
                 waitLauncherReady(),
@@ -144,6 +165,34 @@ public class AutoSkills {
                 popOnce(), feedOnce(), intakeShort(), waitMs(BETWEEN_SHOTS_MS),
                 popOnce(), feedOnce(), intakeShort(), waitMs(BETWEEN_SHOTS_MS),
                 popOnce(), feedOnce(), intakeShort(), waitMs(BETWEEN_SHOTS_MS),
+                popOnce(),
+
+                stopShootingHardware()
+        );
+    }
+
+    public Command shootFourPollen() {
+        return sequential(
+                instant(() -> launcher.StartLauncher()),
+                waitLauncherReady(),
+
+                // Ball 1 — already at the popper
+                popOnce(),
+                feedOnce(),
+                intakeShort(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 2
+                popOnce(),
+                feedAndIntakeOnce(),   // feeder + intake together
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 3
+                popOnce(),
+                feedAndIntakeOnce(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 4
                 popOnce(),
 
                 stopShootingHardware()
