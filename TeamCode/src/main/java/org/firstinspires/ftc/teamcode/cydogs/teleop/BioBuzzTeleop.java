@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.cydogs.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.cydogs.chassis.BioBuzzRobotChassis;
+import org.firstinspires.ftc.teamcode.cydogs.components.FlowerRampServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.FlowerScoringServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.FlowerSlider;
 import org.firstinspires.ftc.teamcode.cydogs.components.Intake;
@@ -12,22 +14,16 @@ import org.firstinspires.ftc.teamcode.cydogs.components.LauncherSizeServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.components.Turret;
-import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 import org.firstinspires.ftc.teamcode.cydogs.core.EventTracker;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 
 
-/**
- * Common teleop for both alliances. It has no @TeleOp annotation, so it does not show up on the
- * Driver Hub. Use BioBuzzTeleopRED or BioBuzzTeleopBLUE, which pass in the alliance.
- */
-public abstract class BioBuzzTeleop extends LinearOpMode {
+@TeleOp(name="Beetoven TeleOp", group= "TeleOp")
+public class BioBuzzTeleop extends LinearOpMode {
 
-    // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
-    private static final double HIGH_SPEED_DRIVE = 0.6;   // right stick (fast movement)
-    private static final double LOW_SPEED_DRIVE = 0.3;    // left stick (slow, precise movement)
-    private static final double ROTATE_SPEED_DRIVE = 0.5; // trigger rotation
+    // Power used while a loader motor button is held. Flip the sign if a motor runs the wrong way.
+    private static final double MOVE_TO_LAUNCHER_POWER = 0.5;
 
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;
@@ -44,21 +40,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
     private MoveToLauncherMotor moveToLauncherMotor;
 
+
+    private FlowerRampServo flowerRamp;
+
     private ElapsedTime currentTimer;
     private ElapsedTime matchTimer;
     private EventTracker eventTracker;
 
     private Aimer myTurret;
 
-    // The alliance this teleop is running for (set by BioBuzzTeleopRED / BioBuzzTeleopBLUE)
-    private final TagSight.Alliance alliance;
-
-    private boolean isLauncherAtSpeed = false;
-
-    protected BioBuzzTeleop(TagSight.Alliance alliance)
-    {
-        this.alliance = alliance;
-    }
+    public String Team = "blue";
 
     @Override
     public void runOpMode()
@@ -85,18 +76,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             // Returns the loader servo to Load once a launch has been held long enough
             LanceTheLoaderServo.Update();
             LarryTheLauncher.Update();
-            isLauncherAtSpeed = LarryTheLauncher.IsLauncherAtSpeed();
-      //      myTurret.update();
+            myTurret.update();
 
             if (eventTracker.doEvent("Telemetry",currentTimer.seconds(),0.5)) {
-
                 telemetry.addData("launcher target %:", LarryTheLauncher.GetTargetLaunchPercent());
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.update();
             }
         }
 
-     //   myTurret.close();
+        myTurret.close();
     }
 
     /*
@@ -135,19 +124,19 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
         if(gamepad1.triangleWasPressed())
         {
-          //  myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
+            myTurret.preset(Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed())
         {
-         //   myTurret.preset(150);
+            myTurret.preset(150);
         }
         else if(gamepad1.squareWasPressed())
         {
-         //   myTurret.preset(210);
+            myTurret.preset(210);
         }
         else if(gamepad1.crossWasPressed())
         {
-         //   myTurret.search();
+            myTurret.search();
         }
 
     }
@@ -176,15 +165,24 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LauncherSize.SetNectar();
         }
 
+        if(gamepad2.dpadUpWasPressed())
+        {
+            flowerRamp.MoveUp();
+        }
+        if(gamepad2.dpadDownWasPressed())
+        {
+            flowerRamp.MoveDown();
+        }
+
 
         // ----- Move to launcher: hold right bumper -----
         if(gamepad2.right_bumper)
         {
-            moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+            moveToLauncherMotor.SetPower(MOVE_TO_LAUNCHER_POWER);
         }
         else if(gamepad2.left_bumper)
         {
-            moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
+            moveToLauncherMotor.SetPower(-MOVE_TO_LAUNCHER_POWER);
         }
         else
         {
@@ -217,15 +215,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         LanceTheLoaderServo = new LoaderServo(this);
         // FrankTheFlowerSlider = new FlowerSlider(this);
         // FinnTheFlowerScoringServo = new FlowerScoringServo(this);
-      //  myTurret = new Aimer(this, alliance);
+        myTurret = new Aimer(this, TagSight.Alliance.BLUE);
         LauncherSize = new LauncherSizeServo(this);
 
         moveToLauncherMotor = new MoveToLauncherMotor(this);
+        flowerRamp = new FlowerRampServo(this);
     }
 
     private void initializeDevices()
     {
-        Wheels.InitializeChassisTeleop(HIGH_SPEED_DRIVE, LOW_SPEED_DRIVE, ROTATE_SPEED_DRIVE);
+        Wheels.InitializeChassisTeleop(.6,.3,.5);
 
         IggyTheIntake.Initialize();
         LarryTheLauncher.Initialize();
@@ -233,6 +232,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         LauncherSize.Initialize();
 
         moveToLauncherMotor.Initialize();
+        flowerRamp.Initialize();
 
         // FrankTheFlowerSlider.Initialize();
         // FinnTheFlowerScoringServo.Initialize();
