@@ -43,7 +43,7 @@ public class Course1HT extends LinearOpMode {
     private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.BLUE;
 
     // Turret: center = 180. 20° left of center (use 200 if left is the other way)
-    private static final double TIP_LOOK_DEGREES = 180.0 - 20.0;
+    private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
 
     // Poses
     private final Pose Start = poseFactory.of(60.25, 9.8125, 270);
