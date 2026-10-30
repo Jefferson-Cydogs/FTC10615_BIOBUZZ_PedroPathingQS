@@ -43,7 +43,7 @@ public final class BeethovenHardware {
 
         // Physical measurements (GoBilda Yellow Jacket 312 RPM, 537.7 PPR; 104 mm mecanum wheels)
         public static final int    WHEEL_DIAMETER_MM = 104;
-        public static final int    MOTOR_RPM = 312;
+        public static final double    MOTOR_RPM = 312;
         public static final double MOTOR_TICKS_PER_REV = 537.7;
         public static final double MM_PER_90_DEGREES_ROTATION = 785; // depends on chassis size
         public static final double STRAFE_COMPENSATION = 1.081;      // friction correction when strafing
@@ -107,8 +107,9 @@ public final class BeethovenHardware {
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
-        public static final double SPINDOWN_TPS_PER_SEC = 35000;
-        public static final double SPINDOWN_MIN_TPS = 1000;
+// controlled spin-down: full speed to stopped in about 2 seconds
+        public static final double SPINDOWN_TPS_PER_SEC = MAX_TICKS_PER_SECOND * 0.3;
+        public static final double SPINDOWN_MIN_TPS = MAX_TICKS_PER_SECOND * 0.06;
     }
 
     // ------------------------------------------------------------------
@@ -180,24 +181,7 @@ public final class BeethovenHardware {
         public static final double RUN_POWER = 0.75; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
-    // ------------------------------------------------------------------
-    // Flower mechanisms
-    // ------------------------------------------------------------------
 
-    /** Motor that lifts the U-channel to flower height (FlowerSlider.java). */
-    public static final class FlowerSlider {
-        private FlowerSlider() {}
-
-        public static final String NAME = "FlowerSlider";
-        public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
-        public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.BRAKE;
-
-        public static final int HOME_TICKS = 0;
-        public static final int FLOWER_TICKS = 300;
-
-        public static final double RAISE_POWER = 0.8;
-        public static final double LOWER_POWER = 0.4;
-    }
 
     /** Gate that opens to drop elements into the flower (FlowerScoringServo.java). */
     public static final class FlowerScoring {
@@ -213,35 +197,6 @@ public final class BeethovenHardware {
         public static final double OPEN_POSITION = 0.8;
     }
 
-    /** Three-bar dump arm built from three positional servos (DumpArm.java). */
-    public static final class DumpArm {
-        private DumpArm() {}
-
-        // CONFLICT: the old notes call these lower_flower_servo / medium_flower_servo / upper_flower_servo
-        public static final String LOWER_NAME  = "lowerflower";
-        public static final String MEDIUM_NAME = "midflower";
-        public static final String UPPER_NAME  = "upperflower";
-
-        public static final Servo.Direction LOWER_DIRECTION  = Servo.Direction.FORWARD;
-        public static final Servo.Direction MEDIUM_DIRECTION = Servo.Direction.FORWARD;
-        public static final Servo.Direction UPPER_DIRECTION  = Servo.Direction.FORWARD;
-
-        // Degrees of travel for position 0.0 to 1.0 (180 for standard servos)
-        public static final double SERVO_RANGE_DEGREES = 180.0;
-        public static final double MIN_POSITION = 0.02;
-        public static final double MAX_POSITION = 0.98;
-
-        // Where 0 degrees sits on each servo (position 0.0 to 1.0): {lower, medium, upper}
-        public static final double[] ZERO_POSITIONS = {0.2, 0.2, 0.2};
-
-        // Joint angles in degrees: {lower, medium, upper}
-        public static final double[] REST_ANGLES = {0, 35, 10};
-        public static final double[] DUMP_ANGLES = {80, 110, 30};
-
-        // Seconds for a full move
-        public static final double RAISE_SECONDS = 1.5;
-        public static final double LOWER_SECONDS = 1.5;
-    }
 
     // ------------------------------------------------------------------
     // Vision
