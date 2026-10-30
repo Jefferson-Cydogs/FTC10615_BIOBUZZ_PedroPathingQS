@@ -105,7 +105,6 @@ public class Course1HT extends LinearOpMode {
     private Command head() {
         return sequential(
                 follow(follower, Shoot1()),
-                hold(follower),                 // hold pose while spinning up / shooting
                 skills.shootFourPollen(),
 
                 follow(follower, GardenApproach()),
@@ -122,14 +121,12 @@ public class Course1HT extends LinearOpMode {
     private Command tailA_HiveTipped() {
         return sequential(
                 follow(follower, Shoot2()),
-                hold(follower),
                 skills.shootFourPollen(),
 
                 follow(follower, FlowerCollect()),
                 waitMs(1500),
 
                 follow(follower, Shoot3()),
-                hold(follower),
                 skills.shootFourPollen(),
 
                 follow(follower, Park())
@@ -141,7 +138,6 @@ public class Course1HT extends LinearOpMode {
     private Command tailB_NoTip() {
         return sequential(
                 follow(follower, GardenReverse()),   // garden → Shoot1
-                hold(follower),
                 skills.shootFourPollen(),
 
                 follow(follower, FlowerCollectBad()), // Shoot1 → flower
