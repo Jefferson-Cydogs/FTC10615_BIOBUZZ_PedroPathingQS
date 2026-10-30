@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.cydogs.auton;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
 
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -138,7 +139,7 @@ public class AutoSkills {
     public Command shootFourPollen() {
         return sequential(
                 instant(() -> launcher.StartLauncher()),
-                waitMs(SPIN_UP_MS),
+                waitLauncherReady(),
 
                 popOnce(), feedOnce(), intakeShort(), waitMs(BETWEEN_SHOTS_MS),
                 popOnce(), feedOnce(), intakeShort(), waitMs(BETWEEN_SHOTS_MS),
@@ -147,6 +148,11 @@ public class AutoSkills {
 
                 stopShootingHardware()
         );
+    }
+
+    /** Wait until the flywheel reports ready. */
+    private Command waitLauncherReady() {
+        return waitUntil(() -> launcher.IsLauncherAtSpeed());
     }
 
     /** Long intake at the garden. */
@@ -239,6 +245,18 @@ public class AutoSkills {
     public void prepareVision(TagSight.Alliance alliance) {
         ensureAimer(alliance);
         aimer.getEyes().openCamera();  // TagSight: resumeStreaming
+    }
+
+    /** Straight ahead. Only works once aimer exists. */
+    public void aimStraight() {
+        if (aimer == null) {
+            return;
+        }
+        aimer.preset(180);
+    }
+
+    public Command turretStraight() {
+        return instant(() -> aimStraight());
     }
 
     /** Last tip check: true = did not lock (treat as tipped), false = locked (basket still up). */
