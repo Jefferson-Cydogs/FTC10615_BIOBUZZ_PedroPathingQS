@@ -36,7 +36,7 @@ public class AutoSkills {
     // --- Auto-only timings (strategy, not device wiring) ---
     // Move these into BeethovenHardware.Auto later if you want one constants file.
     private static final long SPIN_UP_MS = 2000;
-    private static final long BETWEEN_SHOTS_MS = 1500;
+    private static final long BETWEEN_SHOTS_MS = 750;
     private static final long FEED_MS = 1000;
     private static final long INTAKE_SHOT_MS = 400;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
