@@ -70,7 +70,9 @@ public class Course1HT extends LinearOpMode {
     }
 
     public Path GardenCollect() {
-        return Paths.line(GardenApproach, GardenCollect).linear(GardenApproach, GardenCollect);
+        return Paths.line(GardenApproach, GardenCollect)
+                .linear(GardenApproach, GardenCollect)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
 
     public Path GardenReverse() {
