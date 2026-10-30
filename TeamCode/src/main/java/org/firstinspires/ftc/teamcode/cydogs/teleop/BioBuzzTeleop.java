@@ -124,7 +124,7 @@ public class BioBuzzTeleop extends LinearOpMode {
 
         if(gamepad1.triangleWasPressed())
         {
-            myTurret.preset(Turret.STRAIGHT_DEGREES);
+            //myTurret.preset(Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed())
         {
