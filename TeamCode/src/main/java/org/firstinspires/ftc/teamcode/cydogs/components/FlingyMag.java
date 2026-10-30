@@ -68,4 +68,20 @@ public class FlingyMag {
         }
         return true;
     }
+
+    /**
+     * True if the launcher sensor sees a ball of any color (yellow, red or blue).
+     * Calls Identify() first so the answer reflects what the sensors see right now.
+     */
+    public boolean IsBallReadyForLaunch()
+    {
+        Identify();
+        return !flingyReady.equals("none");
+    }
+
+    public boolean IsBallInMidPosition()
+    {
+        Identify();
+        return !flingyNext.equals("none");
+    }
 }
