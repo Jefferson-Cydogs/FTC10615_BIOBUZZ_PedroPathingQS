@@ -86,7 +86,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LanceTheLoaderServo.Update();
             LarryTheLauncher.Update();
             isLauncherAtSpeed = LarryTheLauncher.IsLauncherAtSpeed();
-      //      myTurret.update();
+            //      myTurret.update();
 
             if (eventTracker.doEvent("Telemetry",currentTimer.seconds(),0.5)) {
 
@@ -96,7 +96,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             }
         }
 
-     //   myTurret.close();
+        //   myTurret.close();
     }
 
     /*
@@ -135,19 +135,19 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
         if(gamepad1.triangleWasPressed())
         {
-          //  myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
+            //  myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed())
         {
-         //   myTurret.preset(150);
+            //   myTurret.preset(150);
         }
         else if(gamepad1.squareWasPressed())
         {
-         //   myTurret.preset(210);
+            //   myTurret.preset(210);
         }
         else if(gamepad1.crossWasPressed())
         {
-         //   myTurret.search();
+            //   myTurret.search();
         }
 
     }
@@ -217,7 +217,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         LanceTheLoaderServo = new LoaderServo(this);
         // FrankTheFlowerSlider = new FlowerSlider(this);
         // FinnTheFlowerScoringServo = new FlowerScoringServo(this);
-      //  myTurret = new Aimer(this, alliance);
+        //  myTurret = new Aimer(this, alliance);
         LauncherSize = new LauncherSizeServo(this);
 
         moveToLauncherMotor = new MoveToLauncherMotor(this);
