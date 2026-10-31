@@ -4,6 +4,7 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.commands.Commands.conditional;
 
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -107,6 +108,12 @@ public class AutoSkills {
     }
 
     // ----- private building blocks -----
+
+    private void ensureAimer(TagSight.Alliance alliance) {
+        if (aimer == null) {
+            aimer = new Aimer(opMode, alliance);
+        }
+    }
 
     /** Wait until flywheel is ready, or give up after timeout. */
     private Command waitLauncherReady() {
@@ -519,9 +526,63 @@ public class AutoSkills {
                 });
     }
 
-    private void ensureAimer(TagSight.Alliance alliance) {
-        if (aimer == null) {
-            aimer = new Aimer(opMode, alliance);
-        }
+    /**
+     * After checkForTip (or partner wait): pick a path.
+     * tippedCmd      = hiveTipped == true  (no lock)
+     * stillLockedCmd = hiveTipped == false (still locked on basket)
+     */
+    public Command branchOnTip(Command tippedCmd, Command stillLockedCmd) {
+        return conditional(
+                this::hiveTipped,
+                tippedCmd,
+                stillLockedCmd
+        );
     }
+
+    /**
+     * At garden after we already tipped: wait until partner tips or timeout.
+     * Partner tip = we lock on the hive again (basket up for them), then same
+     * rules as checkForTip will set hiveTipped.
+     * Simpler: keep watching; if we LOCK, partner has not finished / state unclear;
+     * if we never lock until timeout, hiveTipped stays true (treat as partner done
+     * or use timeout path).
+     *
+     * Practical rule matching Course2HT:
+     *   - If we get a lock → hiveTipped = false (still "up" — partner miss path if you want)
+     *   - If timeout with no lock → hiveTipped = true (partner tipped / go happy)
+     *
+     * Tune PARTNER_TIP_TIMEOUT_MS as needed.
+     */
+    private static final long PARTNER_TIP_TIMEOUT_MS = 8000;
+
+    public Command waitForPartnerTipOrTimeout(TagSight.Alliance alliance, double presetDegrees) {
+        final long[] startMs = {0L};
+
+        return Command.build()
+                .setStart(() -> {
+                    ensureAimer(alliance);
+                    startMs[0] = System.currentTimeMillis();
+                    hiveTipped = true;
+                    aimer.preset(presetDegrees);
+                    aimer.track();
+                })
+                .setDone(() -> {
+                    // Saw basket locked again → not treating as "partner tip yet"
+                    // For Course2HT: no lock through timeout = partner tipped (hiveTipped true)
+                    // If you prefer "lock means partner tipped", flip the hiveTipped assignment.
+                    if (aimer.isLocked()) {
+                        hiveTipped = false;
+                        aimer.hold();
+                        return true;
+                    }
+                    if (System.currentTimeMillis() - startMs[0] >= PARTNER_TIP_TIMEOUT_MS) {
+                        hiveTipped = true;
+                        aimer.hold();
+                        return true;
+                    }
+                    return false;
+                });
+    }
+
+
 }
