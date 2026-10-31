@@ -123,10 +123,10 @@ public final class BeethovenHardware {
 
         public static final double MIN_POSITION = 0.0;
         public static final double MAX_POSITION = 1.0;
-        public static final double STARTING_POSITION = 0.5;
+        public static final double STARTING_POSITION = 0.56; // changed to .56 from .5 after recalibration
 
-        public static final double LOAD_POSITION = 0.62;
-        public static final double LAUNCH_POSITION = 0.96;
+        public static final double LOAD_POSITION = 0.58; // changed to .58 from .62 after recalibration
+        public static final double LAUNCH_POSITION = 0.94; //changed to .94 from .96 after recalibration
 
         public static final double LAUNCH_HOLD_SECONDS = 0.3;
     }
