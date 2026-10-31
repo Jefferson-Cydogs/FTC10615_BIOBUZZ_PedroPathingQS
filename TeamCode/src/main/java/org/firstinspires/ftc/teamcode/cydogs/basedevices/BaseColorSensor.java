@@ -16,6 +16,9 @@ public class BaseColorSensor {
     private static final double DISTANCE_THRESHOLD_CM = 5.5;
     private static final int REQUIRED_MATCHES = 2;
 
+    // ReadArtifactColor takes this many samples, and all of them must agree
+    private static final int READ_SAMPLES = 2;
+
     private OpMode opMode;
     private NormalizedColorSensor colorSensor;
 
@@ -29,6 +32,45 @@ public class BaseColorSensor {
         // Recommendation based on FTC documentation: 10.0 - 20.0 for bright lighting or LEDs, 20.0 - 40.0 for normal indoor lighting.
         // 30.0 is a safe default for FTC
         colorSensor.setGain(30);
+    }
+
+    /**
+     * Fast read: returns the color of the artifact in front of the sensor, or null if there is
+     * none (nothing within range, or the color is not one of the TargetColors).
+     * Costs ONE read when nothing is close. When something is close it takes READ_SAMPLES
+     * samples (distance + color each) and they must all agree, or it returns null.
+     */
+    public TargetColor ReadArtifactColor()
+    {
+        TargetColor found = null;
+
+        for (int i = 0; i < READ_SAMPLES; i++) {
+            double distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+            if (distance > DISTANCE_THRESHOLD_CM) {
+                return null; // nothing close
+            }
+
+            float hue = JavaUtil.colorToHue(colorSensor.getNormalizedColors().toColor());
+
+            TargetColor seen = null;
+            for (TargetColor color : TargetColor.values()) {
+                if (color.matches(hue)) {
+                    seen = color;
+                    break;
+                }
+            }
+
+            if (seen == null) {
+                return null; // something is there but it is not a known color
+            }
+            if (i == 0) {
+                found = seen;
+            } else if (seen != found) {
+                return null; // samples disagree, do not trust this reading
+            }
+        }
+
+        return found;
     }
 
     public boolean SeeArtifactColor(TargetColor targetColor)

@@ -34,10 +34,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;
 
-    // Launcher sensing: how often the launcher sensor is checked, and how long a manual
-    // Pollen/Nectar press pauses the sensing before it resumes on its own.
+    // Sensing: how often the sensors are read when idle, and while gamepad2's right bumper is held.
+    // MANUAL_OVERRIDE_SECONDS: how long a manual Pollen/Nectar press pauses the launcher-size sensing.
     private static final double SENSE_INTERVAL_SECONDS = 0.25;
+    private static final double HELD_SENSE_INTERVAL_SECONDS = 0.1;
     private static final double MANUAL_OVERRIDE_SECONDS = 5.0;
+
+    // Auto-feed: each pulse runs moveToLauncher this long, then the sensors are checked again.
+    // After MAX_FEED_PULSES in a row (20 x 0.1 s = 2 s) with the ball still not at launch, it stops.
+    private static final double FEED_PULSE_SECONDS = 0.1;
+    private static final int MAX_FEED_PULSES = 20;
 
     /** declare variables here */
     private BioBuzzRobotChassis Wheels;
@@ -66,10 +72,24 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     private boolean isLauncherAtSpeed = false;
 
     // Driver's sensing switch: gamepad1 D-pad left = off, D-pad right = on. Starts on.
+    // OFF means no sensors are used at all: no size sensing, no blocking, no auto-feed.
     private boolean launchSensingOn = true;
 
-    // Sensing stays paused until currentTimer reaches this time (set by a manual Pollen/Nectar press)
+    // Launcher-size sensing stays paused until currentTimer reaches this time
+    // (set by a manual Pollen/Nectar press on gamepad2). Does not affect blocking or auto-feed.
     private double sensingPausedUntil = 0;
+
+    // Latest sensor results and when the sensors are next due to be read
+    private boolean launchSpotOccupied = false;
+    private boolean nextSpotOccupied = false;
+    private double nextSensorPassAt = 0;
+    private double lastSensorPassMs = 0;
+
+    // Auto-feed state
+    private boolean feedPulsing = false;
+    private double feedPulseEndsAt = 0;
+    private int feedPulseCount = 0;
+    private String feedStatus = "IDLE";
 
     protected BioBuzzTeleop(TagSight.Alliance alliance)
     {
@@ -97,7 +117,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             Wheels.OptimizedTeleopDrive();
             manageDriverControls();
             manageManipulatorControls();
-            manageLauncherSensing();
+            manageSensorPass();
+            manageMoveToLauncher();
 
             // Returns the loader servo to Load once a launch has been held long enough
             LanceTheLoaderServo.Update();
@@ -111,8 +132,10 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.addData("is launcher at speed:", isLauncherAtSpeed);
                 telemetry.addData("launch sensing", sensingStatus());
+                telemetry.addData("feed assist", feedStatus);
                 telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
                 telemetry.addData("next sensor last saw:", flingyMag.flingyNext);
+                telemetry.addData("last sensor pass ms:", lastSensorPassMs);
                 telemetry.update();
             }
         }
@@ -127,8 +150,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
        Left stick             Drive (move)
        Right stick            Drive (turn)
        D-pad up / down        Launcher target speed + / - (1% per press)
-       D-pad left             Launch sensing OFF (emergency: size is manual only)
-       D-pad right            Launch sensing ON
+       D-pad left             Sensors OFF (emergency: everything manual, no blocking, no auto-feed)
+       D-pad right            Sensors ON
        Triangle               Turret preset: straight (180°)
        Circle                 Turret preset: 150°
        Square                 Turret preset: 210°
@@ -137,15 +160,19 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
      Gamepad 2 (manipulator)
        Right trigger (hold)   Intake in
        Left trigger (hold)    Intake backwards
-       Right bumper (hold)    moveToLauncherMotor forward
-       Left bumper (hold)     moveToLauncherMotor reverse
+       Right bumper (hold)    moveToLauncherMotor forward (blocked while a ball is at launch, sensors ON)
+       Left bumper (hold)     moveToLauncherMotor reverse (never blocked)
        Triangle               Launcher on
        Cross (X)              Launcher off
        Circle (one push)      Loader goes to Launch, then right back to Load
-       D-pad left             Launcher size: Pollen (also pauses sensing for 5 seconds)
-       D-pad right            Launcher size: Nectar (also pauses sensing for 5 seconds)
+       D-pad left             Launcher size: Pollen (also pauses size sensing for 5 seconds)
+       D-pad right            Launcher size: Nectar (also pauses size sensing for 5 seconds)
        D-pad up               Flower ramp up
        D-pad down             Flower ramp down
+
+     With sensors ON and no bumper held: if a ball is in the Next spot and none at Launch, the
+     move-to-launcher motor pulses 0.1 s at a time (checking the sensors between pulses) until
+     the ball reaches Launch.
     */
     private void manageDriverControls()
     {
@@ -158,7 +185,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LarryTheLauncher.DecreaseLaunchPercent();
         }
 
-        // ----- Launch sensing switch: left = off, right = on -----
+        // ----- Sensors switch: left = off, right = on -----
         if(gamepad1.dpadLeftWasPressed())
         {
             launchSensingOn = false;
@@ -167,6 +194,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         {
             launchSensingOn = true;
             sensingPausedUntil = 0;   // turning it on also cancels any manual-override pause
+            nextSensorPassAt = 0;     // read the sensors right away
+            feedPulseCount = 0;       // and let a capped auto-feed try again
         }
 
         if(gamepad1.triangleWasPressed())
@@ -204,7 +233,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             IggyTheIntake.StopIntake();
         }
 
-        // ----- Launcher size, manual: also pauses the sensing for a few seconds -----
+        // ----- Launcher size, manual: also pauses the size sensing for a few seconds -----
         if(gamepad2.dpadLeftWasPressed())
         {
             LauncherSize.SetPollen();
@@ -226,20 +255,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             FlowerRamp.MoveDown();
         }
 
-
-        // ----- Move to launcher: hold right bumper -----
-        if(gamepad2.right_bumper)
-        {
-            moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
-        }
-        else if(gamepad2.left_bumper)
-        {
-            moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
-        }
-        else
-        {
-            moveToLauncherMotor.SetPower(0);
-        }
+        // (Move to launcher is handled in manageMoveToLauncher(), which needs the sensor results.)
 
         // ----- Launcher: triangle = on, cross = off -----
         if(gamepad2.triangleWasPressed())
@@ -259,27 +275,38 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     }
 
     /**
-     * Looks at the launcher sensor every SENSE_INTERVAL_SECONDS and sets the launcher size:
-     * red or blue (nectar) -> Nectar, yellow (pollen) -> Pollen, nothing seen -> no change.
-     * Does nothing while sensing is off or paused, or while the loader is mid-launch.
+     * Reads the sensors when they are due: every SENSE_INTERVAL_SECONDS, every
+     * HELD_SENSE_INTERVAL_SECONDS while gamepad2's right bumper is held, right when that bumper
+     * is first pressed, and right after each auto-feed pulse. Does nothing when sensing is off.
+     *
+     * Each pass reads the launcher sensor (one read when empty). It also sets the launcher
+     * size (red/blue = Nectar, yellow = Pollen) when size sensing is active and the loader is
+     * not mid-launch. The two intake sensors are read only when the launch spot is empty,
+     * since "next" only matters then.
      */
-    private void manageLauncherSensing()
+    private void manageSensorPass()
     {
-        if (!isSensingActive())
-        {
-            return;
-        }
-        if (LanceTheLoaderServo.IsLaunching())
-        {
-            return;
-        }
-        if (!eventTracker.doEvent("LauncherSensor", currentTimer.seconds(), SENSE_INTERVAL_SECONDS))
+        if (!launchSensingOn)
         {
             return;
         }
 
-        // Reads only the launcher sensor, fresh, then flingyReady holds the color it saw
-        if (flingyMag.IsBallReadyForLaunch())
+        double now = currentTimer.seconds();
+
+        if (gamepad2.rightBumperWasPressed())
+        {
+            nextSensorPassAt = 0;   // fresh reading the moment the bumper goes down
+        }
+        if (now < nextSensorPassAt)
+        {
+            return;
+        }
+
+        ElapsedTime passTimer = new ElapsedTime();
+
+        launchSpotOccupied = flingyMag.IsBallReadyForLaunch();
+
+        if (launchSpotOccupied && isSizeSensingActive() && !LanceTheLoaderServo.IsLaunching())
         {
             String color = flingyMag.flingyReady;
             if (color.equals("red") || color.equals("blue"))
@@ -291,10 +318,122 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 LauncherSize.SetPollen();
             }
         }
+
+        if (!launchSpotOccupied)
+        {
+            nextSpotOccupied = flingyMag.IsBallInMidPosition();
+        }
+
+        lastSensorPassMs = passTimer.milliseconds();
+        nextSensorPassAt = now + (gamepad2.right_bumper ? HELD_SENSE_INTERVAL_SECONDS : SENSE_INTERVAL_SECONDS);
     }
 
-    /** True when the driver has sensing on AND no manual-override pause is running. */
-    private boolean isSensingActive()
+    /**
+     * Decides the move-to-launcher motor power every loop.
+     *   Sensors OFF:           plain manual (right bumper forward, left bumper reverse).
+     *   Left bumper:           reverse, never blocked.
+     *   Right bumper:          forward, unless a ball is at the launch spot (then blocked).
+     *   No bumper:             auto-feed in 0.1 s pulses while a ball is in Next and none at Launch.
+     */
+    private void manageMoveToLauncher()
+    {
+        double now = currentTimer.seconds();
+        boolean forward = gamepad2.right_bumper;
+        boolean reverse = gamepad2.left_bumper;
+
+        // ----- Sensors off: fully manual -----
+        if (!launchSensingOn)
+        {
+            feedPulsing = false;
+            feedPulseCount = 0;
+            if (forward)
+            {
+                moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+            }
+            else if (reverse)
+            {
+                moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
+            }
+            else
+            {
+                moveToLauncherMotor.SetPower(0);
+            }
+            feedStatus = "OFF - sensors not used";
+            return;
+        }
+
+        // ----- Manual reverse: always allowed -----
+        if (reverse)
+        {
+            feedPulsing = false;
+            moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
+            feedStatus = "MANUAL REVERSE";
+            return;
+        }
+
+        // ----- Manual forward: blocked while a ball is at the launch spot -----
+        if (forward)
+        {
+            feedPulsing = false;
+            if (launchSpotOccupied)
+            {
+                moveToLauncherMotor.SetPower(0);
+                feedStatus = "BLOCKED - ball at launch";
+            }
+            else
+            {
+                moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+                feedStatus = "MANUAL FEED";
+            }
+            return;
+        }
+
+        // ----- No bumper held: auto-feed -----
+        if (feedPulsing)
+        {
+            if (now < feedPulseEndsAt)
+            {
+                feedStatus = "AUTO-FEEDING";
+                return;   // motor is already running for this pulse
+            }
+            // Pulse is over: stop, then look again right away
+            moveToLauncherMotor.SetPower(0);
+            feedPulsing = false;
+            nextSensorPassAt = 0;
+            feedStatus = "CHECKING";
+            return;
+        }
+
+        moveToLauncherMotor.SetPower(0);
+
+        if (LanceTheLoaderServo.IsLaunching())
+        {
+            feedStatus = "WAITING - loader launching";
+            return;
+        }
+
+        if (!launchSpotOccupied && nextSpotOccupied)
+        {
+            if (feedPulseCount >= MAX_FEED_PULSES)
+            {
+                feedStatus = "STOPPED - ball not reaching launch (jam?). Driver D-pad left = sensors off";
+                return;
+            }
+            moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+            feedPulsing = true;
+            feedPulseEndsAt = now + FEED_PULSE_SECONDS;
+            feedPulseCount++;
+            feedStatus = "AUTO-FEEDING";
+        }
+        else
+        {
+            feedPulseCount = 0;   // nothing to feed, or the ball made it: start counting fresh
+            feedStatus = launchSpotOccupied ? "IDLE - ball at launch" : "IDLE";
+        }
+    }
+
+    /** True when the driver has sensing on AND no manual-override pause is running (size sensing only). */
+    private boolean isSizeSensingActive()
     {
         return launchSensingOn && currentTimer.seconds() >= sensingPausedUntil;
     }
@@ -304,12 +443,12 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     {
         if (!launchSensingOn)
         {
-            return "OFF (driver) - launcher size is manual only";
+            return "OFF (driver) - sensors not used, everything manual";
         }
         double secondsLeft = sensingPausedUntil - currentTimer.seconds();
         if (secondsLeft > 0)
         {
-            return String.format("PAUSED (manual override) - resumes in %.1f s", secondsLeft);
+            return String.format("ON - size sensing paused by manual override, resumes in %.1f s", secondsLeft);
         }
         return "ON";
     }

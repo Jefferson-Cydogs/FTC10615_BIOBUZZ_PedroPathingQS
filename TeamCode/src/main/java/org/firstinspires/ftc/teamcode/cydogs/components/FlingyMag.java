@@ -77,22 +77,15 @@ public class FlingyMag {
 
     // ---------- Private: helpers ----------
 
-    /** Reads one sensor. Checks yellow, then red, then blue, and stops at the first match. */
+    /** Reads one sensor once and returns "yellow", "red", "blue" or "none". */
     private String readColor(BaseColorSensor sensor)
     {
-        if (sensor.SeeArtifactColor(TargetColor.YELLOW))
+        TargetColor color = sensor.ReadArtifactColor();
+        if (color == null)
         {
-            return "yellow";
+            return "none";
         }
-        if (sensor.SeeArtifactColor(TargetColor.RED))
-        {
-            return "red";
-        }
-        if (sensor.SeeArtifactColor(TargetColor.BLUE))
-        {
-            return "blue";
-        }
-        return "none";
+        return color.name().toLowerCase();
     }
 
     /** Combines the two intake sensors into flingyNext (yellow wins, then red, then blue). */
