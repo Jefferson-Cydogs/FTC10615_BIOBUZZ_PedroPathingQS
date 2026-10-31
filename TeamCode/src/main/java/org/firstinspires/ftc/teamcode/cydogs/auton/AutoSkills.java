@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.cydogs.components.FlingyMag;
+import org.firstinspires.ftc.teamcode.cydogs.components.FlowerRampServo;
 
 /**
  * Shared autonomous skills for every Course.
@@ -42,23 +43,19 @@ public class AutoSkills {
     private static final long INTAKE_SHOT_MS = 150;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
     private static final long FLOWER_INTAKE_MS = 2000;
-
     /** How long feed + intake run together (tune this). */
     private static final long FEED_AND_INTAKE_MS = 200;
-
     /** Wait long enough for LoaderServo.Update() to finish LaunchOnce. */
     private static final long POP_MS = (long) (BeethovenHardware.Loader.LAUNCH_HOLD_SECONDS * 1000.0) + 100;
-
     /** How long to watch after a preset aim (ms). Lock = no tip. */
     private static final long TIP_WATCH_MS = 2000;
-
     /** How long to SEARCH full sweep when no preset (ms). Tune so turret can cover range. */
     private static final long TIP_SEARCH_MS = 6000;
     private static final long FEED_TIMEOUT_MS = 1500;
     private static final long INTAKE_TO_MID_TIMEOUT_MS = 800;  // keep short so ball 4 doesn’t overshoot
     private static final long SHOOT_CLEAR_TIMEOUT_MS = 800;
-
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
+    private static final long RAMP_MOVE_MS = 400;
     private boolean hiveTipped = true;
 
     private final OpMode opMode;
@@ -70,6 +67,7 @@ public class AutoSkills {
     private Intake intake;
     private Aimer aimer;
     private FlingyMag flingyMag;
+    private FlowerRampServo flowerRamp;
 
     public AutoSkills(OpMode opMode) {
         this.opMode = opMode;
@@ -83,6 +81,7 @@ public class AutoSkills {
         moveToLauncher = new MoveToLauncherMotor(opMode);
         intake = new Intake(opMode);
         flingyMag = new FlingyMag(opMode);
+        flowerRamp = new FlowerRampServo(opMode);
 
         launcherSize.Initialize();
         launcherSize.SetPollen();
@@ -90,6 +89,8 @@ public class AutoSkills {
         loader.Initialize();
         moveToLauncher.Initialize();
         intake.Initialize();
+        flowerRamp.Initialize();   // if BaseServo uses Initialize() like your other servos
+        flowerRamp.MoveUp();       // start raised for auto
     }
 
     /** Call every OpMode loop. */
@@ -454,6 +455,20 @@ public class AutoSkills {
 
     public Command turretStraight() {
         return instant(() -> aimStraight());
+    }
+
+    public Command flowerRampUp() {
+        return sequential(
+                instant(() -> flowerRamp.MoveUp()),
+                waitMs(RAMP_MOVE_MS)
+        );
+    }
+
+    public Command flowerRampDown() {
+        return sequential(
+                instant(() -> flowerRamp.MoveDown()),
+                waitMs(RAMP_MOVE_MS)
+        );
     }
 
     /** Last tip check: true = did not lock (treat as tipped), false = locked (basket still up). */
