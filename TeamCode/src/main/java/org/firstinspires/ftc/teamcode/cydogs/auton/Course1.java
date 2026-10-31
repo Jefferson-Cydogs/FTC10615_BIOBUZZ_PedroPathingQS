@@ -29,8 +29,9 @@ public class Course1 extends LinearOpMode {
     private final Pose GardenApproach = poseFactory.of(28, 8.75, 180);
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.5, 8.75, 180);
-    private final Pose Shoot2 = poseFactory.of(61.25, 126, 90);
-    private final Pose Shoot2Control1 = poseFactory.of(35, 105, 0);
+    private final Pose Shoot2Half1 = poseFactory.of(36, 108, 90);
+    private final Pose Shoot2Half2 = poseFactory.of(61.25, 126, 90);
+    private final Pose Shoot2Half2Control1 = poseFactory.of(60, 108, 0);
     private final Pose FlowerApproach = poseFactory.of(48, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
     private final Pose FlowerCollect = poseFactory.of(48, 127, 90);
@@ -49,11 +50,16 @@ public class Course1 extends LinearOpMode {
                 .linear(GardenApproach, GardenCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
-    public Path Shoot2() {
-        return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
+    public Path Shoot2Half1() {
+        return Paths.curve(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
+    }
+    public Path Shoot2Half2() {
+        return Paths.curve(Shoot2Half1, Shoot2Half2Control1, Shoot2Half2).linear(Shoot2Half1, Shoot2Half2);
     }
     public Path FlowerApproach() {
-        return Paths.curve(Shoot2, FlowerApproachControl1, FlowerApproach).linear(Shoot2, FlowerApproach);
+        return Paths.curve(Shoot2Half2, FlowerApproachControl1, FlowerApproach)
+                .linear(Shoot2Half2, FlowerApproach)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
     public Path FlowerCollect() {
         return Paths.curve(FlowerApproach, FlowerCollect).linear(FlowerApproach, FlowerCollect);
@@ -74,7 +80,8 @@ public class Course1 extends LinearOpMode {
                 skills.startIntake(),
                 follow(follower, GardenCollect()),
                 skills.stopIntake(),
-                follow(follower, Shoot2()),
+                follow(follower, Shoot2Half1()),
+                follow(follower, Shoot2Half2()),
                 skills.shootFourPollen(),
                 follow(follower, FlowerApproach()),
                 skills.startIntake(),
