@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.LoaderServo;
 import org.firstinspires.ftc.teamcode.cydogs.components.MoveToLauncherMotor;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
+import org.firstinspires.ftc.teamcode.cydogs.components.FlingyMag;
 
 /**
  * Shared autonomous skills for every Course.
@@ -53,6 +54,9 @@ public class AutoSkills {
 
     /** How long to SEARCH full sweep when no preset (ms). Tune so turret can cover range. */
     private static final long TIP_SEARCH_MS = 6000;
+    private static final long FEED_TIMEOUT_MS = 1500;
+    private static final long INTAKE_TO_MID_TIMEOUT_MS = 800;  // keep short so ball 4 doesn’t overshoot
+    private static final long SHOOT_CLEAR_TIMEOUT_MS = 800;
 
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
     private boolean hiveTipped = true;
@@ -65,6 +69,7 @@ public class AutoSkills {
     private MoveToLauncherMotor moveToLauncher;
     private Intake intake;
     private Aimer aimer;
+    private FlingyMag flingyMag;
 
     public AutoSkills(OpMode opMode) {
         this.opMode = opMode;
@@ -77,14 +82,14 @@ public class AutoSkills {
         loader = new LoaderServo(opMode);
         moveToLauncher = new MoveToLauncherMotor(opMode);
         intake = new Intake(opMode);
+        flingyMag = new FlingyMag(opMode);
 
         launcherSize.Initialize();
+        launcherSize.SetPollen();
         launcher.Initialize();
         loader.Initialize();
         moveToLauncher.Initialize();
         intake.Initialize();
-
-        launcherSize.SetPollen();
     }
 
     /** Call every OpMode loop. */
@@ -101,6 +106,17 @@ public class AutoSkills {
     }
 
     // ----- private building blocks -----
+
+    /** Wait until flywheel is ready, or give up after timeout. */
+    private Command waitLauncherReady() {
+        final long[] startMs = {0L};
+        return Command.build()
+                .setStart(() -> startMs[0] = System.currentTimeMillis())
+                .setDone(() ->
+                        launcher.IsLauncherAtSpeed()
+                                || System.currentTimeMillis() - startMs[0] >= SPIN_UP_MS
+                );
+    }
 
     private Command popOnce() {
         return sequential(
@@ -149,6 +165,82 @@ public class AutoSkills {
             moveToLauncher.Stop();
             launcher.StopLauncher();
         });
+    }
+
+    /** Wait until shoot slot is EMPTY (safe to run feeder), or timeout. */
+    private Command waitUntilShootClear() {
+        final long[] start = {0L};
+        return Command.build()
+                .setStart(() -> start[0] = System.currentTimeMillis())
+                .setDone(() ->
+                        !flingyMag.IsBallReadyForLaunch()
+                                || System.currentTimeMillis() - start[0] >= SHOOT_CLEAR_TIMEOUT_MS
+                );
+    }
+
+    /** Wait until a ball is at the launcher, or timeout. */
+    private Command waitUntilReadyForLaunch() {
+        final long[] start = {0L};
+        return Command.build()
+                .setStart(() -> start[0] = System.currentTimeMillis())
+                .setDone(() ->
+                        flingyMag.IsBallReadyForLaunch()
+                                || System.currentTimeMillis() - start[0] >= FEED_TIMEOUT_MS
+                );
+    }
+
+    /** Wait until intake L/R sees a ball, or short timeout. */
+    private Command waitUntilBallInMid() {
+        final long[] start = {0L};
+        return Command.build()
+                .setStart(() -> start[0] = System.currentTimeMillis())
+                .setDone(() ->
+                        flingyMag.IsBallInMidPosition()
+                                || System.currentTimeMillis() - start[0] >= INTAKE_TO_MID_TIMEOUT_MS
+                );
+    }
+
+    /** Sensor path: fire only; clear is handled before feed. */
+    private Command popNow() {
+        return instant(() -> loader.LaunchOnce());
+    }
+
+    /**
+     * Do not run feeder while a ball is in the shoot slot.
+     * Then feed until a ball is ready (or timeout).
+     */
+    private Command feedUntilReady() {
+        return sequential(
+                waitUntilShootClear(),
+                instant(() -> moveToLauncher.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER)),
+                waitUntilReadyForLaunch(),
+                instant(() -> moveToLauncher.Stop())
+        );
+    }
+
+    /** Intake until mid sensors see a ball, then stop (limits ball 4 travel). */
+    private Command intakeUntilMid() {
+        return sequential(
+                instant(() -> intake.RunIntake()),
+                waitUntilBallInMid(),
+                instant(() -> intake.StopIntake())
+        );
+    }
+
+    /** Intake + feeder together until ball at launcher (ball 4). */
+    private Command intakeAndFeedUntilReady() {
+        return sequential(
+                waitUntilShootClear(),
+                instant(() -> {
+                    intake.RunIntake();
+                    moveToLauncher.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
+                }),
+                waitUntilReadyForLaunch(),
+                instant(() -> {
+                    intake.StopIntake();
+                    moveToLauncher.Stop();
+                })
+        );
     }
 
     // ----- skills for courses -----
@@ -227,15 +319,37 @@ public class AutoSkills {
         );
     }
 
-    /** Wait until flywheel is ready, or give up after timeout. */
-    private Command waitLauncherReady() {
-        final long[] startMs = {0L};
-        return Command.build()
-                .setStart(() -> startMs[0] = System.currentTimeMillis())
-                .setDone(() ->
-                        launcher.IsLauncherAtSpeed()
-                                || System.currentTimeMillis() - startMs[0] >= SPIN_UP_MS
-                );
+    /**
+     * Four pollen using FlingyMag sensors.
+     * Queue at start: shoot=1, feeder=2, intake=3 then 4.
+     * Rule: never run feeder while IsBallReadyForLaunch() is true.
+     */
+    public Command shootFourPollenSensor() {
+        return sequential(
+                instant(() -> launcher.StartLauncher()),
+                waitLauncherReady(),
+
+                // Ball 1 — already at shoot
+                popNow(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 2 — under feeder
+                feedUntilReady(),
+                popNow(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 3 — short intake to mid, then feed
+                intakeUntilMid(),
+                feedUntilReady(),
+                popNow(),
+                waitMs(BETWEEN_SHOTS_MS),
+
+                // Ball 4
+                intakeAndFeedUntilReady(),
+                popNow(),
+
+                stopShootingHardware()
+        );
     }
 
     /** Long intake at the garden. */
