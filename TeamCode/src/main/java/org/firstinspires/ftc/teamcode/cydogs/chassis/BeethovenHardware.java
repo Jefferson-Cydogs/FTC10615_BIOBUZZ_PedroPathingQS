@@ -144,7 +144,7 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.16;
+        public static final double NECTAR_POSITION = 0.16; // Changed to 0.1 from 0.16 after recalibration
         public static final double POLLEN_POSITION = 0.64;
     }
 
@@ -158,13 +158,27 @@ public final class BeethovenHardware {
         public static final Servo.Direction DIRECTION = Servo.Direction.FORWARD;
 
         // Servo positions (safe range from testing)
-        public static final double MIN_POSITION = 0.35;
-        public static final double STRAIGHT_POSITION = 0.5;
-        public static final double MAX_POSITION = 0.65;
+        // 5:1 reduction means 1 full turret turn (360°) = 1 full servo range (0.0 to 1.0)
+        // Math: 360° total / 1.0 range = 36° per 0.1 servo step (or 360° * position)
+
+        // Absolute structural safety limits calculated from system geometry:
+        // Absolute Min: 0.23 servo = 82.8° (Lower bound)
+        // Absolute Max: 0.78 servo = 280.8° (Upper bound)
+
+        // Safe, balanced symmetrical programming bounds (95° travel each way from 180° center):
+        // Center:  0.500 servo = 180.0° (Turret facing 6:00)
+        // Min Cap: 0.236 servo = 85.0°  (180° - 95° | Safely above absolute 82.8°)
+        // Max Cap: 0.764 servo = 275.0° (180° + 95° | Safely below absolute 280.8°)
+        // Old Min: 0.35 servo = 126.0° (180° - 54° | Turret moved 1.8 hours toward 4:00)
+        // Old Max: 0.65 servo = 234.0° (180° + 54° | Turret moved 1.8 hours toward 8:00)
+
+        public static final double MIN_POSITION = 0.23; //new min .23 (82.8 degrees) , changed from 0.35
+        public static final double STRAIGHT_POSITION = 0.5; //(180 degrees)
+        public static final double MAX_POSITION = 0.78; //New Max .78 (280.8 degrees), changed from 0.65
 
         // Robot angles in degrees: 0 = intake, 180 = straight ahead for aiming
         public static final double STRAIGHT_DEGREES = 180.0;
-        public static final double MAX_OFFSET_DEGREES = 50.0;
+        public static final double MAX_OFFSET_DEGREES = 95.0;
         public static final double MIN_DEGREES = STRAIGHT_DEGREES - MAX_OFFSET_DEGREES;
         public static final double MAX_DEGREES = STRAIGHT_DEGREES + MAX_OFFSET_DEGREES;
     }

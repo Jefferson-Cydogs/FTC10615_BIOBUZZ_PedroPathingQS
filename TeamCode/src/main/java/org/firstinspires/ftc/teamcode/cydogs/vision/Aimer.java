@@ -34,7 +34,7 @@ public class Aimer {
     private static final double TRACK_GAIN = 0.15;
 
     // How far to move each loop while searching (turret degrees)
-    private static final double SEARCH_STEP_DEG = 0.1;
+    private static final double SEARCH_STEP_DEG = 0.3;
 
     private final TagSight eyes;
     private final Turret turret;
