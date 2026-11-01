@@ -25,12 +25,12 @@ public class Course1 extends LinearOpMode {
 
     // Poses
     private final Pose Start = poseFactory.of(60.25, 9.8125, 270);
-    private final Pose Shoot1 = poseFactory.of(60.25, 12, 270);
+    private final Pose Shoot1 = poseFactory.of(60.25, 11, 270);
     private final Pose GardenApproach = poseFactory.of(28, 8.75, 180);
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.5, 8.75, 180);
     private final Pose Shoot2Half1 = poseFactory.of(36, 108, 90);
-    private final Pose Shoot2Half2 = poseFactory.of(61.25, 126, 90);
+    private final Pose Shoot2Half2 = poseFactory.of(61.25, 127, 90);
     private final Pose Shoot2Half2Control1 = poseFactory.of(60, 108, 0);
     private final Pose FlowerApproach = poseFactory.of(48, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
@@ -38,7 +38,7 @@ public class Course1 extends LinearOpMode {
     private final Pose Shoot3 = poseFactory.of(61.25, 126, 90);
     private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
 
-    // Paths
+    // Path methods
     public Path Shoot1() {
         return Paths.line(Start, Shoot1).linear(Start, Shoot1);
     }
@@ -51,7 +51,7 @@ public class Course1 extends LinearOpMode {
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
     public Path Shoot2Half1() {
-        return Paths.curve(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
+        return Paths.line(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
     }
     public Path Shoot2Half2() {
         return Paths.curve(Shoot2Half1, Shoot2Half2Control1, Shoot2Half2).linear(Shoot2Half1, Shoot2Half2);
@@ -71,7 +71,7 @@ public class Course1 extends LinearOpMode {
                 .linear(Shoot2Half2, FlowerApproach);
     }
     public Path FlowerCollect() {
-        return Paths.curve(FlowerApproach, FlowerCollect)
+        return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
