@@ -321,7 +321,7 @@ public class AutoSkills {
 
                 // Ball 2
                 popOnce(),
-                intakeShort(),
+                intakeMicro(),
                 feedOnce(),
                 waitMs(BETWEEN_SHOTS_MS),
 
