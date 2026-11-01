@@ -16,11 +16,11 @@ public class FlowerRampServo extends BaseServo {
 
     public void MoveUp()
     {
-        SetPosition(0.81);
-    } //changed to 81 from 96 after recalibrating
+        SetPosition(0.71);
+    }
 
     public void MoveDown() {
-        SetPosition(0.32); //changed to 32 from 39 after recalibration
+        SetPosition(0.33);
     }
 
 

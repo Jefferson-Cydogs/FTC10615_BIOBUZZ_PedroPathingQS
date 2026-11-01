@@ -103,7 +103,7 @@ public final class BeethovenHardware {
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
-        public static final double LAUNCH_PERCENT = 0.44;
+        public static final double LAUNCH_PERCENT = 0.45;
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
@@ -140,12 +140,12 @@ public final class BeethovenHardware {
         public static final String NAME = "LauncherSizeServo";
         public static final Servo.Direction DIRECTION = Servo.Direction.FORWARD;
 
-        public static final double MIN_POSITION = 0.02;
+        public static final double MIN_POSITION = 0.00;
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.16; // Changed to 0.1 from 0.16 after recalibration
-        public static final double POLLEN_POSITION = 0.64;
+        public static final double NECTAR_POSITION = 0.0; // Changed to 0.1 from 0.16 after recalibration
+        public static final double POLLEN_POSITION = 0.60;
     }
 
     // ------------------------------------------------------------------
