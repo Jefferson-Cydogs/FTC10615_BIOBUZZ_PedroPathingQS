@@ -73,7 +73,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
     // Driver's sensing switch: gamepad1 D-pad left = off, D-pad right = on. Starts on.
     // OFF means no sensors are used at all: no size sensing, no blocking, no auto-feed.
-    private boolean launchSensingOn = true;
+    private boolean launchSensingOn = false;
 
     // Launcher-size sensing stays paused until currentTimer reaches this time
     // (set by a manual Pollen/Nectar press on gamepad2). Does not affect blocking or auto-feed.
@@ -90,6 +90,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     private double feedPulseEndsAt = 0;
     private int feedPulseCount = 0;
     private String feedStatus = "IDLE";
+
+
 
     protected BioBuzzTeleop(TagSight.Alliance alliance)
     {

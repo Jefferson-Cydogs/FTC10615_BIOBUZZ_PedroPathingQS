@@ -104,6 +104,7 @@ public final class BeethovenHardware {
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
         public static final double LAUNCH_PERCENT = 0.45;
+        public static final double NECTAR_LAUNCH_PERCENT = 0.45;
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
@@ -131,6 +132,17 @@ public final class BeethovenHardware {
         public static final double LAUNCH_HOLD_SECONDS = 0.3;
     }
 
+
+
+    public static final class FlowerRamp {
+        private FlowerRamp(){}
+        public static final double STARTING_POSITION = 0.80;
+        public static final double UP_POSITION = 0.71;
+        public static final double DOWN_POSITION = 0.33;
+
+
+
+    }
     // ------------------------------------------------------------------
     // Launcher size servo: switches between nectar and pollen (LauncherSizeServo.java)
     // ------------------------------------------------------------------
@@ -145,7 +157,7 @@ public final class BeethovenHardware {
         public static final double STARTING_POSITION = 0.5;
 
         public static final double NECTAR_POSITION = 0.0; // Changed to 0.1 from 0.16 after recalibration
-        public static final double POLLEN_POSITION = 0.60;
+        public static final double POLLEN_POSITION = 0.59;
     }
 
     // ------------------------------------------------------------------
