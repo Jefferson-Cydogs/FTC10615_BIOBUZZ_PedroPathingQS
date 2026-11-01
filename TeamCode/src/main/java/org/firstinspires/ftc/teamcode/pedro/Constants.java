@@ -48,27 +48,49 @@ public class Constants {
 
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(0.4012848190517527);
-                Controller secondaryTranslationalForward = Controller.proportional(0.1482640181117779);
-                Controller primaryTranslationalLateral = Controller.proportional(0.6351855852654);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.23468410128414055);
+                /*
+                // End Constraints, with default values. Only enable if follower is taking too long to finish paths.
+                c.parametricTConstraint.set(0.025);
+                c.velocityConstraint.set(0.1);
+                c.translationalConstraint.set(0.1);
+                c.headingConstraint.set(0.007);
+                c.timeoutConstraint.set(100.0);
+                // Path Constraints, with default values. Adding default values is harmless, but adding finite acceleration/velocity/deceleration constraints is an actual behavior change.
+                c.brakeAggression.set(1.0);
+                c.maxBrakingPower.set(0.2);
+                c.maxAccelerationConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxVelocityConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxDecelerationConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxDecelerationScale.set(ForesightConfig.Constraint.NONE);
+                c.coastDownToVelocity.set(0.0);
+                // Foresight Constraints, with default values.
+                c.headingDriveRatio.set(0.5);
+                c.brakeAtEnd.set(true);
+                c.translationalDeviationTolerance.set(2.5);
+                c.headingDeviationTolerance.set(Math.toRadians(11.25));
+                c.cosineScale.set(false);
+                */
+                Controller primaryTranslationalForward = Controller.proportional(0.31373366008474174);
+                Controller secondaryTranslationalForward = Controller.proportional(0.11591620428352051);
+                Controller primaryTranslationalLateral = Controller.proportional(0.49702205863857224);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.18363636999295196);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-                c.coast.set(Controller.proportionalFeedforward(0.017768828399754175));
-                c.brake.set(Controller.proportionalFeedforward(0.015103504139791049));
+                c.coast.set(Controller.proportionalFeedforward(0.018219738653513333));
+                c.brake.set(Controller.proportionalFeedforward(0.015486777855486333));
 
-                c.headingFeedback.set(Controller.proportional(5.796826607594298));
-                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.05296036786713781, 0.0034791883614576865));
+                c.headingFeedback.set(Controller.proportional(4.104448001823589));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.04179017793937523, 0.007249258120814468));
 
-                c.linearBrakeCoefficients.set(Matrix.diag(0.07215007849818011, 0.05220257715454756));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(0.001771759053035244, 0.0018102535420155557));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.09218355660085838, 0.06063525224611366));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0013068092557740353, 0.0016906794804317248));
 
-                c.maxAchievableForwardVelocity.set(59.51029864484011);
-                c.maxAchievableStrafeVelocity.set(46.84134068859984);
-                c.naturalForwardDeceleration.set(38.15444485175657);
-                c.naturalStrafeDeceleration.set(64.58905721038217);
+                c.maxAchievableForwardVelocity.set(58.97072313325149);
+                c.maxAchievableStrafeVelocity.set(45.15864360899799);
+                c.naturalForwardDeceleration.set(35.51390692087908);
+                c.naturalStrafeDeceleration.set(73.39581398800358);
             }
     );
 
