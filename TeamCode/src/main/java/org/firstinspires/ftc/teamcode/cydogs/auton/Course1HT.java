@@ -84,7 +84,7 @@ public class Course1HT extends LinearOpMode {
     }
 
     public Path Shoot2Half1() {
-        return Paths.curve(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
+        return Paths.line(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
     }
 
     public Path Shoot2Half2() {
@@ -98,7 +98,7 @@ public class Course1HT extends LinearOpMode {
     }
 
     public Path FlowerCollect() {
-        return Paths.curve(FlowerApproach, FlowerCollect)
+        return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
