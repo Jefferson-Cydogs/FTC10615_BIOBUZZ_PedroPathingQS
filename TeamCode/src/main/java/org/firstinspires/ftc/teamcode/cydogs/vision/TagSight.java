@@ -134,6 +134,16 @@ public class TagSight {
         return cameraOpen;
     }
 
+    /** Camera state for telemetry (STREAMING, STOPPED, ERROR, ...). */
+    public String getCameraStateName() {
+        return portal == null ? "NO PORTAL" : portal.getCameraState().toString();
+    }
+
+    /** Frames per second the pipeline is actually processing (0 if not streaming). */
+    public double getFps() {
+        return portal == null ? 0 : portal.getFps();
+    }
+
     /**
      * Read the latest detections and pick the best valid target.
      * Safe to call when the camera is off (hasTarget stays false).

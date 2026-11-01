@@ -438,6 +438,42 @@ public class AutoSkills {
     }
 
     /**
+     * INIT-loop vision check. Call every loop after prepareVision() and before start.
+     * Reads the camera only (eyes.update()); the turret does NOT move.
+     * Shows whether the camera is streaming and whether it sees our hive tag.
+     */
+    public void updateInitVision() {
+        if (aimer == null) {
+            opMode.telemetry.addLine("VISION: not prepared (call prepareVision first)");
+            return;
+        }
+
+        TagSight eyes = aimer.getEyes();
+        eyes.update();
+
+        boolean streaming = eyes.isCameraOpen() && "STREAMING".equals(eyes.getCameraStateName());
+        String status;
+        if (!streaming) {
+            status = "CAMERA NOT STREAMING";
+        } else if (eyes.hasTarget) {
+            status = "OK - TAG VISIBLE";
+        } else {
+            status = "NO TAG IN VIEW";
+        }
+
+        opMode.telemetry.addData("VISION", status);
+        opMode.telemetry.addData("Camera", "%s  %.0f fps", eyes.getCameraStateName(), eyes.getFps());
+        opMode.telemetry.addData("Tag", eyes.hasTarget ? eyes.targetName : "none");
+        if (eyes.hasTarget) {
+            opMode.telemetry.addData("Bearing (deg)", "%.1f", eyes.bearingDegrees);
+            opMode.telemetry.addData("Range (in)", "%.1f", eyes.rangeInches);
+            opMode.telemetry.addData("Roll (deg)", "%.1f", eyes.rollDegrees);
+            opMode.telemetry.addData("Cluster found (%)", eyes.percentClusterFound);
+        }
+        opMode.telemetry.addData("Locked (centered)", aimer.isLocked());
+    }
+
+    /**
      * Create vision and open the camera so Driver Station Camera Stream works from Init.
      * Call once after initialize(), before waitForStart().
      * Does not move the turret.
@@ -584,5 +620,39 @@ public class AutoSkills {
                 });
     }
 
+    // ---- PASTE THIS RIGHT AFTER your existing two-argument waitForPartnerTipOrTimeout(...) ----
+    // ---- (before the final closing brace of the class). Nothing else in AutoSkills changes. ----
+
+    /**
+     * Same as the two-argument version above, but with a per-course timeout
+     * (Course3HT passes a longer one).
+     * Lock before timeout → hiveTipped = false; timeout with no lock → hiveTipped = true.
+     */
+    public Command waitForPartnerTipOrTimeout(TagSight.Alliance alliance, double presetDegrees,
+                                              long timeoutMs) {
+        final long[] startMs = {0L};
+
+        return Command.build()
+                .setStart(() -> {
+                    ensureAimer(alliance);
+                    startMs[0] = System.currentTimeMillis();
+                    hiveTipped = true;
+                    aimer.preset(presetDegrees);
+                    aimer.track();
+                })
+                .setDone(() -> {
+                    if (aimer.isLocked()) {
+                        hiveTipped = false;
+                        aimer.hold();
+                        return true;
+                    }
+                    if (System.currentTimeMillis() - startMs[0] >= timeoutMs) {
+                        hiveTipped = true;
+                        aimer.hold();
+                        return true;
+                    }
+                    return false;
+                });
+    }
 
 }

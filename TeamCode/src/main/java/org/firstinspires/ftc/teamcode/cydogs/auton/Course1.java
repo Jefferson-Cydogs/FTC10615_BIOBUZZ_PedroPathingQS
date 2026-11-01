@@ -56,17 +56,42 @@ public class Course1 extends LinearOpMode {
     public Path Shoot2Half2() {
         return Paths.curve(Shoot2Half1, Shoot2Half2Control1, Shoot2Half2).linear(Shoot2Half1, Shoot2Half2);
     }
-    public Path FlowerApproach() {
+    /*public Path FlowerApproach() {
         return Paths.curve(Shoot2Half2, FlowerApproachControl1, FlowerApproach)
                 .linear(Shoot2Half2, FlowerApproach)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
     public Path FlowerCollect() {
         return Paths.curve(FlowerApproach, FlowerCollect).linear(FlowerApproach, FlowerCollect);
+    }*/
+
+    // Full speed: the 40% cap lives on FlowerCollect, the leg that actually touches the flower
+    public Path FlowerApproach() {
+        return Paths.curve(Shoot2Half2, FlowerApproachControl1, FlowerApproach)
+                .linear(Shoot2Half2, FlowerApproach);
     }
+    public Path FlowerCollect() {
+        return Paths.curve(FlowerApproach, FlowerCollect)
+                .linear(FlowerApproach, FlowerCollect)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+    }
+
+    // Reverse of FlowerCollect. Ramp must stay down until this finishes.
+    public Path FlowerBackUp() {
+        return Paths.line(FlowerCollect, FlowerApproach)
+                .linear(FlowerCollect, FlowerApproach)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+    }
+
+    /*public Path Shoot3() {
+       return Paths.line(FlowerCollect, Shoot3).linear(FlowerCollect, Shoot3);
+    }*/
+
+    // Starts at FlowerApproach (after back-up), not FlowerCollect
     public Path Shoot3() {
-        return Paths.line(FlowerCollect, Shoot3).linear(FlowerCollect, Shoot3);
+        return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
+
     public Path Park() {
         return Paths.line(Shoot3, Park).linear(Shoot3, Park);
     }
@@ -84,9 +109,12 @@ public class Course1 extends LinearOpMode {
                 follow(follower, Shoot2Half2()),
                 skills.shootFourPollen(),
                 follow(follower, FlowerApproach()),
+                // TODO ramp: skills.flowerRampDown() goes here
                 skills.startIntake(),
                 follow(follower, FlowerCollect()),
                 skills.stopIntake(),
+                // TODO ramp: skills.flowerRampUp() goes here (after the back-up)
+                follow(follower, FlowerBackUp()),
                 follow(follower, Shoot3()),
                 skills.shootFourPollen(),
                 follow(follower, Park())
