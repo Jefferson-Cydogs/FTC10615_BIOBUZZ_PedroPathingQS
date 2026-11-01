@@ -315,7 +315,7 @@ public class AutoSkills {
 
                 // Ball 1 — already at the popper
                 popOnce(),
-                intakeMicro(),
+                //intakeMicro(),
                 feedOnce(),
                 waitMs(BETWEEN_SHOTS_MS),
 
