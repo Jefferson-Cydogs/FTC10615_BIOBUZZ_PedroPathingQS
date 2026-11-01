@@ -42,6 +42,7 @@ public class AutoSkills {
     private static final long BETWEEN_SHOTS_MS = 500;
     private static final long FEED_MS = 200; //changed from 350
     private static final long INTAKE_SHOT_MS = 150;   // short intake between pops
+    private static final long INTAKE_MICRO_MS = 50;   // short intake between pops
     private static final long GARDEN_INTAKE_MS = 2000;
     private static final long FLOWER_INTAKE_MS = 2000;
     /** How long feed + intake run together (tune this). */
@@ -145,6 +146,14 @@ public class AutoSkills {
         return sequential(
                 instant(() -> intake.RunIntake()),
                 waitMs(INTAKE_SHOT_MS),
+                instant(() -> intake.StopIntake())
+        );
+    }
+
+    private Command intakeMicro() {
+        return sequential(
+                instant(() -> intake.RunIntake()),
+                waitMs(INTAKE_MICRO_MS),
                 instant(() -> intake.StopIntake())
         );
     }
@@ -306,6 +315,7 @@ public class AutoSkills {
 
                 // Ball 1 — already at the popper
                 popOnce(),
+                intakeMicro(),
                 feedOnce(),
                 waitMs(BETWEEN_SHOTS_MS),
 
