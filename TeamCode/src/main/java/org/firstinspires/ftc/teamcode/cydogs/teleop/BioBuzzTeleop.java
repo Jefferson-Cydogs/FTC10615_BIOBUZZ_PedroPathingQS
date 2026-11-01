@@ -34,6 +34,9 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;
 
+    // How much each gamepad1 stick click moves the launcher size servo (servo position, 0 to 1)
+    private static final double LAUNCHER_SIZE_STEP = 0.01;
+
     // Sensing: how often the sensors are read when idle, and while gamepad2's right bumper is held.
     // MANUAL_OVERRIDE_SECONDS: how long a manual Pollen/Nectar press pauses the launcher-size sensing.
     private static final double SENSE_INTERVAL_SECONDS = 0.25;
@@ -71,7 +74,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
     private boolean isLauncherAtSpeed = false;
 
-    // Driver's sensing switch: gamepad1 D-pad left = off, D-pad right = on. Starts on.
+    // Driver's sensing switch: gamepad1 D-pad left = off, D-pad right = on. Starts off.
     // OFF means no sensors are used at all: no size sensing, no blocking, no auto-feed.
     private boolean launchSensingOn = false;
 
@@ -133,6 +136,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("launcher target %:", LarryTheLauncher.GetTargetLaunchPercent());
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.addData("is launcher at speed:", isLauncherAtSpeed);
+                telemetry.addData("launcher size servo:", String.format("%.2f", LauncherSize.GetPosition()));
                 telemetry.addData("launch sensing", sensingStatus());
                 telemetry.addData("feed assist", feedStatus);
                 telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
@@ -142,7 +146,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             }
         }
 
-           myTurret.close();
+        myTurret.close();
     }
 
     /*
@@ -154,6 +158,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
        D-pad up / down        Launcher target speed + / - (1% per press)
        D-pad left             Sensors OFF (emergency: everything manual, no blocking, no auto-feed)
        D-pad right            Sensors ON
+       Right stick click      Launcher size servo +0.01 (also pauses size sensing for 5 seconds)
+       Left stick click       Launcher size servo -0.01 (also pauses size sensing for 5 seconds)
        Triangle               Turret preset: straight (180°)
        Circle                 Turret preset: 150°
        Square                 Turret preset: 210°
@@ -200,21 +206,34 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             feedPulseCount = 0;       // and let a capped auto-feed try again
         }
 
+        // ----- Launcher size fine adjust: right stick click = up, left stick click = down -----
+        // Also pauses the size sensing for a few seconds so the sensors don't overwrite the adjustment.
+        if(gamepad1.rightStickButtonWasPressed())
+        {
+            LauncherSize.IncrementPosition(LAUNCHER_SIZE_STEP);
+            sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
+        }
+        else if(gamepad1.leftStickButtonWasPressed())
+        {
+            LauncherSize.DecrementPosition(LAUNCHER_SIZE_STEP);
+            sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
+        }
+
         if(gamepad1.triangleWasPressed())
         {
-              myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
+            myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed())
         {
-               myTurret.preset(150);
+            myTurret.preset(150);
         }
         else if(gamepad1.squareWasPressed())
         {
-               myTurret.preset(210);
+            myTurret.preset(210);
         }
         else if(gamepad1.crossWasPressed())
         {
-               myTurret.search();
+            myTurret.search();
         }
 
     }
