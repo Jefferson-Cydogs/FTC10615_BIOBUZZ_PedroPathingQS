@@ -48,6 +48,28 @@ public class Constants {
 
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
+                /*
+                // End Constraints, with default values. Only enable if follower is taking too long to finish paths.
+                c.parametricTConstraint.set(0.025);
+                c.velocityConstraint.set(0.1);
+                c.translationalConstraint.set(0.1);
+                c.headingConstraint.set(0.007);
+                c.timeoutConstraint.set(100.0);
+                // Path Constraints, with default values. Adding default values is harmless, but adding finite acceleration/velocity/deceleration constraints is an actual behavior change.
+                c.brakeAggression.set(1.0);
+                c.maxBrakingPower.set(0.2);
+                c.maxAccelerationConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxVelocityConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxDecelerationConstraint.set(ForesightConfig.Constraint.NONE);
+                c.maxDecelerationScale.set(ForesightConfig.Constraint.NONE);
+                c.coastDownToVelocity.set(0.0);
+                // Foresight Constraints, with default values.
+                c.headingDriveRatio.set(0.5);
+                c.brakeAtEnd.set(true);
+                c.translationalDeviationTolerance.set(2.5);
+                c.headingDeviationTolerance.set(Math.toRadians(11.25));
+                c.cosineScale.set(false);
+                */
                 Controller primaryTranslationalForward = Controller.proportional(0.31373366008474174);
                 Controller secondaryTranslationalForward = Controller.proportional(0.11591620428352051);
                 Controller primaryTranslationalLateral = Controller.proportional(0.49702205863857224);
