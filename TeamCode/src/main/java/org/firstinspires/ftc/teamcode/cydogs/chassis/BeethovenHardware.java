@@ -49,10 +49,10 @@ public final class BeethovenHardware {
         public static final double STRAFE_COMPENSATION = 1.081;      // friction correction when strafing
 
         // Per-wheel velocity PIDF "F" term (P, I, D are 0), used in autonomous RUN_TO_POSITION
-        public static final double FRONT_LEFT_VELOCITY_F  = 11.754006;
+        /*public static final double FRONT_LEFT_VELOCITY_F  = 11.754006;
         public static final double FRONT_RIGHT_VELOCITY_F = 10.175712;
         public static final double BACK_LEFT_VELOCITY_F   = 11.752998;
-        public static final double BACK_RIGHT_VELOCITY_F  = 11.398002;
+        public static final double BACK_RIGHT_VELOCITY_F  = 11.398002;*/
 
         // Teleop speeds and joystick shaping
         public static final double DEAD_ZONE = 0.05;
@@ -103,7 +103,7 @@ public final class BeethovenHardware {
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
-        public static final double LAUNCH_PERCENT = 0.45;
+        public static final double LAUNCH_PERCENT = 0.44;
         public static final double NECTAR_LAUNCH_PERCENT = 0.45;
         public static final double PERCENT_STEP = 0.01;
 
@@ -126,7 +126,7 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 1.0;
         public static final double STARTING_POSITION = 0.56; // changed to .56 from .5 after recalibration
 
-        public static final double LOAD_POSITION = 0.58; // changed to .58 from .62 after recalibration
+        public static final double LOAD_POSITION = 0.61; // changed to .58 from .62 after recalibration
         public static final double LAUNCH_POSITION = 0.94; //changed to .94 from .96 after recalibration
 
         public static final double LAUNCH_HOLD_SECONDS = 0.3;
