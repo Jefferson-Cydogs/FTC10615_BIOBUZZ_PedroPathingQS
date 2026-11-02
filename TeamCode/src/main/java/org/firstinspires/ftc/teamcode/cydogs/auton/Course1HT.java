@@ -59,7 +59,7 @@ public class Course1HT extends LinearOpMode {
     private final Pose Shoot2Half2Control1 = poseFactory.of(60, 108, 0);
     private final Pose FlowerApproach = poseFactory.of(48, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
-    private final Pose FlowerCollect = poseFactory.of(48, 127, 90);
+    private final Pose FlowerCollect = poseFactory.of(46, 125.5, 90);
     private final Pose Shoot3 = poseFactory.of(61.25, 126, 90);
     private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
@@ -100,7 +100,7 @@ public class Course1HT extends LinearOpMode {
     public Path FlowerCollect() {
         return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
 
     // Reverse of FlowerCollect. Ramp must stay down until this finishes.
