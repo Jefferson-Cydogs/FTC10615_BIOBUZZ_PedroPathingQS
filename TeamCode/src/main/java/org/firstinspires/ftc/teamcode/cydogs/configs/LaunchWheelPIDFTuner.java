@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -42,7 +43,7 @@ public class LaunchWheelPIDFTuner extends LinearOpMode {
     /**
      * Requested launch-wheel speed.
      */
-    public static double targetRPM = 2400.0;
+    public static volatile double targetRPM = 2600.0;
 
     /**
      * Velocity PIDF coefficients.
@@ -50,39 +51,45 @@ public class LaunchWheelPIDFTuner extends LinearOpMode {
      * These are starting values only.
      * Tune F first, then P, then D, and use I only if needed.
      */
-    public static double kP = 1.0;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
-    public static double kF = 11.7;
+    public static volatile double kP = 0.0;
+    public static volatile double kI = 0.0;
+    public static volatile double kD = 0.0;
+    public static volatile double kF = 11.7;
 
     /**
      * The 1:1 6000 RPM Yellow Jacket has a 28 PPR
      * output-shaft encoder.
      */
-    public static double ticksPerRevolution = 28.0;
+    public static volatile double ticksPerRevolution = 28.0;
 
     /**
      * Software limit for this tuning OpMode.
      */
-    public static double maximumTestRPM = 5334.0;
+    public static volatile double maximumTestRPM = 5334.0;
 
     /**
      * Set true in FTC Dashboard to run the wheel.
      */
-    public static boolean wheelEnabled = false;
+    public static volatile boolean wheelEnabled = false;
 
     /**
      * Set to 1 for positive velocity.
      * Set to -1 if the wheel must run in the opposite direction.
      */
-    public static int motorDirection = 1;
+    public static volatile int motorDirection = 1;
 
     /**
      * Limits Dashboard transmission frequency.
      *
      * 50 ms produces approximately 20 Dashboard updates per second.
      */
-    public static long dashboardIntervalMs = 50;
+    public static volatile long dashboardIntervalMs = 50;
+
+    /*
+     * Diagnostic variable.
+     * Change this in Dashboard to verify live configuration updates.
+     */
+    public static volatile int testMarker = 0;
 
     private DcMotorEx launchWheel;
     private FtcDashboard dashboard;
