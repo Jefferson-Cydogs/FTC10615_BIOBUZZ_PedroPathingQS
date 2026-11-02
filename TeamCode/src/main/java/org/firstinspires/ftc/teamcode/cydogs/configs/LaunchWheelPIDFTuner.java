@@ -16,9 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 /**
  * Launch-wheel PIDF tuner for FTC Dashboard.
  *
- * Hardware configuration:
- *     Motor name: launchWheel
- *
  * Dashboard variables:
  *     targetRPM
  *     kP
@@ -39,8 +36,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class LaunchWheelPIDFTuner extends LinearOpMode {
 
     /*
-     * All public static non-final variables appear in the
-     * FTC Dashboard Config panel.
+     * All public static non-final variables appear in the FTC Dashboard Config panel.
      */
 
     /**
