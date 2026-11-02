@@ -51,7 +51,11 @@ public class Launcher extends BaseVelocityMotor {
     private double launchVelocityPercent = BeethovenHardware.Launcher.LAUNCH_PERCENT;
 
     public Launcher(OpMode opMode) {
-        super(opMode, BeethovenHardware.Launcher.MOTOR_NAME, BeethovenHardware.Launcher.DIRECTION, BeethovenHardware.Launcher.ZERO_POWER_BEHAVIOR);
+        super(opMode, BeethovenHardware.Launcher.MOTOR_NAME, BeethovenHardware.Launcher.DIRECTION, BeethovenHardware.Launcher.ZERO_POWER_BEHAVIOR,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kP,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kI,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kD,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kF);
         speedLed = new BaseLED(opMode.hardwareMap, BeethovenHardware.Launcher.LED_NAME);
     }
 
