@@ -94,6 +94,12 @@ public final class BeethovenHardware {
         public static final DcMotorSimple.Direction DIRECTION = DcMotorSimple.Direction.FORWARD;
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
+        // PIDF values for specific Launcher motor, calculated via code
+        public static final double MOTOR_PIDF_kP = 65;
+        public static final double MOTOR_PIDF_kI = 0;
+        public static final double MOTOR_PIDF_kD = 0;
+        public static final double MOTOR_PIDF_kF = 13.19168;
+
         // Specs for typical launcher motor: GoBILDA 5203 Series Yellow Jacket 312 RPM, 537.7 PPR
         //    Without gearbox, theoretical 6,000RPM, empirical needs to be calculated.
         //    PPR = Ticks/second is always 28 at the motor shaft for goBILDA Yellow Jacket motors
@@ -124,25 +130,20 @@ public final class BeethovenHardware {
 
         public static final double MIN_POSITION = 0.0;
         public static final double MAX_POSITION = 1.0;
-        public static final double STARTING_POSITION = 0.56; // changed to .56 from .5 after recalibration
-
-        public static final double LOAD_POSITION = 0.61; // changed to .58 from .62 after recalibration
-        public static final double LAUNCH_POSITION = 0.94; //changed to .94 from .96 after recalibration
+        public static final double STARTING_POSITION = 0.56;
+        public static final double LOAD_POSITION = 0.61;
+        public static final double LAUNCH_POSITION = 0.94;
 
         public static final double LAUNCH_HOLD_SECONDS = 0.3;
     }
-
-
 
     public static final class FlowerRamp {
         private FlowerRamp(){}
         public static final double STARTING_POSITION = 0.80;
         public static final double UP_POSITION = 0.71;
         public static final double DOWN_POSITION = 0.33;
-
-
-
     }
+
     // ------------------------------------------------------------------
     // Launcher size servo: switches between nectar and pollen (LauncherSizeServo.java)
     // ------------------------------------------------------------------
@@ -156,7 +157,7 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.0; // Changed to 0.1 from 0.16 after recalibration
+        public static final double NECTAR_POSITION = 0.0; // Changed to 0 (flush) after recalibration
         public static final double POLLEN_POSITION = 0.59;
     }
 
@@ -207,8 +208,6 @@ public final class BeethovenHardware {
         public static final double RUN_POWER = 0.75; // power while a bumper is held in BioBuzzTeleop (negative for reverse)
     }
 
-
-
     /** Gate that opens to drop elements into the flower (FlowerScoringServo.java). */
     public static final class FlowerScoring {
         private FlowerScoring() {}
@@ -223,11 +222,9 @@ public final class BeethovenHardware {
         public static final double OPEN_POSITION = 0.8;
     }
 
-
     // ------------------------------------------------------------------
     // Vision
     // ------------------------------------------------------------------
-
     /** HuskyLens color tracking for pollen and nectar (BallTracker.java). */
     public static final class HuskyLens {
         private HuskyLens() {}
@@ -246,16 +243,6 @@ public final class BeethovenHardware {
         public static final double READ_INTERVAL_MS = 50;
     }
 
-    /** Color/distance sensors that identify the elements in the magazine (FlingyMag.java). */
-    public static final class FlingyMag {
-        private FlingyMag() {}
-
-        public static final String INTAKE_SENSOR_RIGHT_NAME = "IntakeSensorRight";
-        public static final String INTAKE_SENSOR_LEFT_NAME  = "IntakeSensorLeft";
-        public static final String LAUNCHER_SENSOR_NAME     = "LauncherSensor";
-    }
-
-
     /** AprilTag webcam (TagSight.java). */
     public static final class Webcam {
         private Webcam() {}
@@ -266,15 +253,13 @@ public final class BeethovenHardware {
         public static final int FRAME_HEIGHT = 480;
     }
 
+    /** Color/distance sensors that identify the elements in the magazine (FlingyMag.java). */
+    public static final class FlingyMag {
+        private FlingyMag() {}
 
-
-
-
-
-
-
-
-
-
+        public static final String INTAKE_SENSOR_RIGHT_NAME = "IntakeSensorRight";
+        public static final String INTAKE_SENSOR_LEFT_NAME  = "IntakeSensorLeft";
+        public static final String LAUNCHER_SENSOR_NAME     = "LauncherSensor";
+    }
 
 }
