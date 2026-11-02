@@ -95,10 +95,10 @@ public final class BeethovenHardware {
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
         // PIDF values for specific Launcher motor, calculated via code
-        public static final double MOTOR_PIDF_kP = 65;
+        public static final double MOTOR_PIDF_kP = 65; //Indiana's value was 65
         public static final double MOTOR_PIDF_kI = 0;
         public static final double MOTOR_PIDF_kD = 0;
-        public static final double MOTOR_PIDF_kF = 13.19168;
+        public static final double MOTOR_PIDF_kF = 13.16367; //Indiana's value was 13.19168
 
         // Specs for typical launcher motor: GoBILDA 5203 Series Yellow Jacket 312 RPM, 537.7 PPR
         //    Without gearbox, theoretical 6,000RPM, empirical needs to be calculated.
