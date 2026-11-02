@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //@Disabled
+@Disabled
 @TeleOp
 public class MotorRPMReader extends LinearOpMode {
 
