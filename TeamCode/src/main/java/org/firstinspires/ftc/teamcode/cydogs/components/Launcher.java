@@ -47,11 +47,18 @@ public class Launcher extends BaseVelocityMotor {
     // The speed indicator light.
     private final BaseLED speedLed;
 
+    // The measured speed (ticks/sec) at the moment the spin-down began.
+    private double spinDownStartTps;
+
     // Current launch speed as a fraction of top speed. Starts at BeethovenHardware.Launcher.LAUNCH_PERCENT and can be adjusted.
     private double launchVelocityPercent = BeethovenHardware.Launcher.LAUNCH_PERCENT;
 
     public Launcher(OpMode opMode) {
-        super(opMode, BeethovenHardware.Launcher.MOTOR_NAME, BeethovenHardware.Launcher.DIRECTION, BeethovenHardware.Launcher.ZERO_POWER_BEHAVIOR);
+        super(opMode, BeethovenHardware.Launcher.MOTOR_NAME, BeethovenHardware.Launcher.DIRECTION, BeethovenHardware.Launcher.ZERO_POWER_BEHAVIOR,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kP,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kI,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kD,
+                BeethovenHardware.Launcher.MOTOR_PIDF_kF);
         speedLed = new BaseLED(opMode.hardwareMap, BeethovenHardware.Launcher.LED_NAME);
     }
 
@@ -62,18 +69,36 @@ public class Launcher extends BaseVelocityMotor {
         SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * launchVelocityPercent);
     }
 
-    /**
-     * Begins a controlled spin-down and turns the LED off. Returns immediately; Update() does the
-     * braking over the next second or so. Safe to call every loop (for example while a button is
-     * held): once a spin-down has started, extra calls do nothing. Does nothing if already stopped.
-     */
+    public void StartLauncherNectar()
+    {
+        state = State.RUNNING;
+        SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * BeethovenHardware.Launcher.NECTAR_LAUNCH_PERCENT);
+    }
+
     public void StopLauncher() {
         if (state != State.RUNNING) {
             return;
         }
+        spinDownStartTps = Math.abs(GetVelocity());   // ramp starts where the wheel really is
         spinDownTimer.reset();
         state = State.SPINNING_DOWN;
         speedLed.setOff();
+    }
+
+    public void Update() {
+        if (state != State.SPINNING_DOWN) {
+            return;
+        }
+
+        // 0.0 at the start of the spin-down, 1.0 when SPINDOWN_SECONDS have passed.
+        double fraction = spinDownTimer.seconds() / BeethovenHardware.Launcher.SPINDOWN_SECONDS;
+
+        if (fraction >= 1.0) {
+            Stop();
+            state = State.IDLE;
+        } else {
+            SetVelocity(spinDownStartTps * (1.0 - fraction));
+        }
     }
 
     /** Cuts power right now with no controlled spin-down (the flywheel coasts). Use for emergencies. */
@@ -83,28 +108,7 @@ public class Launcher extends BaseVelocityMotor {
         speedLed.setOff();
     }
 
-    /**
-     * Call this once every loop. While the launcher is spinning down, it sets the target speed
-     * just below the flywheel's MEASURED speed, so the braking stays gentle and steady no matter
-     * how much momentum the flywheel has. Does nothing in any other state.
-     */
-    public void Update() {
-        if (state != State.SPINNING_DOWN) {
-            return;
-        }
 
-        double secondsSinceLastUpdate = spinDownTimer.seconds();
-        spinDownTimer.reset();
-
-        double nextTargetTps = Math.abs(GetVelocity()) - BeethovenHardware.Launcher.SPINDOWN_TPS_PER_SEC * secondsSinceLastUpdate;
-
-        if (nextTargetTps < BeethovenHardware.Launcher.SPINDOWN_MIN_TPS) {
-            Stop();
-            state = State.IDLE;
-        } else {
-            SetVelocity(nextTargetTps);
-        }
-    }
 
     /** True while the controlled spin-down is in progress (for telemetry, or to wait before parking). */
     public boolean IsSpinningDown() {

@@ -110,13 +110,12 @@ public final class BeethovenHardware {
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
         public static final double LAUNCH_PERCENT = 0.44;
-        public static final double NECTAR_LAUNCH_PERCENT = 0.45;
+        public static final double NECTAR_LAUNCH_PERCENT = 0.46;
         public static final double PERCENT_STEP = 0.01;
 
         // Controlled spin-down
-// controlled spin-down: full speed to stopped in about 2 seconds
-        public static final double SPINDOWN_TPS_PER_SEC = MAX_TICKS_PER_SECOND * 0.3;
-        public static final double SPINDOWN_MIN_TPS = MAX_TICKS_PER_SECOND * 0.06;
+// Time for a controlled spin-down from the current speed to stopped, in seconds. Tune this.
+        public static final double SPINDOWN_SECONDS = 3.0;
     }
 
     // ------------------------------------------------------------------

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.cydogs.core.TargetColor;
 
 
 public class BaseColorSensor {
-    private static final double DISTANCE_THRESHOLD_CM = 5.5;
+    private static final double DISTANCE_THRESHOLD_CM = 4.0;
     private static final int REQUIRED_MATCHES = 2;
 
     // ReadArtifactColor takes this many samples, and all of them must agree
