@@ -202,9 +202,12 @@ public class Course1HT extends LinearOpMode {
                 skills.shootFourPollen(),
 
                 follow(follower, GardenApproach()),
-                skills.startIntake(),
+                skills.startIntakeAndFeed(),
+                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
+                //skills.startIntake(),
                 follow(follower, GardenCollect()),
-                skills.stopIntake(),
+                skills.stopIntakeAndFeed(),
+                //skills.stopIntake(),
 
                 // Lock = basket still up → no tip. No lock → tipped.
                 skills.checkForTip(ALLIANCE, TIP_LOOK_DEGREES)
