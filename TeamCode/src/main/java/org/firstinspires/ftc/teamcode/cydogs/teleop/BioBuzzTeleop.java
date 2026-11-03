@@ -258,11 +258,13 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         if(gamepad2.dpadLeftWasPressed())
         {
             LauncherSize.SetPollen();
+            LarryTheLauncher.StartLauncher();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
         else if(gamepad2.dpadRightWasPressed())
         {
             LauncherSize.SetNectar();
+            LarryTheLauncher.StartLauncherNectar();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
 
@@ -333,10 +335,12 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             if (color.equals("red") || color.equals("blue"))
             {
                 LauncherSize.SetNectar();
+                LarryTheLauncher.StartLauncherNectar();
             }
             else if (color.equals("yellow"))
             {
                 LauncherSize.SetPollen();
+                LarryTheLauncher.StartLauncher();
             }
         }
 

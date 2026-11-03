@@ -69,6 +69,12 @@ public class Launcher extends BaseVelocityMotor {
         SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * launchVelocityPercent);
     }
 
+    public void StartLauncherNectar()
+    {
+        state = State.RUNNING;
+        SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * BeethovenHardware.Launcher.NECTAR_LAUNCH_PERCENT);
+    }
+
     public void StopLauncher() {
         if (state != State.RUNNING) {
             return;
