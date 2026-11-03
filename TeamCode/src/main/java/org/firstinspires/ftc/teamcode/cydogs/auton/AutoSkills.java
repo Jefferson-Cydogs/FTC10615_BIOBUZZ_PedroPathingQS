@@ -5,6 +5,7 @@ import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.commands.Commands.conditional;
+import static com.pedropathing.ivy.Scheduler.schedule;
 
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -59,6 +60,7 @@ public class AutoSkills {
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
     private static final long RAMP_MOVE_MS = 400;
     private boolean hiveTipped = true;
+    private boolean keepLauncherRunning = false;
 
     private final OpMode opMode;
 
@@ -180,7 +182,9 @@ public class AutoSkills {
         return instant(() -> {
             intake.StopIntake();
             moveToLauncher.Stop();
-            launcher.StopLauncher();
+            if (!keepLauncherRunning) {
+                launcher.StopLauncher();
+            }
         });
     }
 
@@ -445,6 +449,38 @@ public class AutoSkills {
             intake.StopIntake();
             moveToLauncher.Stop();
         });
+    }
+
+    /**
+     * Spin the launcher up now and keep it running between shots for the rest of auto.
+     * Call once at the start of the routine. Courses that never call this behave as before.
+     */
+    public Command startLauncher() {
+        return instant(() -> {
+            keepLauncherRunning = true;
+            launcher.StartLauncher();
+        });
+    }
+
+    /** Stop only the move-to-launcher belt (feeder). */
+    public Command stopFeed() {
+        return instant(() -> moveToLauncher.Stop());
+    }
+
+    /**
+     * Stop the feeder after a delay WITHOUT pausing the routine: the timer runs alongside
+     * whatever command comes next (for example, the drive into the flower).
+     */
+    public Command stopFeedAfter(long delayMs) {
+        return instant(() -> schedule(sequential(waitMs(delayMs), stopFeed())));
+    }
+
+    /**
+     * Stop the intake after a delay WITHOUT pausing the routine: the timer runs alongside
+     * whatever command comes next (for example, the drive into the flower).
+     */
+    public Command stopIntakeAfter(long delayMs) {
+        return instant(() -> schedule(sequential(waitMs(delayMs), stopIntake())));
     }
 
     /**
