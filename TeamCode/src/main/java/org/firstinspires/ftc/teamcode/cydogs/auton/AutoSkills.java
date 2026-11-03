@@ -316,6 +316,7 @@ public class AutoSkills {
         return sequential(
                 instant(() -> launcher.StartLauncher()),
                 waitLauncherReady(),
+                waitMs(250),
 
                 // Ball 1 — already at the popper
                 popOnce(),
