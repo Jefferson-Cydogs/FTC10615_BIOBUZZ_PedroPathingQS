@@ -5,9 +5,9 @@ import androidx.annotation.NonNull;
 
 public enum TargetColor {
 
-    RED(0, 30, 350, 360), //Standard Color Sensor values. RED wraps around the hue circle
-    BLUE(150, 225), //Standard Color Sensor values
-    YELLOW(40, 75); //Yellow pollen. Starting guess (yellow is about hue 60): measure with BaseColorSensor.WhatDoISee() and tune
+    RED(0, 50, 350, 360), //Standard Color Sensor values. RED wraps around the hue circle
+    BLUE(190, 250), //Standard Color Sensor values
+    YELLOW(80, 125); //Yellow pollen. Starting guess (yellow is about hue 60): measure with BaseColorSensor.WhatDoISee() and tune
 
     private final float low1, high1;
     private final float low2, high2;
