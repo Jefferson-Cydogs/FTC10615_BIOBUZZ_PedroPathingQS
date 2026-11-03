@@ -39,6 +39,16 @@ public class Course1HT extends LinearOpMode {
 
     private Follower follower;
     private AutoSkills skills;
+    // Pause at the flower after collect so the intake can finish pulling balls in (tune on field)
+    private static final long FLOWER_COLLECT_WAIT_MS = 500;
+    // How long into the second drive in before the feeder stops (ms)
+    private static final long FEEDER_STOP_DELAY_MS = 500;
+
+    // How long into the third drive in before the intake stops (ms). TUNE on the field.
+    private static final long INTAKE_STOP_DELAY_MS = 1000;
+
+    // How far each in-and-out pass at the flower backs up from FlowerCollect (inches
+    private static final double FLOWER_NUDGE_INCHES = 4.0;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -64,8 +74,18 @@ public class Course1HT extends LinearOpMode {
     private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6.77, 71.73, 0);
-    // Pause at the flower after collect so the intake can finish pulling balls in (tune on field)
-    private static final long FLOWER_COLLECT_WAIT_MS = 1500;
+    // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
+    private final Pose FlowerNudgeBack = flowerNudgeBack();
+    private Pose flowerNudgeBack() {
+        double dx = FlowerApproach.x() - FlowerCollect.x();
+        double dy = FlowerApproach.y() - FlowerCollect.y();
+        double len = Math.hypot(dx, dy);
+        return poseFactory.of(
+                FlowerCollect.x() + dx / len * FLOWER_NUDGE_INCHES,
+                FlowerCollect.y() + dy / len * FLOWER_NUDGE_INCHES,
+                90);
+    }
+
 
 
     // Paths
@@ -129,9 +149,20 @@ public class Course1HT extends LinearOpMode {
         return Paths.curve(Shoot1, FlowerApproachBadControl1, FlowerApproach)
                 .linear(Shoot1, FlowerApproach);
     }
+    // Short in-and-out passes at the flower
+    public Path FlowerNudgeBack() {
+        return Paths.line(FlowerCollect, FlowerNudgeBack)
+                .linear(FlowerCollect, FlowerNudgeBack)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
+    }
+    public Path FlowerNudgeIn() {
+        return Paths.line(FlowerNudgeBack, FlowerCollect)
+                .linear(FlowerNudgeBack, FlowerCollect)
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
+    }
 
     // ---------- shared flower pickup (both tails) ----------
-    private Command doFlower() {
+    /*private Command doFlower() {
         return sequential(
                 skills.flowerRampDown(),
                 skills.startIntake(),
@@ -141,11 +172,32 @@ public class Course1HT extends LinearOpMode {
                 follow(follower, FlowerBackUp()),
                 skills.flowerRampUp()
         );
+    }*/
+
+    // Three passes into the flower with the ramp down, intake + feeder running:
+    //   pass 1 releases the balls, pass 2 runs over 3 (maybe 4), pass 3 gets the last one.
+    private Command doFlower() {
+        return sequential(
+                skills.flowerRampDown(),
+                skills.startIntakeAndFeed(),
+                follow(follower, FlowerCollect()),        // pass 1
+                waitMs(FLOWER_COLLECT_WAIT_MS),
+                follow(follower, FlowerNudgeBack()),
+                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
+                follow(follower, FlowerNudgeIn()),        // pass 2 (feeder stops ~0.5 s in)
+                follow(follower, FlowerNudgeBack()),
+                skills.stopIntakeAfter(INTAKE_STOP_DELAY_MS),
+                follow(follower, FlowerNudgeIn()),        // pass 3
+                skills.stopIntakeAndFeed(),
+                follow(follower, FlowerBackUp()),
+                skills.flowerRampUp()
+        );
     }
 
     // ---------- HEAD (always runs) ----------
     private Command head() {
         return sequential(
+                skills.startLauncher(),
                 follow(follower, Shoot1()),
                 skills.shootFourPollen(),
 
