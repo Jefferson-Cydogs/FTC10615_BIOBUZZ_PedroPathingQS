@@ -142,6 +142,12 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
                 telemetry.addData("next sensor last saw:", flingyMag.flingyNext);
                 telemetry.addData("last sensor pass ms:", lastSensorPassMs);
+                // TEMP: vision debugging (remove when search is fixed)
+                telemetry.addData("tag seen", myTurret.getEyes().hasTarget);
+                telemetry.addData("bearing", "%.1f", myTurret.getEyes().bearingDegrees);
+                telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
+                telemetry.addData("mode", myTurret.getMode());
+
                 telemetry.update();
             }
         }
