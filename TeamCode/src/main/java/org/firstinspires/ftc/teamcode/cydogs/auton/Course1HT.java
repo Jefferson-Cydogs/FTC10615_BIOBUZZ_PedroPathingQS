@@ -36,9 +36,10 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
  */
 @Autonomous(name = "Course 1 HT", group = "Autonomous")
 public class Course1HT extends LinearOpMode {
-
     private Follower follower;
     private AutoSkills skills;
+    private final PoseFactory poseFactory = PoseFactory.degrees();
+
     // Pause at the flower after collect so the intake can finish pulling balls in (tune on field)
     private static final long FLOWER_COLLECT_WAIT_MS = 500;
     // How long into the second drive in before the feeder stops (ms)
@@ -50,10 +51,8 @@ public class Course1HT extends LinearOpMode {
     // How far each in-and-out pass at the flower backs up from FlowerCollect (inches
     private static final double FLOWER_NUDGE_INCHES = 4.0;
 
-    private final PoseFactory poseFactory = PoseFactory.degrees();
-
     // Alliance for tip check (change to RED if needed)
-    private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.BLUE;
+    private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
 
     // Turret: center = 180. 30° left of center (use 180.0 - 30.0 if left is the other way)
     private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
@@ -67,10 +66,11 @@ public class Course1HT extends LinearOpMode {
     private final Pose Shoot2Half1 = poseFactory.of(36, 108, 90);
     private final Pose Shoot2Half2 = poseFactory.of(61.25, 126, 90);
     private final Pose Shoot2Half2Control1 = poseFactory.of(60, 108, 0);
-    private final Pose FlowerApproach = poseFactory.of(48, 115, 90);
+    private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
-    private final Pose FlowerCollect = poseFactory.of(46, 125.5, 90);
-    private final Pose Shoot3 = poseFactory.of(61.25, 126, 90);
+    private final Pose FlowerCollect = poseFactory.of(49, 125, 90);
+    private final Pose FlowerCollectShake = poseFactory.of(49.5, 125, 85);
+    private final Pose Shoot3 = poseFactory.of(61.25, 127, 90);
     private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6.77, 71.73, 0);
@@ -87,63 +87,54 @@ public class Course1HT extends LinearOpMode {
     }
 
 
-
     // Paths
     public Path Shoot1() {
         return Paths.line(Start, Shoot1).linear(Start, Shoot1);
     }
-
     public Path GardenApproach() {
         return Paths.curve(Shoot1, GardenApproachControl1, GardenApproach).linear(Shoot1, GardenApproach);
     }
-
     public Path GardenCollect() {
         return Paths.line(GardenApproach, GardenCollect)
                 .linear(GardenApproach, GardenCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
-
     public Path Shoot2Half1() {
         return Paths.line(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
     }
-
     public Path Shoot2Half2() {
         return Paths.curve(Shoot2Half1, Shoot2Half2Control1, Shoot2Half2).linear(Shoot2Half1, Shoot2Half2);
     }
-
     // Full speed: the 40% cap lives on FlowerCollect, the leg that actually touches the flower
     public Path FlowerApproach() {
         return Paths.curve(Shoot2Half2, FlowerApproachControl1, FlowerApproach)
                 .linear(Shoot2Half2, FlowerApproach);
     }
-
     public Path FlowerCollect() {
         return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
-
+    public Path FlowerCollectShake() {
+        return Paths.line(FlowerCollect, FlowerCollectShake).linear(FlowerCollect, FlowerCollectShake);
+    }
     // Reverse of FlowerCollect. Ramp must stay down until this finishes.
     public Path FlowerBackUp() {
         return Paths.line(FlowerCollect, FlowerApproach)
                 .linear(FlowerCollect, FlowerApproach)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.5));
     }
-
     // Starts at FlowerApproach (after back-up), not FlowerCollect
     public Path Shoot3() {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
-
     public Path Park() {
         return Paths.line(Shoot3, Park).linear(Shoot3, Park);
     }
-
     // Tail B paths
     public Path GardenReverse() {
         return Paths.line(GardenCollect, Shoot1).linear(GardenCollect, Shoot1);
     }
-
     // Shoot1 → FlowerApproach (Tail B only)
     public Path FlowerApproachBad() {
         return Paths.curve(Shoot1, FlowerApproachBadControl1, FlowerApproach)
@@ -153,7 +144,7 @@ public class Course1HT extends LinearOpMode {
     public Path FlowerNudgeBack() {
         return Paths.line(FlowerCollect, FlowerNudgeBack)
                 .linear(FlowerCollect, FlowerNudgeBack)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.5));
     }
     public Path FlowerNudgeIn() {
         return Paths.line(FlowerNudgeBack, FlowerCollect)
@@ -174,20 +165,20 @@ public class Course1HT extends LinearOpMode {
         );
     }*/
 
-    // Three passes into the flower with the ramp down, intake + feeder running:
-    //   pass 1 releases the balls, pass 2 runs over 3 (maybe 4), pass 3 gets the last one.
+    // Two passes into the flower with the ramp down, intake + feeder running:
+    //   pass 1 + shake releases the balls, pass 2 gets the last one.
     private Command doFlower() {
         return sequential(
                 skills.flowerRampDown(),
                 skills.startIntakeAndFeed(),
                 follow(follower, FlowerCollect()),        // pass 1
                 waitMs(FLOWER_COLLECT_WAIT_MS),
+                follow(follower, FlowerCollectShake()),   // shake ramp
+                follow(follower, FlowerCollect()),
                 follow(follower, FlowerNudgeBack()),
                 skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
-                follow(follower, FlowerNudgeIn()),        // pass 2 (feeder stops ~0.5 s in)
-                follow(follower, FlowerNudgeBack()),
                 skills.stopIntakeAfter(INTAKE_STOP_DELAY_MS),
-                follow(follower, FlowerNudgeIn()),        // pass 3
+                follow(follower, FlowerNudgeIn()),        // pass 2
                 skills.stopIntakeAndFeed(),
                 follow(follower, FlowerBackUp()),
                 skills.flowerRampUp()
@@ -213,7 +204,6 @@ public class Course1HT extends LinearOpMode {
                 skills.checkForTip(ALLIANCE, TIP_LOOK_DEGREES)
         );
     }
-
     // ---------- TAIL A: tipped → finish normal route (same route as Course 1) ----------
     private Command tailA_HiveTipped() {
         return sequential(
@@ -231,7 +221,6 @@ public class Course1HT extends LinearOpMode {
                 follow(follower, Park())
         );
     }
-
     // ---------- TAIL B: still see basket (no tip) ----------
     // Why this route differs from Tail A: we are not coming from the garden's far end,
     // we reverse back to the near shoot pose (Shoot1), reshoot the garden balls there,

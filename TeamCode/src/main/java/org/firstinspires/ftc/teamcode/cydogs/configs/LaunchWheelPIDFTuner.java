@@ -30,6 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  *     http://192.168.43.1:8080/dash
  */
 @Config
+@Disabled
 @TeleOp(
         name = "Launch Wheel PIDF Tuner",
         group = "Tuning"

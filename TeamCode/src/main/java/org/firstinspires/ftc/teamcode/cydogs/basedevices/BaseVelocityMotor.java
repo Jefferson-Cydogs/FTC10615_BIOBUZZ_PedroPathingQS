@@ -29,17 +29,14 @@ public class BaseVelocityMotor {
                              String hardwareName,
                              DcMotorSimple.Direction direction,
                              DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-
         this(opMode,hardwareName,direction,zeroPowerBehavior,0,0,0,0);
-
     }
     // kP, kI, kD, kF
     public BaseVelocityMotor(OpMode opMode,
                              String hardwareName,
                              DcMotorSimple.Direction direction,
                              DcMotor.ZeroPowerBehavior zeroPowerBehavior,
-                             double kP, double kI, double kD, double kF)
-    {
+                             double kP, double kI, double kD, double kF) {
         this.opMode = opMode;
         this.hardwareName = hardwareName;
         this.direction = direction;
@@ -48,10 +45,7 @@ public class BaseVelocityMotor {
         mykI = kI;
         mykD = kD;
         mykF = kF;
-
-
     }
-
 
 
     /**
@@ -62,10 +56,10 @@ public class BaseVelocityMotor {
         motor.setDirection(direction);
         motor.setZeroPowerBehavior(zeroPowerBehavior);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setPower(0);
-        if(mykP!=0) {
+        if (mykP!=0) {
             this.motor.setVelocityPIDFCoefficients(mykP, mykI, mykD, mykF);
         }
+        motor.setPower(0);
         targetVelocity = 0;
         velocityTargetActive = false;
     }
