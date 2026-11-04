@@ -264,6 +264,10 @@ public class Aimer {
         return turret;
     }
 
+    public boolean isTagVisible() {
+        return eyes.hasTarget;
+    }
+
     private void s2Enter(Search2State next) {
         s2State = next;
         s2StateStartMs = System.currentTimeMillis();

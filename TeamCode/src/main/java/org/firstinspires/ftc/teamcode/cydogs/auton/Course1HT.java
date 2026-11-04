@@ -34,8 +34,9 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
  *   approach → ramp down → intake on → collect → intake off → back up → ramp up → shoot
  *   (we back up BEFORE raising the ramp, otherwise the ramp comes up under the flower)
  */
-@Autonomous(name = "Course 1 HT", group = "Autonomous")
-public class Course1HT extends LinearOpMode {
+//@Autonomous(name = "Course 1 HT", group = "Autonomous")
+//public class Course1HT extends LinearOpMode {
+public abstract class Course1HT extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
     private final PoseFactory poseFactory = PoseFactory.degrees();
@@ -52,7 +53,8 @@ public class Course1HT extends LinearOpMode {
     private static final double FLOWER_NUDGE_INCHES = 4.0;
 
     // Alliance for tip check (change to RED if needed)
-    private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
+    //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
+    private final TagSight.Alliance alliance;
 
     // Turret: center = 180. 30° left of center (use 180.0 - 30.0 if left is the other way)
     private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
@@ -75,6 +77,11 @@ public class Course1HT extends LinearOpMode {
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6.77, 71.73, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
+
+    protected Course1HT(TagSight.Alliance alliance)
+    {
+        this.alliance = alliance;
+    }
     private final Pose FlowerNudgeBack = flowerNudgeBack();
     private Pose flowerNudgeBack() {
         double dx = FlowerApproach.x() - FlowerCollect.x();
@@ -202,7 +209,7 @@ public class Course1HT extends LinearOpMode {
                 //skills.stopIntake(),
 
                 // Lock = basket still up → no tip. No lock → tipped.
-                skills.checkForTip(ALLIANCE, TIP_LOOK_DEGREES)
+                skills.checkForTip(alliance, TIP_LOOK_DEGREES)
         );
     }
     // ---------- TAIL A: tipped → finish normal route (same route as Course 1) ----------
@@ -280,7 +287,7 @@ public class Course1HT extends LinearOpMode {
 
         skills = new AutoSkills(this);
         skills.initialize();
-        skills.prepareVision(ALLIANCE);
+        skills.prepareVision(alliance);
 
         // INIT loop: confirm the camera is streaming and sees the hive tag before the match
         while (!isStarted() && !isStopRequested()) {
