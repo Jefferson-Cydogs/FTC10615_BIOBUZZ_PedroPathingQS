@@ -41,6 +41,9 @@ public abstract class Course1HT extends LinearOpMode {
     private AutoSkills skills;
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
+    private enum ParkSpot { A, B }
+    private static final ParkSpot PARK_SPOT = ParkSpot.A;
+
     // Pause at the flower after collect so the intake can finish pulling balls in (tune on field)
     private static final long FLOWER_COLLECT_WAIT_MS = 500;
     // How long into the second drive in before the feeder stops (ms)
@@ -73,11 +76,15 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose FlowerCollect = poseFactory.of(49, 125, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 125, 85);
     private final Pose Shoot3 = poseFactory.of(61.25, 127, 90);
-    private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
+    private final Pose ParkA = poseFactory.of(9.8125, 94.5, 0);   // the current park pose
+    private final Pose ParkB = poseFactory.of(9.8125, 94.5, 0);   // TODO: set the alternate coordinates
+    private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+    //private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6.77, 71.73, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
 
+    // Parking spot: change PARK_SPOT to ParkSpot.B to park at the alternate location
     protected Course1HT(TagSight.Alliance alliance)
     {
         this.alliance = alliance;
@@ -92,8 +99,6 @@ public abstract class Course1HT extends LinearOpMode {
                 FlowerCollect.y() + dy / len * FLOWER_NUDGE_INCHES,
                 90);
     }
-
-
     // Paths
     public Path Shoot1() {
         return Paths.line(Start, Shoot1).linear(Start, Shoot1);
