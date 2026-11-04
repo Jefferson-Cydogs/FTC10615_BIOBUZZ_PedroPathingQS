@@ -24,7 +24,8 @@ public class Aimer {
         HOLD,
         PRESET,
         TRACK,
-        SEARCH
+        SEARCH,
+        SEARCH2
     }
 
     // How close to center counts as locked (degrees of bearing)
@@ -48,6 +49,54 @@ public class Aimer {
      * When false (default), camera stays on so Init/stream and aiming are simple.
      */
     private boolean powerSave = false;
+
+    // =====================================================================================
+    // SEARCH2 for Aimer.java — paste-in blocks. Your existing code and comments stay as is.
+    //
+    // Idea: a tag sighting is an EVENT, not a state.
+    //   SWEEP  → see a tag → PAUSE (hold still ~150 ms so the camera catches up)
+    //   PAUSE  → AIM once at (turret angle + bearing), not a stream of small nudges
+    //   VERIFY → ignore frames while the servo moves / stale frames arrive, then look:
+    //              centered  → LOCKED
+    //              off center→ aim again (and flip the sign if the last aim made it worse)
+    //              not seen  → LOCAL search around where we were aiming
+    //   LOCAL  → try a few small offsets either side, then give up and SWEEP again
+    //   LOCKED → latched. A single missed frame does NOT unlock; ~300 ms with no tag does.
+    // =====================================================================================
+
+    // ---- SEARCH2 tuning ----
+    /** Hold still this long after first seeing a tag (lets stale frames flush out). */
+    private static final long S2_PAUSE_MS = 150;
+    /** After any turret move, ignore the camera this long (servo travel + stale frames). */
+    private static final long S2_SETTLE_MS = 200;
+    /** After settling, how long to look for the tag before trying the local search. */
+    private static final long S2_VERIFY_MS = 400;
+    /** How many times we re-aim from a new bearing before switching to the local search. */
+    private static final int S2_MAX_AIM_TRIES = 3;
+    /** Tag missing this long while LOCKED = unlock and recover. */
+    private static final long S2_UNLOCK_AFTER_MS = 300;
+    /** Gentle correction while LOCKED (much smaller than TRACK_GAIN). */
+    private static final double S2_LOCKED_GAIN = 0.05;
+    /** While LOCKED, correct at most this often (bearing only updates once per camera frame). */
+    private static final long S2_NUDGE_INTERVAL_MS = 100;
+    /** Local search offsets (turret degrees) around where we last aimed. */
+    private static final double[] S2_LOCAL_OFFSETS = {4, -4, 8, -8};
+    /** Dwell at each local offset. Must be longer than S2_SETTLE_MS. */
+    private static final long S2_LOCAL_DWELL_MS = 350;
+
+    private enum Search2State { SWEEP, PAUSE, VERIFY, LOCAL, LOCKED }
+
+    private Search2State s2State = Search2State.SWEEP;
+    private long s2StateStartMs = 0;
+    /** +1 matches the existing nudge direction. Flips itself if aiming makes the bearing worse. */
+    private double s2Sign = 1.0;
+    private double s2LastBearing = 0;
+    private double s2BearingBeforeAim = 0;
+    private int s2AimTries = 0;
+    private long s2LastSeenMs = 0;
+    private long s2LastNudgeMs = 0;
+    private int s2LocalIndex = 0;
+    private double s2LocalCenter = 0;
 
     /**
      * @param opMode    the running OpMode (needed for Turret)
@@ -112,6 +161,21 @@ public class Aimer {
         applyCameraForMode();
     }
 
+    /**
+     * Step-and-stare search for a camera that does not always see the tag.
+     * Call isLocked() to know when it has a latched lock.
+     */
+    public void search2() {
+        mode = Mode.SEARCH2;
+        applyCameraForMode();
+        s2Enter(Search2State.SWEEP);
+    }
+
+    /** For telemetry: SWEEP / PAUSE / VERIFY / LOCAL / LOCKED. */
+    public String getSearch2State() {
+        return s2State.toString();
+    }
+
     public Mode getMode() {
         return mode;
     }
@@ -174,13 +238,21 @@ public class Aimer {
                     turret.nudgeByDegrees(searchDirection * SEARCH_STEP_DEG);
                 }
                 break;
+
+            case SEARCH2:
+                updateSearch2();
+                break;
         }
     }
 
     /**
      * True when we see a valid target and it is centered enough to shoot.
      */
+
     public boolean isLocked() {
+        if (mode == Mode.SEARCH2) {
+            return s2State == Search2State.LOCKED;   // latched: one missed frame does not unlock
+        }
         return eyes.hasTarget && Math.abs(eyes.bearingDegrees) <= LOCK_TOL_DEG;
     }
 
@@ -190,6 +262,124 @@ public class Aimer {
 
     public Turret getTurret() {
         return turret;
+    }
+
+    private void s2Enter(Search2State next) {
+        s2State = next;
+        s2StateStartMs = System.currentTimeMillis();
+    }
+
+    private void s2EnterLocked(long now) {
+        s2Enter(Search2State.LOCKED);
+        s2LastSeenMs = now;
+    }
+
+    /** One move to where the last good bearing says the tag is, then wait for it to settle. */
+    private void s2AimFromBearing() {
+        double target = turret.getTurretDegrees() + s2Sign * s2LastBearing;
+        turret.setTurretDegrees(target);
+        s2Enter(Search2State.VERIFY);
+    }
+
+    /** Try small offsets around where we are now. */
+    private void s2StartLocal() {
+        s2LocalCenter = turret.getTurretDegrees();
+        s2LocalIndex = 0;
+        turret.setTurretDegrees(s2LocalCenter + S2_LOCAL_OFFSETS[0]);
+        s2Enter(Search2State.LOCAL);
+    }
+
+    private void updateSearch2() {
+        long now = System.currentTimeMillis();
+        long inState = now - s2StateStartMs;
+
+        switch (s2State) {
+
+            case SWEEP:
+                if (eyes.hasTarget) {
+                    s2Enter(Search2State.PAUSE);
+                    s2LastBearing = eyes.bearingDegrees;
+                } else {
+                    if (turret.isAtMax()) {
+                        searchDirection = -1.0;
+                    } else if (turret.isAtMin()) {
+                        searchDirection = 1.0;
+                    }
+                    turret.nudgeByDegrees(searchDirection * SEARCH_STEP_DEG);
+                }
+                break;
+
+            case PAUSE:
+                // Turret is not moving. Keep the newest bearing; frames from while it was
+                // still moving go stale during this pause.
+                if (eyes.hasTarget) {
+                    s2LastBearing = eyes.bearingDegrees;
+                }
+                if (inState >= S2_PAUSE_MS) {
+                    s2AimTries = 0;
+                    s2BearingBeforeAim = s2LastBearing;
+                    s2AimFromBearing();
+                }
+                break;
+
+            case VERIFY:
+                if (inState < S2_SETTLE_MS) {
+                    break;   // servo still moving / stale frames: do not trust the camera yet
+                }
+                if (eyes.hasTarget) {
+                    s2LastBearing = eyes.bearingDegrees;
+                    if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
+                        s2EnterLocked(now);
+                    } else if (s2AimTries >= S2_MAX_AIM_TRIES) {
+                        s2StartLocal();
+                    } else {
+                        // Last aim made it clearly worse = wrong sign. Flip it.
+                        if (Math.abs(s2LastBearing) > Math.abs(s2BearingBeforeAim) * 1.2) {
+                            s2Sign = -s2Sign;
+                        }
+                        s2AimTries++;
+                        s2BearingBeforeAim = s2LastBearing;
+                        s2AimFromBearing();
+                    }
+                } else if (inState >= S2_SETTLE_MS + S2_VERIFY_MS) {
+                    s2StartLocal();   // never saw it after aiming
+                }
+                break;
+
+            case LOCAL:
+                if (eyes.hasTarget && inState >= S2_SETTLE_MS) {
+                    s2LastBearing = eyes.bearingDegrees;
+                    s2BearingBeforeAim = s2LastBearing;
+                    s2AimTries = 0;
+                    if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
+                        s2EnterLocked(now);
+                    } else {
+                        s2AimFromBearing();
+                    }
+                } else if (inState >= S2_LOCAL_DWELL_MS) {
+                    s2LocalIndex++;
+                    if (s2LocalIndex >= S2_LOCAL_OFFSETS.length) {
+                        s2Enter(Search2State.SWEEP);   // give up locally, resume the sweep
+                    } else {
+                        turret.setTurretDegrees(s2LocalCenter + S2_LOCAL_OFFSETS[s2LocalIndex]);
+                        s2Enter(Search2State.LOCAL);
+                    }
+                }
+                break;
+
+            case LOCKED:
+                if (eyes.hasTarget) {
+                    s2LastSeenMs = now;
+                    if (Math.abs(eyes.bearingDegrees) > LOCK_TOL_DEG
+                            && now - s2LastNudgeMs >= S2_NUDGE_INTERVAL_MS) {
+                        turret.nudgeByDegrees(s2Sign * eyes.bearingDegrees * S2_LOCKED_GAIN);
+                        s2LastNudgeMs = now;
+                    }
+                } else if (now - s2LastSeenMs >= S2_UNLOCK_AFTER_MS) {
+                    s2StartLocal();   // lost it for a while: recover near where we were
+                }
+                break;
+        }
     }
 
     /** Call when the OpMode ends to shut the camera down fully. */
