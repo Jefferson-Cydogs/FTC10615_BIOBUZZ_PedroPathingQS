@@ -40,7 +40,7 @@ public class AutoSkills {
     // --- Auto-only timings (strategy, not device wiring) ---
     // Move these into BeethovenHardware.Auto later if you want one constants file.
     private static final long SPIN_UP_MS = 10000;
-    private static final long BETWEEN_SHOTS_MS = 500;
+    private static final long BETWEEN_SHOTS_MS = 300;
     private static final long FEED_MS = 200; //changed from 350
     private static final long INTAKE_SHOT_MS = 150;   // short intake between pops
     private static final long INTAKE_MICRO_MS = 10;   // short intake between pops
@@ -60,7 +60,7 @@ public class AutoSkills {
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
     private static final long RAMP_MOVE_MS = 400;
 
-    private static final long EMPTY_MAGAZINE_MS = 1200;
+    private static final long EMPTY_MAGAZINE_MS = 400;
     private boolean hiveTipped = true;
     private boolean keepLauncherRunning = false;
 
