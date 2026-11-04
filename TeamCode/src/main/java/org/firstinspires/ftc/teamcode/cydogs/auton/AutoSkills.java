@@ -59,6 +59,8 @@ public class AutoSkills {
     private static final long SHOOT_CLEAR_TIMEOUT_MS = 800;
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
     private static final long RAMP_MOVE_MS = 400;
+
+    private static final long EMPTY_MAGAZINE_MS = 1200;
     private boolean hiveTipped = true;
     private boolean keepLauncherRunning = false;
 
@@ -263,6 +265,7 @@ public class AutoSkills {
                 })
         );
     }
+
 
     // ----- skills for courses -----
 
@@ -700,6 +703,43 @@ public class AutoSkills {
                     }
                     return false;
                 });
+    }
+
+    /**
+     * Run the intake roller and the feeder BACKWARDS (teleop's reverse powers) until you stop
+     * them. Stop with the existing stopIntakeAndFeed(), which works in either direction.
+     */
+    public Command startReverseIntakeAndFeed() {
+        return instant(() -> {
+            intake.ReverseIntake();
+            moveToLauncher.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
+        });
+    }
+
+    /**
+     * Empty the magazine out the intake: reverse both for EMPTY_MAGAZINE_MS, then stop both.
+     * The routine WAITS for it to finish. Call after shootFourPollen() when you want to be sure
+     * nothing is left before the garden or the flower.
+     */
+    public Command emptyMagazine() {
+        return sequential(
+                startReverseIntakeAndFeed(),
+                waitMs(EMPTY_MAGAZINE_MS),
+                stopIntakeAndFeed()
+        );
+    }
+
+    /**
+     * Same purge, but it does NOT hold up the routine: it starts the reverse now and the stop
+     * timer runs alongside the next command (for example, the drive to the garden).
+     * Saves the purge time, as long as the drive lasts at least EMPTY_MAGAZINE_MS.
+     */
+    public Command emptyMagazineWhileDriving() {
+        return instant(() -> {
+            intake.ReverseIntake();
+            moveToLauncher.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
+            schedule(sequential(waitMs(EMPTY_MAGAZINE_MS), stopIntakeAndFeed()));
+        });
     }
 
 }

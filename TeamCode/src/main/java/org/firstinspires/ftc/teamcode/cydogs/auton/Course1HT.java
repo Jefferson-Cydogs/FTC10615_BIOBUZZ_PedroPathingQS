@@ -191,6 +191,7 @@ public class Course1HT extends LinearOpMode {
                 skills.startLauncher(),
                 follow(follower, Shoot1()),
                 skills.shootFourPollen(),
+                skills.emptyMagazineWhileDriving(),
 
                 follow(follower, GardenApproach()),
                 skills.startIntakeAndFeed(),
@@ -211,6 +212,7 @@ public class Course1HT extends LinearOpMode {
                 follow(follower, Shoot2Half2()),
                 skills.turretStraight(),
                 skills.shootFourPollen(),
+                skills.emptyMagazineWhileDriving(),
 
                 follow(follower, FlowerApproach()),
                 doFlower(),
@@ -233,6 +235,7 @@ public class Course1HT extends LinearOpMode {
                 follow(follower, GardenReverse()),   // garden → Shoot1
                 skills.turretStraight(),
                 skills.shootFourPollen(),
+                skills.emptyMagazineWhileDriving(),
 
                 follow(follower, FlowerApproachBad()), // Shoot1 → FlowerApproach
                 doFlower(),
