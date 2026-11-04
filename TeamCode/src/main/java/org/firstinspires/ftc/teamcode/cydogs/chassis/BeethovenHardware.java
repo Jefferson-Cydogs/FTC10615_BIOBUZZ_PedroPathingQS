@@ -41,7 +41,7 @@ public final class BeethovenHardware {
         public static final DcMotor.ZeroPowerBehavior AUTON_ZERO_POWER_BEHAVIOR   = DcMotor.ZeroPowerBehavior.BRAKE;
         public static final DcMotor.ZeroPowerBehavior TELEOP_BRAKE_ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.BRAKE; // ChassisTeleopBrakeWheels
 
-        // Physical measurements (GoBilda Yellow Jacket 312 RPM, 537.7 PPR; 104 mm mecanum wheels)
+        // Physical measurements (GoBilda Yellow Jacket 312 RPM, 537.7 PPR; 104 mm Mecanum wheels)
         public static final int    WHEEL_DIAMETER_MM = 104;
         public static final double    MOTOR_RPM = 312;
         public static final double MOTOR_TICKS_PER_REV = 537.7;
@@ -68,16 +68,10 @@ public final class BeethovenHardware {
     public static final class Intake {
         private Intake() {}
 
-        public static final String LEFT_SERVO_NAME  = "LeftIntakeServo";
-        public static final String RIGHT_SERVO_NAME = "RightIntakeServo";
         public static final String MOTOR_NAME       = "IntakeMotor";
-
-        public static final DcMotorSimple.Direction LEFT_SERVO_DIRECTION  = DcMotorSimple.Direction.FORWARD;
-        public static final DcMotorSimple.Direction RIGHT_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
         public static final DcMotorSimple.Direction MOTOR_DIRECTION       = DcMotorSimple.Direction.FORWARD;
         public static final DcMotor.ZeroPowerBehavior MOTOR_ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
-        public static final double SERVO_POWER         = 0.8;
         public static final double MOTOR_INTAKE_POWER  = 0.75;
         public static final double MOTOR_REVERSE_POWER = -0.4;
     }
@@ -113,8 +107,7 @@ public final class BeethovenHardware {
         public static final double NECTAR_LAUNCH_PERCENT = 0.46;
         public static final double PERCENT_STEP = 0.01;
 
-        // Controlled spin-down
-// Time for a controlled spin-down from the current speed to stopped, in seconds. Tune this.
+        // Time for a controlled spin-down from the current speed to stopped, in seconds. Tune this.
         public static final double SPINDOWN_SECONDS = 3.0;
     }
 
@@ -140,7 +133,7 @@ public final class BeethovenHardware {
         private FlowerRamp(){}
         public static final double STARTING_POSITION = 0.80;
         public static final double UP_POSITION = 0.71;
-        public static final double DOWN_POSITION = 0.30;
+        public static final double DOWN_POSITION = 0.32;
     }
 
     // ------------------------------------------------------------------
@@ -156,8 +149,8 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.0; // Changed to 0 (flush) after recalibration
-        public static final double POLLEN_POSITION = 0.59;
+        public static final double NECTAR_POSITION = 0.2; // Changed to 0.2 from 0.0 (flush) after build modification
+        public static final double POLLEN_POSITION = 0.8; //changed to 0.8 from 0.59
     }
 
     // ------------------------------------------------------------------
@@ -248,8 +241,8 @@ public final class BeethovenHardware {
 
         public static final String NAME = "Webcam 1";
 
-        public static final int FRAME_WIDTH = 640;
-        public static final int FRAME_HEIGHT = 480;
+        public static final int FRAME_WIDTH = 1280;
+        public static final int FRAME_HEIGHT = 720;
     }
 
     /** Color/distance sensors that identify the elements in the magazine (FlingyMag.java). */
