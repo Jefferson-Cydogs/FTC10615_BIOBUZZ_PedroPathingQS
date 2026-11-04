@@ -239,7 +239,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         }
         else if(gamepad1.crossWasPressed())
         {
-            myTurret.search();
+            myTurret.search2();
         }
 
     }
