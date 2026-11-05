@@ -59,8 +59,13 @@ public class AutoSkills {
     private static final long SHOOT_CLEAR_TIMEOUT_MS = 800;
     /** true = no lock after looking (tipped); false = locked on basket (no tip) */
     private static final long RAMP_MOVE_MS = 400;
-
     private static final long EMPTY_MAGAZINE_MS = 400;
+    private static final long TIP_SUCCESS_MIN_WATCH_MS = 250;
+
+    /** The tag must be seen over at least this long to count as "partner tipped" (rejects one-frame blips). */
+    private static final long PARTNER_TIP_CONFIRM_MS = 200;
+    /** A gap in sightings longer than this restarts the confirm (short flickers are forgiven). */
+    private static final long PARTNER_TIP_MAX_GAP_MS = 150;
     private boolean hiveTipped = true;
     private boolean keepLauncherRunning = false;
 
@@ -576,7 +581,8 @@ public class AutoSkills {
 
     /** Preset aim, watch ~2 s, then decide. */
     public Command checkForTip(TagSight.Alliance alliance, double presetDegrees) {
-        return checkForTipCommand(alliance, presetDegrees);
+        //return checkForTipCommand(alliance, presetDegrees);
+        return checkForTipSuccessCommand(alliance, presetDegrees);
     }
 
     private Command checkForTipCommand(TagSight.Alliance alliance, Double presetDegrees) {
@@ -603,6 +609,44 @@ public class AutoSkills {
                     }
 
                     long limitMs = (presetDegrees != null) ? TIP_WATCH_MS : TIP_SEARCH_MS;
+                    if (System.currentTimeMillis() - startMs[0] >= limitMs) {
+                        hiveTipped = true;
+                        aimer.hold();
+                        return true;
+                    }
+                    return false;
+                });
+    }
+
+    private Command checkForTipSuccessCommand(TagSight.Alliance alliance, Double presetDegrees) {
+        final long[] startMs = {0L};
+
+        return Command.build()
+                .setStart(() -> {
+                    ensureAimer(alliance);
+                    startMs[0] = System.currentTimeMillis();
+                    hiveTipped = true;
+
+                    if (presetDegrees != null) {
+                        aimer.preset(presetDegrees);
+                        aimer.track();
+                    } else {
+                        aimer.search();
+                    }
+                })
+                .setDone(() -> {
+                    // Positive signal: tag in view, so our side is up (no tip).
+                    if (aimer.isTagVisible()) {
+                        hiveTipped = false;
+                        aimer.hold();
+                        return true;
+                    }
+
+                    // No tag yet. Do not decide "tipped" before the minimum look time,
+                    // even if the watch window is ever set shorter than that.
+                    long limitMs = Math.max(
+                            (presetDegrees != null) ? TIP_WATCH_MS : TIP_SEARCH_MS,
+                            TIP_SUCCESS_MIN_WATCH_MS);
                     if (System.currentTimeMillis() - startMs[0] >= limitMs) {
                         hiveTipped = true;
                         aimer.hold();
@@ -642,7 +686,8 @@ public class AutoSkills {
     private static final long PARTNER_TIP_TIMEOUT_MS = 8000;
 
     public Command waitForPartnerTipOrTimeout(TagSight.Alliance alliance, double presetDegrees) {
-        final long[] startMs = {0L};
+        return waitForPartnerTipSuccessCommand(alliance, presetDegrees, PARTNER_TIP_TIMEOUT_MS);
+        /*final long[] startMs = {0L};
 
         return Command.build()
                 .setStart(() -> {
@@ -667,7 +712,7 @@ public class AutoSkills {
                         return true;
                     }
                     return false;
-                });
+                });*/
     }
 
     // ---- PASTE THIS RIGHT AFTER your existing two-argument waitForPartnerTipOrTimeout(...) ----
@@ -680,7 +725,8 @@ public class AutoSkills {
      */
     public Command waitForPartnerTipOrTimeout(TagSight.Alliance alliance, double presetDegrees,
                                               long timeoutMs) {
-        final long[] startMs = {0L};
+        return waitForPartnerTipSuccessCommand(alliance, presetDegrees, timeoutMs);
+        /*final long[] startMs = {0L};
 
         return Command.build()
                 .setStart(() -> {
@@ -697,6 +743,61 @@ public class AutoSkills {
                         return true;
                     }
                     if (System.currentTimeMillis() - startMs[0] >= timeoutMs) {
+                        hiveTipped = true;
+                        aimer.hold();
+                        return true;
+                    }
+                    return false;
+                });*/
+    }
+
+    /**
+     * Wait for the partner's tip, or time out.
+     * Seesaw rule: we only see our hive tag when OUR side is up, so seeing it again means
+     * the partner tipped.
+     *   Tag seen steadily (confirm time, short flickers allowed) → hiveTipped = false
+     *       (partner tipped: take the happy path)
+     *   Timeout with no confirmed sighting                       → hiveTipped = true
+     *       (partner never tipped: go bail them out)
+     * Pair with branchOnTip(timeoutCmd, sawTagCmd): the "tipped" slot is the timeout.
+     */
+    private Command waitForPartnerTipSuccessCommand(TagSight.Alliance alliance,
+                                                    double presetDegrees,
+                                                    long timeoutMs) {
+        final long[] startMs = {0L};
+        final long[] firstSeenMs = {-1L};   // when the current run of sightings began (-1 = none)
+        final long[] lastSeenMs = {-1L};    // most recent sighting
+
+        return Command.build()
+                .setStart(() -> {
+                    ensureAimer(alliance);
+                    startMs[0] = System.currentTimeMillis();
+                    firstSeenMs[0] = -1L;
+                    lastSeenMs[0] = -1L;
+                    hiveTipped = true;
+                    aimer.preset(presetDegrees);
+                    aimer.track();
+                })
+                .setDone(() -> {
+                    long now = System.currentTimeMillis();
+
+                    if (aimer.isTagVisible()) {
+                        if (firstSeenMs[0] < 0) {
+                            firstSeenMs[0] = now;
+                        }
+                        lastSeenMs[0] = now;
+
+                        // Seen across the confirm time (gaps up to MAX_GAP are forgiven): partner tipped
+                        if (lastSeenMs[0] - firstSeenMs[0] >= PARTNER_TIP_CONFIRM_MS) {
+                            hiveTipped = false;
+                            aimer.hold();
+                            return true;
+                        }
+                    } else if (firstSeenMs[0] >= 0 && now - lastSeenMs[0] > PARTNER_TIP_MAX_GAP_MS) {
+                        firstSeenMs[0] = -1L;   // it was just a blip: start the confirm over
+                    }
+
+                    if (now - startMs[0] >= timeoutMs) {
                         hiveTipped = true;
                         aimer.hold();
                         return true;
