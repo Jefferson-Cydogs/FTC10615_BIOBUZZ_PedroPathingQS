@@ -149,8 +149,8 @@ public final class BeethovenHardware {
         public static final double MAX_POSITION = 0.9;
         public static final double STARTING_POSITION = 0.5;
 
-        public static final double NECTAR_POSITION = 0.2; // Changed to 0.2 from 0.0 (flush) after build modification
-        public static final double POLLEN_POSITION = 0.8; //changed to 0.8 from 0.59
+        public static final double NECTAR_POSITION = 0.35; // Changed to 0.2 from 0.0 (flush) after build modification
+        public static final double POLLEN_POSITION = 0.85; //changed to 0.8 from 0.59
     }
 
     // ------------------------------------------------------------------

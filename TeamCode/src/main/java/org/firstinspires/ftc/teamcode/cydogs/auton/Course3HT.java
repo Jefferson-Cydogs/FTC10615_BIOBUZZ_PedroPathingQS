@@ -62,7 +62,7 @@ public abstract class Course3HT extends LinearOpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     // Alliance for the tag (change to RED if needed)
-    private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.BLUE;
+    //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.BLUE;
     // Turret: 180 = straight ahead, which is right at the hive from the far shoot pose
     private static final double TIP_LOOK_DEGREES = 180.0;
     // How long we wait for the partner's tip before going to help (tune on field)
@@ -70,8 +70,8 @@ public abstract class Course3HT extends LinearOpMode {
     // Pause at the flower after collect so the intake can finish (same as other courses)
 
     // --- Poses (shared poses copied from Course 1, which is field-tuned) ---
-    private final Pose start = poseFactory.of(35.5, 132.6875, 90);
-    private final Pose shoot1 = poseFactory.of(28.5, 126.5, 125);
+    private final Pose start = poseFactory.of(35.5, 130.5, 90);
+    private final Pose shoot1 = poseFactory.of(28.5, 126.5, 127);
     // Tail A: far flower (Course 1)
     private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
     private final Pose flowerApproachControl1 = poseFactory.of(56, 110, 0);
@@ -92,7 +92,7 @@ public abstract class Course3HT extends LinearOpMode {
 
     // Tail B: Course 1 route in reverse
 
-    private final Pose shoot2 = poseFactory.of(28.5, 15, 235);
+    private final Pose shoot2 = poseFactory.of(28.5, 15, 239);
 
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
 
@@ -121,7 +121,7 @@ public abstract class Course3HT extends LinearOpMode {
     public Path FlowerCollect() {
         return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
     public Path FlowerCollectShake() {
         return Paths.line(FlowerCollect, FlowerCollectShake).linear(FlowerCollect, FlowerCollectShake);
@@ -131,6 +131,10 @@ public abstract class Course3HT extends LinearOpMode {
         return Paths.line(FlowerCollect, FlowerApproach)
                 .linear(FlowerCollect, FlowerApproach)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.5));
+    }
+
+    public Path PostFlowerShoot() {
+        return Paths.line(FlowerApproach, shoot1).linear(FlowerApproach, shoot1);
     }
 
     public Path FlowerNudgeBack() {
@@ -194,7 +198,7 @@ public abstract class Course3HT extends LinearOpMode {
     private Command head() {
         return sequential(
                 follow(follower, shoot1()),
-                skills.waitForPartnerTipOrTimeout(ALLIANCE, TIP_LOOK_DEGREES, PARTNER_TIMEOUT_MS)
+                skills.waitForPartnerTipOrTimeout(alliance, TIP_LOOK_DEGREES, PARTNER_TIMEOUT_MS)
         );
     }
 
@@ -202,12 +206,15 @@ public abstract class Course3HT extends LinearOpMode {
     private Command tailA_partnerTipped() {
         return sequential(
                 skills.turretStraight(),
+                skills.startLauncher(),
+                waitMs(3000),
                 skills.shootFourPollen(),
+                skills.emptyMagazineWhileDriving(),
 
                 follow(follower, FlowerApproach()),
                 doFlower(),
 
-                follow(follower, shoot1()),
+                follow(follower, PostFlowerShoot()),
                 skills.turretStraight(),
                 skills.shootFourPollen(),
 
@@ -221,6 +228,7 @@ public abstract class Course3HT extends LinearOpMode {
      */
     private Command tailB_partnerMissed() {
         return sequential(
+                skills.startLauncher(),
                 follow(follower, shoot2()),
                 skills.turretStraight(),
                 skills.shootFourPollen(),
@@ -252,7 +260,7 @@ public abstract class Course3HT extends LinearOpMode {
 
         skills = new AutoSkills(this);
         skills.initialize();
-        skills.prepareVision(ALLIANCE);
+        skills.prepareVision(alliance);
 
         // INIT loop: confirm the camera is streaming (check Camera = STREAMING and fps).
         // NOTE: in this course our side starts DOWN, so "NO TAG IN VIEW" is NORMAL at init.

@@ -63,7 +63,7 @@ public class AutoSkills {
     private static final long TIP_SUCCESS_MIN_WATCH_MS = 250;
 
     /** The tag must be seen over at least this long to count as "partner tipped" (rejects one-frame blips). */
-    private static final long PARTNER_TIP_CONFIRM_MS = 200;
+    private static final long PARTNER_TIP_CONFIRM_MS = 0;
     /** A gap in sightings longer than this restarts the confirm (short flickers are forgiven). */
     private static final long PARTNER_TIP_MAX_GAP_MS = 150;
     private boolean hiveTipped = true;

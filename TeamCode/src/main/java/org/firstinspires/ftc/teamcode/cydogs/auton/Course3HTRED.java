@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 
-@Autonomous(name = "Course 1 HT RED", group = "Autonomous")
+@Autonomous(name = "Course 3 HT RED", group = "Autonomous")
 public class Course3HTRED extends Course3HT {
 
     public Course3HTRED()
