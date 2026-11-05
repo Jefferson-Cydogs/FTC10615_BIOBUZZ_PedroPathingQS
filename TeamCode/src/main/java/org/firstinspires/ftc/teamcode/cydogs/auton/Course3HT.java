@@ -41,11 +41,13 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
  *   shoot the preloaded 4 (enough to tip the first hive, it already holds 3 nectar),
  *   then park.
  */
-@Autonomous(name = "Course3HT", group = "Autonomous")
-public class Course3HT extends LinearOpMode {
+//@Autonomous(name = "Course3HT", group = "Autonomous")
+//public class Course3HT extends LinearOpMode {
+public abstract class Course3HT extends LinearOpMode {
 
     private Follower follower;
     private AutoSkills skills;
+    private final TagSight.Alliance alliance;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -76,6 +78,14 @@ public class Course3HT extends LinearOpMode {
     private final Pose gardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose nearShoot = poseFactory.of(60.25, 12, 270);
     private final Pose nearPark = poseFactory.of(9.8125, 94.5, 0);
+
+    //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
+
+    protected Course3HT(TagSight.Alliance alliance)
+    {
+        this.alliance = alliance;
+    }
+
 
     // -------------------------------------------------------------------------
     // Paths
