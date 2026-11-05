@@ -63,25 +63,24 @@ public abstract class Course1HT extends LinearOpMode {
     private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
 
     // Poses (all shared poses are copied from Course 1, which is field-tuned)
-    private final Pose Start = poseFactory.of(60.25, 9.8125, 270);
-    private final Pose Shoot1 = poseFactory.of(60.25, 12, 270);
+    private final Pose Start = poseFactory.of(35.5, 9.8125, 270);
+    private final Pose Shoot1 = poseFactory.of(28.5, 15, 235);
     private final Pose GardenApproach = poseFactory.of(28, 8.75, 180);
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.5, 8.75, 180);
-    private final Pose Shoot2Half1 = poseFactory.of(36, 108, 90);
-    private final Pose Shoot2Half2 = poseFactory.of(61.25, 126, 90);
-    private final Pose Shoot2Half2Control1 = poseFactory.of(60, 108, 0);
+    private final Pose Shoot2 = poseFactory.of(28.5, 126.5, 125);
+    private final Pose Shoot2Control1 = poseFactory.of(28.5, 72, 0);
     private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
-    private final Pose FlowerCollect = poseFactory.of(49, 125, 90);
-    private final Pose FlowerCollectShake = poseFactory.of(49.5, 125, 85);
-    private final Pose Shoot3 = poseFactory.of(61.25, 127, 90);
+    private final Pose FlowerCollect = poseFactory.of(49, 124.5, 90);
+    private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
+    private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 125);
     private final Pose ParkA = poseFactory.of(9.8125, 94.5, 0);   // the current park pose
     private final Pose ParkB = poseFactory.of(9.8125, 94.5, 0);   // TODO: set the alternate coordinates
     private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
     //private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
-    private final Pose FlowerApproachBadControl1 = poseFactory.of(6.77, 71.73, 0);
+    private final Pose FlowerApproachBadControl1 = poseFactory.of(6, 72, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
 
     // Parking spot: change PARK_SPOT to ParkSpot.B to park at the alternate location
@@ -96,7 +95,7 @@ public abstract class Course1HT extends LinearOpMode {
         double len = Math.hypot(dx, dy);
         return poseFactory.of(
                 FlowerCollect.x() + dx / len * FLOWER_NUDGE_INCHES,
-                FlowerCollect.y() + dy / len * FLOWER_NUDGE_INCHES,
+                FlowerCollect.y() + (dy -1) / len * FLOWER_NUDGE_INCHES,
                 90);
     }
     // Paths
@@ -109,23 +108,19 @@ public abstract class Course1HT extends LinearOpMode {
     public Path GardenCollect() {
         return Paths.line(GardenApproach, GardenCollect)
                 .linear(GardenApproach, GardenCollect)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
-    public Path Shoot2Half1() {
-        return Paths.line(GardenCollect, Shoot2Half1).linear(GardenCollect, Shoot2Half1);
-    }
-    public Path Shoot2Half2() {
-        return Paths.curve(Shoot2Half1, Shoot2Half2Control1, Shoot2Half2).linear(Shoot2Half1, Shoot2Half2);
+    public Path Shoot2() {
+        return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
     // Full speed: the 40% cap lives on FlowerCollect, the leg that actually touches the flower
     public Path FlowerApproach() {
-        return Paths.curve(Shoot2Half2, FlowerApproachControl1, FlowerApproach)
-                .linear(Shoot2Half2, FlowerApproach);
+        return Paths.line(Shoot2, FlowerApproach).linear(Shoot2, FlowerApproach);
     }
     public Path FlowerCollect() {
         return Paths.line(FlowerApproach, FlowerCollect)
                 .linear(FlowerApproach, FlowerCollect)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.4));
     }
     public Path FlowerCollectShake() {
         return Paths.line(FlowerCollect, FlowerCollectShake).linear(FlowerCollect, FlowerCollectShake);
@@ -149,8 +144,7 @@ public abstract class Course1HT extends LinearOpMode {
     }
     // Shoot1 → FlowerApproach (Tail B only)
     public Path FlowerApproachBad() {
-        return Paths.curve(Shoot1, FlowerApproachBadControl1, FlowerApproach)
-                .linear(Shoot1, FlowerApproach);
+        return Paths.curve(Shoot1, FlowerApproachBadControl1, FlowerApproach).linear(Shoot1, FlowerApproach);
     }
     // Short in-and-out passes at the flower
     public Path FlowerNudgeBack() {
@@ -214,14 +208,14 @@ public abstract class Course1HT extends LinearOpMode {
                 //skills.stopIntake(),
 
                 // Lock = basket still up → no tip. No lock → tipped.
-                skills.checkForTip(alliance, TIP_LOOK_DEGREES)
+                skills.checkForTip(alliance, TIP_LOOK_DEGREES),
+                skills.stopIntakeAndFeed()
         );
     }
     // ---------- TAIL A: tipped → finish normal route (same route as Course 1) ----------
     private Command tailA_HiveTipped() {
         return sequential(
-                follow(follower, Shoot2Half1()),
-                follow(follower, Shoot2Half2()),
+                follow(follower, Shoot2()),
                 skills.turretStraight(),
                 skills.shootFourPollen(),
                 skills.emptyMagazineWhileDriving(),
@@ -230,6 +224,7 @@ public abstract class Course1HT extends LinearOpMode {
                 doFlower(),
 
                 follow(follower, Shoot3()),
+                skills.turretStraight(),
                 skills.shootFourPollen(),
 
                 follow(follower, Park())
@@ -244,7 +239,7 @@ public abstract class Course1HT extends LinearOpMode {
     // After FlowerApproach it shares the flower pickup, Shoot3, and Park with Tail A.
     private Command tailB_NoTip() {
         return sequential(
-                follow(follower, GardenReverse()),   // garden → Shoot1
+                follow(follower, GardenReverse()),   // Garden → Shoot1
                 skills.turretStraight(),
                 skills.shootFourPollen(),
                 skills.emptyMagazineWhileDriving(),
@@ -253,6 +248,7 @@ public abstract class Course1HT extends LinearOpMode {
                 doFlower(),
 
                 follow(follower, Shoot3()),
+                skills.turretStraight(),
                 skills.shootFourPollen(),              // half a tip on their side
 
                 follow(follower, Park())
