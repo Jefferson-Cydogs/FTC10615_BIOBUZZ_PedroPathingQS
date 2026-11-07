@@ -90,7 +90,7 @@ public abstract class Course3HT extends LinearOpMode {
                 90
         );
     }
-    private final Pose park = poseFactory.of(9.8125, 94.5, 0);
+    private final Pose park = poseFactory.of(9.8125, 121, 0);
     // Tail B: Course 1 route in reverse
     private final Pose shoot2 = poseFactory.of(28.5, 15, 239);
 

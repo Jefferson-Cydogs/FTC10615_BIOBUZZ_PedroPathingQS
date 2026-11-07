@@ -54,6 +54,7 @@ public abstract class Course1HT extends LinearOpMode {
 
     // How far each in-and-out pass at the flower backs up from FlowerCollect (inches
     private static final double FLOWER_NUDGE_INCHES = 4.0;
+    private static final double FAR_TIP_LOOK_DEGREES = 180.0;
 
     // Alliance for tip check (change to RED if needed)
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
@@ -175,6 +176,7 @@ public abstract class Course1HT extends LinearOpMode {
     //   pass 1 + shake releases the balls, pass 2 gets the last one.
     private Command doFlower() {
         return sequential(
+                skills.emptyMagazineWhileDriving(),
                 skills.flowerRampDown(),
                 skills.startIntakeAndFeed(),
                 follow(follower, FlowerCollect()),        // pass 1
@@ -185,10 +187,12 @@ public abstract class Course1HT extends LinearOpMode {
                 skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
                 skills.stopIntakeAfter(INTAKE_STOP_DELAY_MS),
                 follow(follower, FlowerNudgeIn()),        // pass 2
+                waitMs(FLOWER_COLLECT_WAIT_MS),
                 skills.stopIntakeAndFeed(),
                 follow(follower, FlowerBackUp()),
                 skills.flowerRampUp()
         );
+
     }
 
     // ---------- HEAD (always runs) ----------
@@ -206,10 +210,11 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, GardenCollect()),
                 //skills.stopIntakeAndFeed(),
                 //skills.stopIntake(),
-
+                waitMs(1500),
                 // Lock = basket still up → no tip. No lock → tipped.
-                skills.checkForTip(alliance, TIP_LOOK_DEGREES),
-                skills.stopIntakeAndFeed()
+                skills.stopIntakeAndFeed(),
+                skills.checkForTip(alliance, TIP_LOOK_DEGREES)
+
         );
     }
     // ---------- TAIL A: tipped → finish normal route (same route as Course 1) ----------
@@ -249,9 +254,14 @@ public abstract class Course1HT extends LinearOpMode {
 
                 follow(follower, Shoot3()),
                 skills.turretStraight(),
-                skills.shootFourPollen(),              // half a tip on their side
-
-                follow(follower, Park())
+                skills.checkForTip(alliance, FAR_TIP_LOOK_DEGREES),
+                skills.branchOnTip(
+                        follow(follower, Park()),
+                        sequential(
+                                skills.shootFourPollen(), // half a tip on their side
+                                follow(follower, Park())
+                        )
+                )
         );
     }
 
