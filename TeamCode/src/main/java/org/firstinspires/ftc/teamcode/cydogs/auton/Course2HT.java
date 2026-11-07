@@ -13,6 +13,7 @@ import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
@@ -50,6 +51,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
  *   flowerRampDown / flowerRampUp, startIntake / stopIntake, shootFourPollen
  *   turretStraight
  */
+@Disabled
 @Autonomous(name = "Course2HT", group = "Autonomous")
 public class Course2HT extends LinearOpMode {
 
