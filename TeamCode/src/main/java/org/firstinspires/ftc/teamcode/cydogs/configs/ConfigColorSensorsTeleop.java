@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.cydogs.configs;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.cydogs.core.TargetColor;
  *   - The raw readings from BaseColorSensor.WhatDoISee(): normalized RGB, distance, RGB and HSV.
  *     Read the "H:" value to tune the hue ranges in TargetColor.
  */
+@Disabled
 @TeleOp(name = "Config Color Sensors", group = "Config")
 public class ConfigColorSensorsTeleop extends OpMode {
 
