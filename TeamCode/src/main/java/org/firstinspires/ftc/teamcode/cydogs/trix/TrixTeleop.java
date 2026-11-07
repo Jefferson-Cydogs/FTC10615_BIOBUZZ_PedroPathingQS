@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.BallTracker;
 import org.firstinspires.ftc.teamcode.cydogs.components.DumpArm;
 
 
+@Disabled
 @TeleOp
 public class TrixTeleop extends LinearOpMode {
 
