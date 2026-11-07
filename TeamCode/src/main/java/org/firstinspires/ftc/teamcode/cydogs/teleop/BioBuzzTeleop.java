@@ -144,8 +144,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("last sensor pass ms:", lastSensorPassMs);
                 // TEMP: vision debugging (remove when search is fixed)
                 telemetry.addData("tag seen", myTurret.getEyes().hasTarget);
-                telemetry.addData("bearing", "%.1f", myTurret.getEyes().bearingDegrees);
-                telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
+                //telemetry.addData("bearing", "%.1f", myTurret.getEyes().bearingDegrees);
+                //telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
                 telemetry.addData("mode", myTurret.getMode());
 
                 telemetry.update();
@@ -159,8 +159,12 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
      CONTROLS
 
      Gamepad 1 (driver)
-       Left stick             Drive (move)
-       Right stick            Drive (turn)
+       Left stick             Slow Drive (Forward / Backwards / Left Strafe / Right Strafe)
+       Right stick            Fast Drive (Forward / Backwards / Left Strafe / Right Strafe)
+       Left Bumper            Slow Rotate Left
+       Left Trigger           Fast Rotate Left
+       Right Bumper           Slow Rotate Right
+       Right Trigger          Slow Rotate Right
        D-pad up / down        Launcher target speed + / - (1% per press)
        D-pad left             Sensors OFF (emergency: everything manual, no blocking, no auto-feed)
        D-pad right            Sensors ON
@@ -190,22 +194,18 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     */
     private void manageDriverControls()
     {
-        if(gamepad1.dpadUpWasPressed())
-        {
+        if(gamepad1.dpadUpWasPressed()) {
             LarryTheLauncher.IncreaseLaunchPercent();
         }
-        else if(gamepad1.dpadDownWasPressed())
-        {
+        else if(gamepad1.dpadDownWasPressed()) {
             LarryTheLauncher.DecreaseLaunchPercent();
         }
 
         // ----- Sensors switch: left = off, right = on -----
-        if(gamepad1.dpadLeftWasPressed())
-        {
+        if(gamepad1.dpadLeftWasPressed()) {
             launchSensingOn = false;
         }
-        else if(gamepad1.dpadRightWasPressed())
-        {
+        else if(gamepad1.dpadRightWasPressed()) {
             launchSensingOn = true;
             sensingPausedUntil = 0;   // turning it on also cancels any manual-override pause
             nextSensorPassAt = 0;     // read the sensors right away
@@ -214,31 +214,25 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
         // ----- Launcher size fine adjust: right stick click = up, left stick click = down -----
         // Also pauses the size sensing for a few seconds so the sensors don't overwrite the adjustment.
-        if(gamepad1.rightStickButtonWasPressed())
-        {
+        if(gamepad1.rightStickButtonWasPressed()) {
             LauncherSize.IncrementPosition(LAUNCHER_SIZE_STEP);
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
-        else if(gamepad1.leftStickButtonWasPressed())
-        {
+        else if(gamepad1.leftStickButtonWasPressed()) {
             LauncherSize.DecrementPosition(LAUNCHER_SIZE_STEP);
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
 
-        if(gamepad1.triangleWasPressed())
-        {
+        if(gamepad1.triangleWasPressed()) {
             myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
         }
-        else if(gamepad1.circleWasPressed())
-        {
+        else if(gamepad1.circleWasPressed()) {
             myTurret.preset(150);
         }
-        else if(gamepad1.squareWasPressed())
-        {
+        else if(gamepad1.squareWasPressed()) {
             myTurret.preset(210);
         }
-        else if(gamepad1.crossWasPressed())
-        {
+        else if(gamepad1.crossWasPressed()) {
             myTurret.search2();
         }
 
@@ -247,58 +241,48 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     private void manageManipulatorControls()
     {
         // ----- Intake: hold right trigger = in, hold left trigger = backwards -----
-        if(gamepad2.right_trigger > TRIGGER_THRESHOLD)
-        {
+        if(gamepad2.right_trigger > TRIGGER_THRESHOLD) {
             IggyTheIntake.RunIntake();
         }
-        else if(gamepad2.left_trigger > TRIGGER_THRESHOLD)
-        {
+        else if(gamepad2.left_trigger > TRIGGER_THRESHOLD) {
             IggyTheIntake.ReverseIntake();
         }
-        else
-        {
+        else {
             IggyTheIntake.StopIntake();
         }
 
         // ----- Launcher size, manual: also pauses the size sensing for a few seconds -----
-        if(gamepad2.dpadLeftWasPressed())
-        {
+        if(gamepad2.dpadLeftWasPressed()) {
             LauncherSize.SetPollen();
             LarryTheLauncher.StartLauncher();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
-        else if(gamepad2.dpadRightWasPressed())
-        {
+        else if(gamepad2.dpadRightWasPressed()) {
             LauncherSize.SetNectar();
             LarryTheLauncher.StartLauncherNectar();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
         }
 
         // ----- Flower ramp: D-pad up = up, D-pad down = down -----
-        if(gamepad2.dpadUpWasPressed())
-        {
+        if(gamepad2.dpadUpWasPressed()) {
             FlowerRamp.MoveUp();
         }
-        else if(gamepad2.dpadDownWasPressed())
-        {
+        else if(gamepad2.dpadDownWasPressed()) {
             FlowerRamp.MoveDown();
         }
 
         // (Move to launcher is handled in manageMoveToLauncher(), which needs the sensor results.)
 
         // ----- Launcher: triangle = on, cross = off -----
-        if(gamepad2.triangleWasPressed())
-        {
+        if(gamepad2.triangleWasPressed()) {
             LarryTheLauncher.StartLauncher();
         }
-        else if(gamepad2.crossWasPressed())
-        {
+        else if(gamepad2.crossWasPressed()) {
             LarryTheLauncher.StopLauncher();
         }
 
         // ----- Load to launch: one push of circle = Launch position, then back to Load -----
-        if(gamepad2.circleWasPressed())
-        {
+        if(gamepad2.circleWasPressed()) {
             LanceTheLoaderServo.LaunchOnce();
         }
     }
