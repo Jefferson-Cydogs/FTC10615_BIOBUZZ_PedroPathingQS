@@ -1,14 +1,15 @@
 package org.firstinspires.ftc.teamcode.cydogs.teleop;
 
-
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.teamcode.cydogs.components.BallTracker;
 
+
+@Disabled
 @TeleOp(name = "Ball Assist TeleOp")
 public class TestBallTrackerTeleop extends LinearOpMode {
     static final double KP_TURN = 0.004;
