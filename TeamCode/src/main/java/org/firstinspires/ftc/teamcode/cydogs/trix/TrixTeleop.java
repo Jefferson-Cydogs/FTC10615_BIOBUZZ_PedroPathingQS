@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.cydogs.components.BallTracker;
 import org.firstinspires.ftc.teamcode.cydogs.components.DumpArm;
 
 
-@Disabled
 @TeleOp
 public class TrixTeleop extends LinearOpMode {
 
@@ -44,9 +43,7 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
 
     private BioBuzzRobotChassis TrixWheels;
 
-
     private BaseContinuousServo leftloader;
-
     private BaseContinuousServo rightloader;
 
     private BasePowerMotor launcher;
@@ -68,16 +65,16 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
 
     @Override
     public void runOpMode() {
-
         // Execute initialization actions here
-
         TrixWheels = new BioBuzzRobotChassis(this);
         TrixWheels.InitializeChassisTeleop(.75,.3,.5);
+        TrixWheels.BackLeftWheel.setDirection(DcMotor.Direction.FORWARD);
         TrixWheels.FrontLeftWheel.setDirection(DcMotor.Direction.FORWARD);
+        TrixWheels.BackRightWheel.setDirection(DcMotor.Direction.REVERSE);
+        TrixWheels.FrontRightWheel.setDirection(DcMotor.Direction.FORWARD);
 
         initializeDevices();
         initializePositions();
-
 
 
     /*    while (!isStarted() && !isStopRequested()) {
@@ -87,14 +84,11 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
             telemetry.addData("HuskyLens connected", ballTracker.isConnected());
             telemetry.update();
         }*/
-
         waitForStart();
-
         while (opModeIsActive()) {
             manageDriverControls();
             manageManipulatorControls();
         }
-
     }
 
     private void manageDriverControls()
@@ -126,22 +120,19 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
         Run feeder	Gamepad 2 Bumper (held)	Yes
             */
 
-        if(gamepad2.triangle)
-        {
+        if(gamepad2.triangle) {
             launcher.SetPower(launcherPower);
         }
-        else if (gamepad2.cross)
-        {
+        else if (gamepad2.cross) {
             launcher.Stop();
         }
-        if (gamepad2.right_trigger > .4)
-        {
+
+        if (gamepad2.right_trigger > .4) {
             intake.SetPower(.85);
             rightloader.RunForward();
             leftloader.RunBackward();
         }
-        else if (gamepad2.left_trigger > .4)
-        {
+        else if (gamepad2.left_trigger > .4) {
             intake.SetPower(-.5);
             rightloader.Stop();
             leftloader.Stop();
@@ -151,31 +142,27 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
             rightloader.Stop();
             leftloader.Stop();
         }
-        if(gamepad2.right_bumper)
-        {
+
+        if(gamepad2.right_bumper) {
             feeder.RunForward();
         }
-        else if(gamepad2.left_bumper)
-        {
+        else if(gamepad2.left_bumper) {
             feeder.RunBackward();
         }
-        else
-        {
+        else {
             feeder.Stop();
         }
-  /*      if(gamepad2.dpadUpWasPressed())
-        {
+
+  /*      if(gamepad2.dpadUpWasPressed()) {
             flowerArm.MoveToDump();
         }
-        if(gamepad2.dpadDownWasPressed())
-        {
+        if(gamepad2.dpadDownWasPressed()) {
             flowerArm.MoveToRest();
         }
 
         flowerArm.Update();*/
 
     }
-
 
 
     private void initializeDevices()
@@ -206,6 +193,5 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
     {
     //    flowerArm.SnapToRest();
     }
-
 
 }
