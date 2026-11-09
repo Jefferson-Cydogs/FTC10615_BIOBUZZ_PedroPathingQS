@@ -76,7 +76,7 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose FlowerCollect = poseFactory.of(49, 124.25, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
     private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 121);
-    private final Pose ParkA = poseFactory.of(9.8125, 94.5, 0);   // the current park pose
+    private final Pose ParkA = poseFactory.of(9.8125, 120, 0);   // the current park pose
     private final Pose ParkB = poseFactory.of(9.8125, 94.5, 0);   // TODO: set the alternate coordinates
     private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
     //private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
