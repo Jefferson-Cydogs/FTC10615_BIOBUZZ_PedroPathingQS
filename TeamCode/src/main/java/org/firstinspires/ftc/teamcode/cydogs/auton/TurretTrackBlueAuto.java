@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.cydogs.auton;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.components.Turret;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
  * Webcam name is inside TagSight ("Webcam 1").
  * Servo name is inside Turret ("TurretTurnerServo").
  */
+@Disabled
 @Autonomous(name = "Turret Track BLUE", group = "cydogs")
 public class TurretTrackBlueAuto extends LinearOpMode {
 
