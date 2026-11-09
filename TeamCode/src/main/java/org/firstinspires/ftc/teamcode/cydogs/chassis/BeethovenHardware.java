@@ -73,7 +73,7 @@ public final class BeethovenHardware {
         public static final DcMotor.ZeroPowerBehavior MOTOR_ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
         public static final double MOTOR_INTAKE_POWER  = 0.75;
-        public static final double MOTOR_REVERSE_POWER = -0.4;
+        public static final double MOTOR_REVERSE_POWER = -0.6;
     }
 
     // ------------------------------------------------------------------
@@ -133,7 +133,7 @@ public final class BeethovenHardware {
         private FlowerRamp(){}
         public static final double STARTING_POSITION = 0.80;
         public static final double UP_POSITION = 0.71;
-        public static final double DOWN_POSITION = 0.32;
+        public static final double DOWN_POSITION = 0.35;
     }
 
     // ------------------------------------------------------------------

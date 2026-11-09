@@ -555,6 +555,16 @@ public class AutoSkills {
         return instant(() -> aimStraight());
     }
 
+    public void aimAngle(Double angle) {
+        if (aimer == null) {
+            return;
+        }
+        aimer.preset(angle);
+    }
+    public Command turretAngle(Double presetAngle) {
+        return instant(() -> aimAngle(presetAngle));
+    }
+
     public Command flowerRampUp() {
         return sequential(
                 instant(() -> flowerRamp.MoveUp()),
