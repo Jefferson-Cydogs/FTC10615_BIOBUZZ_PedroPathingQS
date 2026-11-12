@@ -84,7 +84,17 @@ public class Aimer {
     /** Dwell at each local offset. Must be longer than S2_SETTLE_MS. */
     private static final long S2_LOCAL_DWELL_MS = 350;
 
-    private enum Search2State { SWEEP, PAUSE, VERIFY, LOCAL, LOCKED }
+    /** Last bearing at or beyond this (degrees) means the tag probably left the frame instead of
+     *  being a dropped frame. TUNE: about 70% of the camera's half field of view. */
+    private static final double S2_EDGE_BEARING_DEG = 12.0;
+    /** Chase: how far to step each time (turret degrees) in the direction the tag left. */
+    private static final double S2_CHASE_STEP_DEG = 6.0;
+    /** Chase: dwell at each step before stepping again. Must be longer than S2_SETTLE_MS. */
+    private static final long S2_CHASE_DWELL_MS = 300;
+    /** Chase: give up after moving this far from where the chase started (turret degrees). */
+    private static final double S2_CHASE_MAX_DEG = 40.0;
+
+    private enum Search2State { SWEEP, PAUSE, VERIFY, LOCAL, LOCKED, STILL, CHASE }
 
     private Search2State s2State = Search2State.SWEEP;
     private long s2StateStartMs = 0;
@@ -97,6 +107,15 @@ public class Aimer {
     private long s2LastNudgeMs = 0;
     private int s2LocalIndex = 0;
     private double s2LocalCenter = 0;
+
+    private double s2LastSeenBearing = 0;     // bearing from the most recent frame that saw the tag
+    private double s2LastSeenTurretDeg = 0;   // turret angle at that moment
+    private double s2ChaseDir = 0;            // +1 / -1: which way (turret degrees) the tag left
+    private double s2ChaseStartDeg = 0;       // where the chase began
+    private static final long S2_LOST_HOLD_MS = 1000;
+    private static final double S2_FAST_GAIN = 0.5;
+
+
 
     /**
      * @param opMode    the running OpMode (needed for Turret)
@@ -167,6 +186,8 @@ public class Aimer {
      */
     public void search2() {
         mode = Mode.SEARCH2;
+        s2LastSeenMs = 0;                       // NEW
+        s2LastSeenBearing = 0;                  // NEW (next to s2LastSeenMs = 0)
         applyCameraForMode();
         s2Enter(Search2State.SWEEP);
     }
@@ -293,9 +314,26 @@ public class Aimer {
         s2Enter(Search2State.LOCAL);
     }
 
+    /**
+     * The tag left the frame. Move to where the last frame says it would be centered (the ghost),
+     * then keep stepping the way it left. s2Sign converts camera bearing to turret direction.
+     */
+    private void s2StartChase() {
+        s2ChaseDir = Math.signum(s2Sign * s2LastSeenBearing);
+        s2ChaseStartDeg = turret.getTurretDegrees();
+        turret.setTurretDegrees(s2LastSeenTurretDeg + s2Sign * s2LastSeenBearing);   // ghost center
+        s2Enter(Search2State.CHASE);
+    }
+
     private void updateSearch2() {
         long now = System.currentTimeMillis();
         long inState = now - s2StateStartMs;
+
+        if (eyes.hasTarget) {
+            s2LastSeenMs = now;
+            s2LastSeenBearing = eyes.bearingDegrees;
+            s2LastSeenTurretDeg = turret.getTurretDegrees();
+        }
 
         switch (s2State) {
 
@@ -335,7 +373,7 @@ public class Aimer {
                     if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
                         s2EnterLocked(now);
                     } else if (s2AimTries >= S2_MAX_AIM_TRIES) {
-                        s2StartLocal();
+                        s2Enter(Search2State.STILL);
                     } else {
                         // Last aim made it clearly worse = wrong sign. Flip it.
                         if (Math.abs(s2LastBearing) > Math.abs(s2BearingBeforeAim) * 1.2) {
@@ -346,20 +384,15 @@ public class Aimer {
                         s2AimFromBearing();
                     }
                 } else if (inState >= S2_SETTLE_MS + S2_VERIFY_MS) {
-                    s2StartLocal();   // never saw it after aiming
+                    s2Enter(Search2State.STILL);   // never saw it after aiming
                 }
                 break;
 
             case LOCAL:
-                if (eyes.hasTarget && inState >= S2_SETTLE_MS) {
+                if (eyes.hasTarget) {
+                    // Saw it: stop right here (do not step to the next offset), then re-aim once
                     s2LastBearing = eyes.bearingDegrees;
-                    s2BearingBeforeAim = s2LastBearing;
-                    s2AimTries = 0;
-                    if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
-                        s2EnterLocked(now);
-                    } else {
-                        s2AimFromBearing();
-                    }
+                    s2Enter(Search2State.PAUSE);
                 } else if (inState >= S2_LOCAL_DWELL_MS) {
                     s2LocalIndex++;
                     if (s2LocalIndex >= S2_LOCAL_OFFSETS.length) {
@@ -376,11 +409,52 @@ public class Aimer {
                     s2LastSeenMs = now;
                     if (Math.abs(eyes.bearingDegrees) > LOCK_TOL_DEG
                             && now - s2LastNudgeMs >= S2_NUDGE_INTERVAL_MS) {
-                        turret.nudgeByDegrees(s2Sign * eyes.bearingDegrees * S2_LOCKED_GAIN);
+                        //turret.nudgeByDegrees(s2Sign * eyes.bearingDegrees * S2_LOCKED_GAIN);
+                        double gain = (Math.abs(eyes.bearingDegrees) >= S2_EDGE_BEARING_DEG)
+                                ? S2_FAST_GAIN : S2_LOCKED_GAIN;
+                        turret.nudgeByDegrees(s2Sign * eyes.bearingDegrees * gain);
                         s2LastNudgeMs = now;
                     }
                 } else if (now - s2LastSeenMs >= S2_UNLOCK_AFTER_MS) {
-                    s2StartLocal();   // lost it for a while: recover near where we were
+                    if (Math.abs(s2LastSeenBearing) >= S2_EDGE_BEARING_DEG) {
+                        s2StartChase();                    // it left the frame: go after it
+                    } else {
+                        s2Enter(Search2State.STILL);       // dropped frame: hold still
+                    }
+                }
+                break;
+
+            case STILL:
+                // The tag was seen recently but is not registering right now. Hold the turret
+                // still. Only recover after a long gap with no sighting at all.
+                if (eyes.hasTarget) {
+                    s2LastBearing = eyes.bearingDegrees;
+                    if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
+                        s2EnterLocked(now);
+                    } else {
+                        s2Enter(Search2State.PAUSE);   // off center: pause, then aim once
+                    }
+                } else if (s2LastSeenMs == 0 || now - s2LastSeenMs >= S2_LOST_HOLD_MS) {
+                    s2StartLocal();
+                }
+                break;
+            case CHASE:
+                if (eyes.hasTarget) {
+                    // Found it again: stop, then PAUSE aims once at the fresh bearing
+                    s2LastBearing = eyes.bearingDegrees;
+                    s2Enter(Search2State.PAUSE);
+                } else if (inState >= S2_CHASE_DWELL_MS) {
+                    double traveled = Math.abs(turret.getTurretDegrees() - s2ChaseStartDeg);
+                    boolean atLimit = (s2ChaseDir > 0) ? turret.isAtMax() : turret.isAtMin();
+                    if (traveled >= S2_CHASE_MAX_DEG || atLimit) {
+                        // Chase failed: full sweep, starting the way the tag left
+                        // (or back the other way if we ran into the turret limit)
+                        searchDirection = atLimit ? -s2ChaseDir : s2ChaseDir;
+                        s2Enter(Search2State.SWEEP);
+                    } else {
+                        turret.setTurretDegrees(turret.getTurretDegrees() + s2ChaseDir * S2_CHASE_STEP_DEG);
+                        s2Enter(Search2State.CHASE);
+                    }
                 }
                 break;
         }
