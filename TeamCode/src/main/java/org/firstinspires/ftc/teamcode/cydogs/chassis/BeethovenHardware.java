@@ -132,8 +132,8 @@ public final class BeethovenHardware {
     public static final class FlowerRamp {
         private FlowerRamp(){}
         public static final double STARTING_POSITION = 0.80;
-        public static final double UP_POSITION = 0.71;
-        public static final double DOWN_POSITION = 0.35;
+        public static final double UP_POSITION = 0.74;
+        public static final double DOWN_POSITION = 0.29;
     }
 
     // ------------------------------------------------------------------

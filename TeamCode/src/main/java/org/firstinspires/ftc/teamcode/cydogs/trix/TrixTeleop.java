@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.cydogs.components.BallTracker;
 import org.firstinspires.ftc.teamcode.cydogs.components.DumpArm;
 
 
+@Disabled
 @TeleOp
 public class TrixTeleop extends LinearOpMode {
 
@@ -30,16 +31,7 @@ public class TrixTeleop extends LinearOpMode {
             lower_flower_servo
             upper_flower_servo
             LedLight
-
-
-Drive	Gamepad 1 sticks	Yes
-Launcher on	Gamepad 2 Triangle	Yes
-Launcher off	Gamepad 2 Cross (X)	Yes
-Intake on	Gamepad 2 Right Trigger	Yes
-Reverse intake	Gamepad 2 Left Trigger	Yes
-Run feeder	Gamepad 2 Bumper (held)	Yes
      */
-
 
     private BioBuzzRobotChassis TrixWheels;
 
@@ -47,7 +39,7 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
     private BaseContinuousServo rightloader;
 
     private BasePowerMotor launcher;
-    private double launcherPower = 0.6;
+    private double launcherPower = 0.45;
 
     private BasePowerMotor intake;
 
@@ -55,9 +47,8 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
 
     private DumpArm flowerArm;
 
-
     // Ball tracker properties
-  //  private BallTracker ballTracker;
+    // private BallTracker ballTracker;
     static final double KP_TURN = 0.004;
     static final double ASSIST_DRIVE_POWER = 0.4;
     static final double MAX_ASSIST_TURN = 0.4;
@@ -75,7 +66,6 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
 
         initializeDevices();
         initializePositions();
-
 
     /*    while (!isStarted() && !isStopRequested()) {
             if (gamepad1.square) ballTracker.setAlliance(BallTracker.Alliance.BLUE);
@@ -119,14 +109,12 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
         Reverse intake	Gamepad 2 Left Trigger	Yes
         Run feeder	Gamepad 2 Bumper (held)	Yes
             */
-
         if(gamepad2.triangle) {
             launcher.SetPower(launcherPower);
         }
         else if (gamepad2.cross) {
             launcher.Stop();
         }
-
         if (gamepad2.right_trigger > .4) {
             intake.SetPower(.85);
             rightloader.RunForward();
@@ -142,7 +130,6 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
             rightloader.Stop();
             leftloader.Stop();
         }
-
         if(gamepad2.right_bumper) {
             feeder.RunForward();
         }
@@ -152,7 +139,6 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
         else {
             feeder.Stop();
         }
-
   /*      if(gamepad2.dpadUpWasPressed()) {
             flowerArm.MoveToDump();
         }
@@ -161,9 +147,7 @@ Run feeder	Gamepad 2 Bumper (held)	Yes
         }
 
         flowerArm.Update();*/
-
     }
-
 
     private void initializeDevices()
     {
