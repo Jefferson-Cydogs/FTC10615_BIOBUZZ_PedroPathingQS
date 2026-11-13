@@ -177,13 +177,13 @@ public final class BeethovenHardware {
         // Old Min: 0.35 servo = 126.0° (180° - 54° | Turret moved 1.8 hours toward 4:00)
         // Old Max: 0.65 servo = 234.0° (180° + 54° | Turret moved 1.8 hours toward 8:00)
 
-        public static final double MIN_POSITION = 0.23; //new min .23 (82.8 degrees) , changed from 0.35
+        public static final double MIN_POSITION = 0.28; //new min .23 (82.8 degrees) , changed from 0.35, then changed from 0.23
         public static final double STRAIGHT_POSITION = 0.5; //(180 degrees)
-        public static final double MAX_POSITION = 0.78; //New Max .78 (280.8 degrees), changed from 0.65
+        public static final double MAX_POSITION = 0.72; //New Max .78 (280.8 degrees), changed from 0.65, then changed from .78
 
         // Robot angles in degrees: 0 = intake, 180 = straight ahead for aiming
         public static final double STRAIGHT_DEGREES = 180.0;
-        public static final double MAX_OFFSET_DEGREES = 95.0;
+        public static final double MAX_OFFSET_DEGREES = 80.0; // set to 80, was 95
         public static final double MIN_DEGREES = STRAIGHT_DEGREES - MAX_OFFSET_DEGREES;
         public static final double MAX_DEGREES = STRAIGHT_DEGREES + MAX_OFFSET_DEGREES;
     }
