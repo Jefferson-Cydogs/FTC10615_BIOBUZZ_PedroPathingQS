@@ -17,6 +17,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.cydogs.core.ParkSideSelector;
+import org.firstinspires.ftc.teamcode.cydogs.core.ParkSide;
 
 /**
  * Course 1 with Heads / Tails after the garden.
@@ -39,10 +41,11 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public abstract class Course1HT extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
+    private ParkSideSelector parkSelector;
     private final PoseFactory poseFactory = PoseFactory.degrees();
-
     private enum ParkSpot { A, B }
-    private static final ParkSpot PARK_SPOT = ParkSpot.A;
+    private ParkSide parkside;
+    private static ParkSpot PARK_SPOT = ParkSpot.A;
 
     // Pause at the flower after collect so the intake can finish pulling balls in (tune on field)
     private static final long FLOWER_COLLECT_WAIT_MS = 500;
@@ -292,6 +295,7 @@ public abstract class Course1HT extends LinearOpMode {
     @Override
     public void runOpMode() {
         Scheduler.reset();
+        parkSelector = new ParkSideSelector(this);
         follower = Constants.create(hardwareMap);
         follower.setPose(Start);
         follower.update();
@@ -302,11 +306,25 @@ public abstract class Course1HT extends LinearOpMode {
 
         // INIT loop: confirm the camera is streaming and sees the hive tag before the match
         while (!isStarted() && !isStopRequested()) {
-            skills.updateInitVision();
-            telemetry.update();
+            parkSelector.update();       // adds the menu lines to telemetry
+            skills.updateInitVision();  // existing camera check still works
+            telemetry.update(); // the init loop still calls update() itself
         }
 
         waitForStart();
+        parkside = parkSelector.getSelection();   // LEFT, RIGHT or NONE
+        if(parkside == ParkSide.LEFT)
+        {
+            PARK_SPOT = ParkSpot.A;
+        }
+        else if(parkside == ParkSide.RIGHT)
+        {
+            PARK_SPOT = ParkSpot.B;
+        }
+        else if(parkside == ParkSide.NONE)
+        {
+            PARK_SPOT = ParkSpot.A;
+        }
         schedule(autoRoutine());
 
         while (opModeIsActive()) {
