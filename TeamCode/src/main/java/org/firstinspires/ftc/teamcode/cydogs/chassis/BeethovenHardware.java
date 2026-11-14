@@ -103,7 +103,7 @@ public final class BeethovenHardware {
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
         // Launch speed as a fraction of top speed, and the size of one D-pad adjustment
-        public static final double LAUNCH_PERCENT = 0.44;
+        public static final double LAUNCH_PERCENT = 0.45;
         public static final double NECTAR_LAUNCH_PERCENT = 0.46;
         public static final double PERCENT_STEP = 0.01;
 
@@ -133,7 +133,7 @@ public final class BeethovenHardware {
         private FlowerRamp(){}
         public static final double STARTING_POSITION = 0.80;
         public static final double UP_POSITION = 0.74;
-        public static final double DOWN_POSITION = 0.29;
+        public static final double DOWN_POSITION = 0.30;
     }
 
     // ------------------------------------------------------------------
