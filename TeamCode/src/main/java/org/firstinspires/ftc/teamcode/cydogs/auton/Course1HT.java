@@ -68,17 +68,17 @@ public abstract class Course1HT extends LinearOpMode {
 
     // Poses (all shared poses are copied from Course 1, which is field-tuned)
     private final Pose Start = poseFactory.of(35.5, 9.8125, 270);
-    private final Pose Shoot1 = poseFactory.of(28.5, 15, 237);
+    private final Pose Shoot1 = poseFactory.of(28.5, 15, 235);
     private final Pose GardenApproach = poseFactory.of(28, 9.25, 180); //y was 8.75
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.5, 9, 190); //y was 8.75, h 180
-    private final Pose Shoot2 = poseFactory.of(28.5, 126.5, 121);
+    private final Pose Shoot2 = poseFactory.of(28.5, 126.5, 123);
     private final Pose Shoot2Control1 = poseFactory.of(28.5, 72, 0);
     private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
     private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
     private final Pose FlowerCollect = poseFactory.of(49, 124.25, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
-    private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 121);
+    private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 123);
     private final Pose ParkA = poseFactory.of(9.8125, 120, 0);   // the current park pose
     private final Pose ParkB = poseFactory.of(9.8125, 94.5, 0);   // TODO: set the alternate coordinates
     private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
