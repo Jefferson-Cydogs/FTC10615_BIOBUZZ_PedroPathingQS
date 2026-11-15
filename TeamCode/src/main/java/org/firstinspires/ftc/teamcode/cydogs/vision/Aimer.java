@@ -93,6 +93,18 @@ public class Aimer {
     private static final long S2_CHASE_DWELL_MS = 300;
     /** Chase: give up after moving this far from where the chase started (turret degrees). */
     private static final double S2_CHASE_MAX_DEG = 40.0;
+    private static final long S2_LOST_HOLD_MS = 1000;
+    private static final double S2_FAST_GAIN = 0.5;
+    /** Robot moved farther than this (inches) since the last sighting: the ghost is stale. */
+    private static final double S2_MOVED_IN = 12.0;
+    /** Robot turned more than this (degrees) since the last sighting: the ghost is stale. */
+    private static final double S2_TURNED_DEG = 20.0;
+    /**
+     * Optional: rotate the turret by this multiple of the robot's turn since the last sighting,
+     * so the ghost stays on the (world-fixed) hive. 0 = off. After testing, set to +1 or -1
+     * (whichever makes the turret counter-rotate the right way).
+     */
+    private static final double S2_TURN_COMP = 0.0;
 
     private enum Search2State { SWEEP, PAUSE, VERIFY, LOCAL, LOCKED, STILL, CHASE }
 
@@ -112,9 +124,10 @@ public class Aimer {
     private double s2LastSeenTurretDeg = 0;   // turret angle at that moment
     private double s2ChaseDir = 0;            // +1 / -1: which way (turret degrees) the tag left
     private double s2ChaseStartDeg = 0;       // where the chase began
-    private static final long S2_LOST_HOLD_MS = 1000;
-    private static final double S2_FAST_GAIN = 0.5;
 
+    private boolean s2PoseKnown = false;
+    private double s2RobotX = 0, s2RobotY = 0, s2RobotHeadingRad = 0;                 // latest pose
+    private double s2AnchorX = 0, s2AnchorY = 0, s2AnchorHeadingRad = 0;              // pose at last sighting
 
 
     /**
@@ -190,6 +203,34 @@ public class Aimer {
         s2LastSeenBearing = 0;                  // NEW (next to s2LastSeenMs = 0)
         applyCameraForMode();
         s2Enter(Search2State.SWEEP);
+    }
+    /**
+     * Optional. Call every loop with the robot's pose (Pinpoint) BEFORE update().
+     * Only the CHANGE in pose matters, so any starting pose is fine.
+     */
+    public void updateRobotPose(double xInches, double yInches, double headingRadians) {
+        s2RobotX = xInches;
+        s2RobotY = yInches;
+        s2RobotHeadingRad = headingRadians;
+        s2PoseKnown = true;
+    }
+
+    private double s2MovedInches() {
+        return Math.hypot(s2RobotX - s2AnchorX, s2RobotY - s2AnchorY);
+    }
+
+    /** Signed turn since the last sighting, wrapped to -180..180 degrees (0 if no pose feed). */
+    private double s2TurnedDegrees() {
+        if (!s2PoseKnown) {
+            return 0;
+        }
+        double d = Math.toDegrees(s2RobotHeadingRad - s2AnchorHeadingRad);
+        return ((d + 180) % 360 + 360) % 360 - 180;
+    }
+
+    private boolean s2RobotMovedALot() {
+        return s2PoseKnown
+                && (s2MovedInches() > S2_MOVED_IN || Math.abs(s2TurnedDegrees()) > S2_TURNED_DEG);
     }
 
     /** For telemetry: SWEEP / PAUSE / VERIFY / LOCAL / LOCKED. */
@@ -272,7 +313,12 @@ public class Aimer {
 
     public boolean isLocked() {
         if (mode == Mode.SEARCH2) {
-            return s2State == Search2State.LOCKED;   // latched: one missed frame does not unlock
+            if (s2State == Search2State.LOCKED) {
+                return true;                               // latched: one missed frame does not unlock
+            }
+            // Holding the ghost: we aimed at a real sighting and the robot has not really moved
+            return s2PoseKnown && s2State == Search2State.STILL
+                    && s2LastSeenMs > 0 && !s2RobotMovedALot();
         }
         return eyes.hasTarget && Math.abs(eyes.bearingDegrees) <= LOCK_TOL_DEG;
     }
@@ -321,7 +367,9 @@ public class Aimer {
     private void s2StartChase() {
         s2ChaseDir = Math.signum(s2Sign * s2LastSeenBearing);
         s2ChaseStartDeg = turret.getTurretDegrees();
-        turret.setTurretDegrees(s2LastSeenTurretDeg + s2Sign * s2LastSeenBearing);   // ghost center
+        // was:  turret.setTurretDegrees(s2LastSeenTurretDeg + s2Sign * s2LastSeenBearing);   // ghost center
+        turret.setTurretDegrees(s2LastSeenTurretDeg + s2Sign * s2LastSeenBearing
+                + S2_TURN_COMP * s2TurnedDegrees());                                   // ghost center
         s2Enter(Search2State.CHASE);
     }
 
@@ -333,6 +381,9 @@ public class Aimer {
             s2LastSeenMs = now;
             s2LastSeenBearing = eyes.bearingDegrees;
             s2LastSeenTurretDeg = turret.getTurretDegrees();
+            s2AnchorX = s2RobotX;                       // NEW: where the robot was
+            s2AnchorY = s2RobotY;
+            s2AnchorHeadingRad = s2RobotHeadingRad;
         }
 
         switch (s2State) {
@@ -416,26 +467,36 @@ public class Aimer {
                         s2LastNudgeMs = now;
                     }
                 } else if (now - s2LastSeenMs >= S2_UNLOCK_AFTER_MS) {
-                    if (Math.abs(s2LastSeenBearing) >= S2_EDGE_BEARING_DEG) {
-                        s2StartChase();                    // it left the frame: go after it
+                    if (!s2PoseKnown && Math.abs(s2LastSeenBearing) >= S2_EDGE_BEARING_DEG) {
+                        s2StartChase();                    // no pose feed: old behavior
                     } else {
-                        s2Enter(Search2State.STILL);       // dropped frame: hold still
+                        s2Enter(Search2State.STILL);       // hold the ghost; STILL decides when to recover
                     }
                 }
                 break;
 
             case STILL:
-                // The tag was seen recently but is not registering right now. Hold the turret
-                // still. Only recover after a long gap with no sighting at all.
                 if (eyes.hasTarget) {
                     s2LastBearing = eyes.bearingDegrees;
                     if (Math.abs(s2LastBearing) <= LOCK_TOL_DEG) {
                         s2EnterLocked(now);
                     } else {
-                        s2Enter(Search2State.PAUSE);   // off center: pause, then aim once
+                        // Turret was holding still, so this bearing is fresh: aim right away
+                        s2AimTries = 0;
+                        s2BearingBeforeAim = s2LastBearing;
+                        s2AimFromBearing();
+                    }
+                } else if (s2PoseKnown) {
+                    // Hold the ghost position until the ROBOT has moved a lot. No timers.
+                    if (s2RobotMovedALot()) {
+                        if (Math.abs(s2LastSeenBearing) >= S2_EDGE_BEARING_DEG) {
+                            s2StartChase();                // it left the frame: go after it
+                        } else {
+                            s2Enter(Search2State.SWEEP);   // the old spot is stale: full sweep
+                        }
                     }
                 } else if (s2LastSeenMs == 0 || now - s2LastSeenMs >= S2_LOST_HOLD_MS) {
-                    s2StartLocal();
+                    s2StartLocal();                        // no pose feed: old timer behavior
                 }
                 break;
             case CHASE:

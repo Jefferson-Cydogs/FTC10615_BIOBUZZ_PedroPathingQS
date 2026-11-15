@@ -68,7 +68,7 @@ public abstract class Course1HT extends LinearOpMode {
 
     // Poses (all shared poses are copied from Course 1, which is field-tuned)
     private final Pose Start = poseFactory.of(35.5, 9.8125, 270);
-    private final Pose Shoot1 = poseFactory.of(28.5, 15, 235);
+    private final Pose Shoot1 = poseFactory.of(28.5, 15, 233); //heading was 235
     private final Pose GardenApproach = poseFactory.of(28, 9.25, 180); //y was 8.75
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.5, 9, 190); //y was 8.75, h 180

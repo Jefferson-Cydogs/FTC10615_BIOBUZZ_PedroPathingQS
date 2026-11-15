@@ -18,6 +18,10 @@ import org.firstinspires.ftc.teamcode.cydogs.chassis.BeethovenHardware;
 import org.firstinspires.ftc.teamcode.cydogs.core.EventTracker;
 import org.firstinspires.ftc.teamcode.cydogs.vision.Aimer;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
+//Adding for aimer logic
+import com.pedropathing.math.Pose;
+import com.pedropathing.revhub.localizers.PinpointLocalizer;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
 /**
@@ -68,6 +72,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     private EventTracker eventTracker;
 
     private Aimer myTurret;
+    private PinpointLocalizer localizer;
 
     // The alliance this teleop is running for (set by BioBuzzTeleopRED / BioBuzzTeleopBLUE)
     private final TagSight.Alliance alliance;
@@ -129,6 +134,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LanceTheLoaderServo.Update();
             LarryTheLauncher.Update();
             isLauncherAtSpeed = LarryTheLauncher.IsLauncherAtSpeed();
+            feedTurretPose();
             myTurret.update();
 
             if (eventTracker.doEvent("Telemetry",currentTimer.seconds(),0.5)) {
@@ -469,6 +475,13 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         return "ON";
     }
 
+    private void feedTurretPose()
+    {
+        localizer.update();
+        Pose p = localizer.pose();
+        myTurret.updateRobotPose(p.x(), p.y(), p.heading());
+    }
+
     private void constructDevices()
     {
         Wheels = new BioBuzzRobotChassis(this);
@@ -485,6 +498,10 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         moveToLauncherMotor = new MoveToLauncherMotor(this);
 
         flingyMag = new FlingyMag(this);
+
+        //adding for aimer logic:
+        localizer = new PinpointLocalizer(hardwareMap, Constants.localizerConfig);
+        //localizer.setPose(new Pose(0, 0));   // any start is fine, only the CHANGE in pose matters
     }
 
     private void initializeDevices()
@@ -498,6 +515,10 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         FlowerRamp.Initialize();
 
         moveToLauncherMotor.Initialize();
+
+        // initializeDevices(): runs once, before waitForStart()
+        localizer.setPose(new Pose(0, 0));
+        localizer.update();
 
         // FlingyMag has no Initialize(); its sensors are ready once constructed.
 
