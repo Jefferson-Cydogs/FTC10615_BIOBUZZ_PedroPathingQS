@@ -25,7 +25,8 @@ public class Aimer {
         PRESET,
         TRACK,
         SEARCH,
-        SEARCH2
+        SEARCH2,
+        SEARCH3
     }
 
     // How close to center counts as locked (degrees of bearing)
@@ -107,6 +108,24 @@ public class Aimer {
     private static final double S2_TURN_COMP = 0.0;
 
     private enum Search2State { SWEEP, PAUSE, VERIFY, LOCAL, LOCKED, STILL, CHASE }
+
+    // ---- SEARCH3: sweep → aim once → hold until robot moves ----
+    private enum Search3State { SWEEP, HOLD }
+
+    private Search3State s3State = Search3State.SWEEP;
+    private long s3StateStartMs = 0;
+
+    /** +1 = same as TRACK (angle + bearing). Set to -1 if the first aim moves away from the tag. */
+    private double s3Sign = 1.0;
+
+    private long s3LastSeenMs = 0;
+    private double s3LastSeenBearing = 0;
+    private double s3LastSeenTurretDeg = 0;
+
+    // Pose for "hold until robot moves" (same idea as SEARCH2)
+    private boolean s3PoseKnown = false;
+    private double s3RobotX = 0, s3RobotY = 0, s3RobotHeadingRad = 0;
+    private double s3AnchorX = 0, s3AnchorY = 0, s3AnchorHeadingRad = 0;
 
     private Search2State s2State = Search2State.SWEEP;
     private long s2StateStartMs = 0;
@@ -204,6 +223,28 @@ public class Aimer {
         applyCameraForMode();
         s2Enter(Search2State.SWEEP);
     }
+
+    /**
+     * SEARCH3 — simple lock:
+     *   Sweep until a tag is seen once
+     *   Aim once to center (ghost)
+     *   Do not move again until the robot moves/turns a lot
+     * Call updateRobotPose(...) each loop if you have odometry.
+     */
+    public void search3() {
+        mode = Mode.SEARCH3;
+        s3LastSeenMs = 0;
+        s3LastSeenBearing = 0;
+        s3PoseKnown = false;
+        applyCameraForMode();
+        s3Enter(Search3State.SWEEP);
+    }
+
+    /** For telemetry: SWEEP or HOLD. */
+    public String getSearch3State() {
+        return s3State.toString();
+    }
+
     /**
      * Optional. Call every loop with the robot's pose (Pinpoint) BEFORE update().
      * Only the CHANGE in pose matters, so any starting pose is fine.
@@ -213,6 +254,12 @@ public class Aimer {
         s2RobotY = yInches;
         s2RobotHeadingRad = headingRadians;
         s2PoseKnown = true;
+
+        // SEARCH3
+        s3RobotX = xInches;
+        s3RobotY = yInches;
+        s3RobotHeadingRad = headingRadians;
+        s3PoseKnown = true;
     }
 
     private double s2MovedInches() {
@@ -253,7 +300,8 @@ public class Aimer {
             return;
         }
 
-        if (mode == Mode.TRACK || mode == Mode.SEARCH) {
+        if (mode == Mode.TRACK || mode == Mode.SEARCH
+                || mode == Mode.SEARCH2 || mode == Mode.SEARCH3) {
             eyes.openCamera();
         } else {
             eyes.stopCamera();
@@ -304,6 +352,10 @@ public class Aimer {
             case SEARCH2:
                 updateSearch2();
                 break;
+
+                case SEARCH3:
+                updateSearch3();
+                break;
         }
     }
 
@@ -319,6 +371,12 @@ public class Aimer {
             // Holding the ghost: we aimed at a real sighting and the robot has not really moved
             return s2PoseKnown && s2State == Search2State.STILL
                     && s2LastSeenMs > 0 && !s2RobotMovedALot();
+        }
+        if (mode == Mode.SEARCH3) {
+            // Holding a real or ghost center; unlock only after big robot move
+            return s3State == Search3State.HOLD
+                    && s3LastSeenMs > 0
+                    && !s3RobotMovedALot();
         }
         return eyes.hasTarget && Math.abs(eyes.bearingDegrees) <= LOCK_TOL_DEG;
     }
@@ -516,6 +574,72 @@ public class Aimer {
                         turret.setTurretDegrees(turret.getTurretDegrees() + s2ChaseDir * S2_CHASE_STEP_DEG);
                         s2Enter(Search2State.CHASE);
                     }
+                }
+                break;
+        }
+    }
+
+    private void s3Enter(Search3State next) {
+        s3State = next;
+        s3StateStartMs = System.currentTimeMillis();
+    }
+
+    private double s3MovedInches() {
+        return Math.hypot(s3RobotX - s3AnchorX, s3RobotY - s3AnchorY);
+    }
+
+    private double s3TurnedDegrees() {
+        if (!s3PoseKnown) {
+            return 0;
+        }
+        double d = Math.toDegrees(s3RobotHeadingRad - s3AnchorHeadingRad);
+        return ((d + 180) % 360 + 360) % 360 - 180;
+    }
+
+    /** Same thresholds as SEARCH2: 12 in or 20 deg. */
+    private boolean s3RobotMovedALot() {
+        if (!s3PoseKnown) {
+            return false; // no pose → stay HOLD after first aim
+        }
+        return s3MovedInches() > S2_MOVED_IN
+                || Math.abs(s3TurnedDegrees()) > S2_TURNED_DEG;
+    }
+
+    private void updateSearch3() {
+        long now = System.currentTimeMillis();
+
+        if (eyes.hasTarget) {
+            s3LastSeenMs = now;
+            s3LastSeenBearing = eyes.bearingDegrees;
+            s3LastSeenTurretDeg = turret.getTurretDegrees();
+            s3AnchorX = s3RobotX;
+            s3AnchorY = s3RobotY;
+            s3AnchorHeadingRad = s3RobotHeadingRad;
+        }
+
+        switch (s3State) {
+            case SWEEP:
+                if (eyes.hasTarget) {
+                    // One move to center the tag, then freeze (ghost)
+                    double target = turret.getTurretDegrees()
+                            + s3Sign * eyes.bearingDegrees;
+                    turret.setTurretDegrees(target);
+                    s3Enter(Search3State.HOLD);
+                } else {
+                    if (turret.isAtMax()) {
+                        searchDirection = -1.0;
+                    } else if (turret.isAtMin()) {
+                        searchDirection = 1.0;
+                    }
+                    turret.nudgeByDegrees(searchDirection * SEARCH_STEP_DEG);
+                }
+                break;
+
+            case HOLD:
+                // Do not move the turret. Missed frames are OK.
+                // Only search again if the robot moved/turned a lot.
+                if (s3RobotMovedALot()) {
+                    s3Enter(Search3State.SWEEP);
                 }
                 break;
         }
