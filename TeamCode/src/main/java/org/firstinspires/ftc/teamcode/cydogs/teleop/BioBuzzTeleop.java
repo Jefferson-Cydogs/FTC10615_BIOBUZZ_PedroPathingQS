@@ -234,10 +234,10 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
         }
         else if(gamepad1.circleWasPressed()) {
-            myTurret.preset(150);
+            myTurret.preset(152);
         }
         else if(gamepad1.squareWasPressed()) {
-            myTurret.preset(210);
+            myTurret.preset(208);
         }
         else if(gamepad1.crossWasPressed()) {
             myTurret.search3();

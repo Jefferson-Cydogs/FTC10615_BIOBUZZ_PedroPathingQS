@@ -114,6 +114,9 @@ public abstract class Course1HT extends LinearOpMode {
                 .linear(GardenApproach, GardenCollect)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
+    public Path GardenNudgeBack() {
+        return Paths.line(GardenCollect, GardenApproach).linear(GardenCollect, GardenApproach);
+    }
     public Path Shoot2() {
         return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
@@ -133,7 +136,7 @@ public abstract class Course1HT extends LinearOpMode {
     public Path FlowerBackUp() {
         return Paths.line(FlowerCollect, FlowerApproach)
                 .linear(FlowerCollect, FlowerApproach)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.5));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.7));
     }
     // Starts at FlowerApproach (after back-up), not FlowerCollect
     public Path Shoot3() {
@@ -154,7 +157,7 @@ public abstract class Course1HT extends LinearOpMode {
     public Path FlowerNudgeBack() {
         return Paths.line(FlowerCollect, FlowerNudgeBack)
                 .linear(FlowerCollect, FlowerNudgeBack)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.5));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.7));
     }
     public Path FlowerNudgeIn() {
         return Paths.line(FlowerNudgeBack, FlowerCollect)
@@ -210,9 +213,13 @@ public abstract class Course1HT extends LinearOpMode {
 
                 follow(follower, GardenApproach()),
                 skills.startIntakeAndFeed(),
-                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
+                //skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
                 //skills.startIntake(),
                 follow(follower, GardenCollect()),
+                follow(follower, GardenNudgeBack()),
+                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
+                follow(follower, GardenCollect()),
+
                 //skills.stopIntakeAndFeed(),
                 //skills.stopIntake(),
                 waitMs(1500),
