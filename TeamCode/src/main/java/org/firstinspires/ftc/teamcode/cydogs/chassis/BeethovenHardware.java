@@ -43,20 +43,14 @@ public final class BeethovenHardware {
 
         // Physical measurements (GoBilda Yellow Jacket 312 RPM, 537.7 PPR; 104 mm Mecanum wheels)
         public static final int    WHEEL_DIAMETER_MM = 104;
-        public static final double    MOTOR_RPM = 312;
+        public static final double MOTOR_RPM = 312;
         public static final double MOTOR_TICKS_PER_REV = 537.7;
         public static final double MM_PER_90_DEGREES_ROTATION = 785; // depends on chassis size
         public static final double STRAFE_COMPENSATION = 1.081;      // friction correction when strafing
 
-        // Per-wheel velocity PIDF "F" term (P, I, D are 0), used in autonomous RUN_TO_POSITION
-        /*public static final double FRONT_LEFT_VELOCITY_F  = 11.754006;
-        public static final double FRONT_RIGHT_VELOCITY_F = 10.175712;
-        public static final double BACK_LEFT_VELOCITY_F   = 11.752998;
-        public static final double BACK_RIGHT_VELOCITY_F  = 11.398002;*/
-
         // Teleop speeds and joystick shaping
         public static final double DEAD_ZONE = 0.05;
-        public static final double HIGH_SPEED = 0.7;
+        public static final double HIGH_SPEED = 0.8;
         public static final double LOW_SPEED = 0.3;
         public static final double ROTATE_SPEED = 0.6;
         public static final double ROTATE_LOW_SPEED = 0.3; // bumper rotation
@@ -89,16 +83,16 @@ public final class BeethovenHardware {
         public static final DcMotor.ZeroPowerBehavior ZERO_POWER_BEHAVIOR = DcMotor.ZeroPowerBehavior.FLOAT;
 
         // PIDF values for specific Launcher motor, calculated via code
-        public static final double MOTOR_PIDF_kP = 65; //Indiana's value was 65
+        public static final double MOTOR_PIDF_kP = 75; //Indiana's value was 65
         public static final double MOTOR_PIDF_kI = 0;
         public static final double MOTOR_PIDF_kD = 0;
-        public static final double MOTOR_PIDF_kF = 13.16367; //Indiana's value was 13.19168
+        public static final double MOTOR_PIDF_kF = 13.675; //Indiana's value was 13.19168
 
         // Specs for typical launcher motor: GoBILDA 5203 Series Yellow Jacket 312 RPM, 537.7 PPR
         //    Without gearbox, theoretical 6,000RPM, empirical needs to be calculated.
         //    PPR = Ticks/second is always 28 at the motor shaft for goBILDA Yellow Jacket motors
         // Max velocity = (RPM / 60) * ticks per rev
-        public static final double MOTOR_RPM = 5334; //Calculated with code for specific motor
+        public static final double MOTOR_RPM = 5300; //Calculated with code for specific motor
         public static final double MOTOR_TICKS_PER_REV = 28;
         public static final double MAX_TICKS_PER_SECOND = (MOTOR_RPM / 60) * MOTOR_TICKS_PER_REV;
 
