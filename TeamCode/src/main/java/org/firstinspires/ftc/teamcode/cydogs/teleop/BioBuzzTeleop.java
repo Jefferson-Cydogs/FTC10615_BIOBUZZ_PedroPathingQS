@@ -259,7 +259,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         }
 
         // ----- Launcher size, manual: also pauses the size sensing for a few seconds -----
-        if(gamepad2.dpadLeftWasPressed()) {
+    /*    if(gamepad2.dpadLeftWasPressed()) {
             LauncherSize.SetPollen();
             LarryTheLauncher.StartLauncher();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
@@ -268,7 +268,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LauncherSize.SetNectar();
             LarryTheLauncher.StartLauncherNectar();
             sensingPausedUntil = currentTimer.seconds() + MANUAL_OVERRIDE_SECONDS;
-        }
+        }  */
 
         // ----- Flower ramp: D-pad up = up, D-pad down = down -----
         if(gamepad2.dpadUpWasPressed()) {
@@ -287,6 +287,17 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         else if(gamepad2.crossWasPressed()) {
             LarryTheLauncher.StopLauncher();
         }
+
+        if(gamepad2.dpadLeftWasPressed())
+        {
+            myTurret.preset(208);
+        } else if (gamepad2.dpadRightWasPressed()) {
+            myTurret.preset(152);
+        } else if (gamepad2.ps) {
+            myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
+
+        }
+
 
         // ----- Load to launch: one push of circle = Launch position, then back to Load -----
         if(gamepad2.circleWasPressed()) {
