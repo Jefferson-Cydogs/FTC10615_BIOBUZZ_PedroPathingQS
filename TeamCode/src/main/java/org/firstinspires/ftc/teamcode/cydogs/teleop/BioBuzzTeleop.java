@@ -31,9 +31,9 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public abstract class BioBuzzTeleop extends LinearOpMode {
 
     // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
-    private static final double HIGH_SPEED_DRIVE = 0.6;   // right stick (fast movement)
+    private static final double HIGH_SPEED_DRIVE = 0.85;   // right stick (fast movement)
     private static final double LOW_SPEED_DRIVE = 0.3;    // left stick (slow, precise movement)
-    private static final double ROTATE_SPEED_DRIVE = 0.5; // trigger rotation
+    private static final double ROTATE_SPEED_DRIVE = 0.6; // trigger rotation
 
     // How far a trigger must be pulled to count as "pressed"
     private static final double TRIGGER_THRESHOLD = 0.4;
@@ -142,7 +142,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("launcher target %:", LarryTheLauncher.GetTargetLaunchPercent());
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.addData("is launcher at speed:", isLauncherAtSpeed);
-                telemetry.addData("launcher size servo:", String.format("%.2f", LauncherSize.GetPosition()));
+                //telemetry.addData("launcher size servo:", String.format("%.2f", LauncherSize.GetPosition()));
                 telemetry.addData("launch sensing", sensingStatus());
                 telemetry.addData("feed assist", feedStatus);
                 telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
@@ -288,16 +288,15 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             LarryTheLauncher.StopLauncher();
         }
 
-        if(gamepad2.dpadLeftWasPressed())
-        {
+        if(gamepad2.dpadLeftWasPressed()) {
             myTurret.preset(208);
         } else if (gamepad2.dpadRightWasPressed()) {
             myTurret.preset(152);
         } else if (gamepad2.ps) {
             myTurret.preset(BeethovenHardware.Turret.STRAIGHT_DEGREES);
-
+        } else if(gamepad2.squareWasPressed()) {
+            myTurret.search3();
         }
-
 
         // ----- Load to launch: one push of circle = Launch position, then back to Load -----
         if(gamepad2.circleWasPressed()) {
@@ -317,19 +316,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
      */
     private void manageSensorPass()
     {
-        if (!launchSensingOn)
-        {
+        if (!launchSensingOn) {
             return;
         }
 
         double now = currentTimer.seconds();
 
-        if (gamepad2.rightBumperWasPressed())
-        {
+        if (gamepad2.rightBumperWasPressed()) {
             nextSensorPassAt = 0;   // fresh reading the moment the bumper goes down
         }
-        if (now < nextSensorPassAt)
-        {
+        if (now < nextSensorPassAt) {
             return;
         }
 
@@ -337,23 +333,19 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
         launchSpotOccupied = flingyMag.IsBallReadyForLaunch();
 
-        if (launchSpotOccupied && isSizeSensingActive() && !LanceTheLoaderServo.IsLaunching())
-        {
+        if (launchSpotOccupied && isSizeSensingActive() && !LanceTheLoaderServo.IsLaunching()) {
             String color = flingyMag.flingyReady;
-            if (color.equals("red") || color.equals("blue"))
-            {
+            if (color.equals("red") || color.equals("blue")) {
                 LauncherSize.SetNectar();
                 LarryTheLauncher.StartLauncherNectar();
             }
-            else if (color.equals("yellow"))
-            {
+            else if (color.equals("yellow")) {
                 LauncherSize.SetPollen();
                 LarryTheLauncher.StartLauncher();
             }
         }
 
-        if (!launchSpotOccupied)
-        {
+        if (!launchSpotOccupied) {
             nextSpotOccupied = flingyMag.IsBallInMidPosition();
         }
 
@@ -375,20 +367,16 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         boolean reverse = gamepad2.left_bumper;
 
         // ----- Sensors off: fully manual -----
-        if (!launchSensingOn)
-        {
+        if (!launchSensingOn) {
             feedPulsing = false;
             feedPulseCount = 0;
-            if (forward)
-            {
+            if (forward) {
                 moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
             }
-            else if (reverse)
-            {
+            else if (reverse) {
                 moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
             }
-            else
-            {
+            else {
                 moveToLauncherMotor.SetPower(0);
             }
             feedStatus = "OFF - sensors not used";
@@ -396,8 +384,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         }
 
         // ----- Manual reverse: always allowed -----
-        if (reverse)
-        {
+        if (reverse) {
             feedPulsing = false;
             moveToLauncherMotor.SetPower(-BeethovenHardware.MoveToLauncher.RUN_POWER);
             feedStatus = "MANUAL REVERSE";
@@ -405,16 +392,13 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         }
 
         // ----- Manual forward: blocked while a ball is at the launch spot -----
-        if (forward)
-        {
+        if (forward) {
             feedPulsing = false;
-            if (launchSpotOccupied)
-            {
+            if (launchSpotOccupied) {
                 moveToLauncherMotor.SetPower(0);
                 feedStatus = "BLOCKED - ball at launch";
             }
-            else
-            {
+            else {
                 moveToLauncherMotor.SetPower(BeethovenHardware.MoveToLauncher.RUN_POWER);
                 feedStatus = "MANUAL FEED";
             }
@@ -422,10 +406,8 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         }
 
         // ----- No bumper held: auto-feed -----
-        if (feedPulsing)
-        {
-            if (now < feedPulseEndsAt)
-            {
+        if (feedPulsing) {
+            if (now < feedPulseEndsAt) {
                 feedStatus = "AUTO-FEEDING";
                 return;   // motor is already running for this pulse
             }
@@ -439,16 +421,13 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
 
         moveToLauncherMotor.SetPower(0);
 
-        if (LanceTheLoaderServo.IsLaunching())
-        {
+        if (LanceTheLoaderServo.IsLaunching()) {
             feedStatus = "WAITING - loader launching";
             return;
         }
 
-        if (!launchSpotOccupied && nextSpotOccupied)
-        {
-            if (feedPulseCount >= MAX_FEED_PULSES)
-            {
+        if (!launchSpotOccupied && nextSpotOccupied) {
+            if (feedPulseCount >= MAX_FEED_PULSES) {
                 feedStatus = "STOPPED - ball not reaching launch (jam?). Driver D-pad left = sensors off";
                 return;
             }
@@ -458,8 +437,7 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
             feedPulseCount++;
             feedStatus = "AUTO-FEEDING";
         }
-        else
-        {
+        else {
             feedPulseCount = 0;   // nothing to feed, or the ball made it: start counting fresh
             feedStatus = launchSpotOccupied ? "IDLE - ball at launch" : "IDLE";
         }
@@ -474,13 +452,11 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     /** Text for the telemetry line that says whether the sensors are being used. */
     private String sensingStatus()
     {
-        if (!launchSensingOn)
-        {
+        if (!launchSensingOn) {
             return "OFF (driver) - sensors not used, everything manual";
         }
         double secondsLeft = sensingPausedUntil - currentTimer.seconds();
-        if (secondsLeft > 0)
-        {
+        if (secondsLeft > 0) {
             return String.format("ON - size sensing paused by manual override, resumes in %.1f s", secondsLeft);
         }
         return "ON";
@@ -505,7 +481,6 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         myTurret = new Aimer(this, alliance);
         LauncherSize = new LauncherSizeServo(this);
         FlowerRamp = new FlowerRampServo(this);
-
         moveToLauncherMotor = new MoveToLauncherMotor(this);
 
         flingyMag = new FlingyMag(this);
@@ -524,7 +499,6 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
         LanceTheLoaderServo.Initialize();
         LauncherSize.Initialize();
         FlowerRamp.Initialize();
-
         moveToLauncherMotor.Initialize();
 
         // initializeDevices(): runs once, before waitForStart()
