@@ -87,7 +87,7 @@ public abstract class Course3HT extends LinearOpMode {
     // --- Poses (shared poses copied from Course 1, which is field-tuned) ---
     // -------------------------------------------------------------------------
     private final Pose start = poseFactory.of(35.5, 130.5, 90);
-    private final Pose shoot1 = poseFactory.of(28.5, 126.5, 127);
+    private final Pose shoot1 = poseFactory.of(28.5, 126.5, 125);
     private final Pose shoot3 = poseFactory.of(10, 129, 90);//Shoot from corner
 
     // Tail A: far flower (Course 1)
@@ -256,7 +256,6 @@ public abstract class Course3HT extends LinearOpMode {
     }
 
 
-
     // -------------------------------------------------------------------------
     // Main routine
     // -------------------------------------------------------------------------
@@ -347,20 +346,16 @@ public abstract class Course3HT extends LinearOpMode {
         boolean help = helpSelector.shouldHelpPartner();
         SecondShotSpot shot = shotSelector.getSelection();
         //schedule(autoRoutine());
-        if(help && shot == SecondShotSpot.NORMAL)
-        {
+        if (help && shot == SecondShotSpot.NORMAL) {
             schedule(autoRoutineHS());
         }
-        else if(help && shot == SecondShotSpot.CORNER)
-        {
+        else if (help && shot == SecondShotSpot.CORNER) {
             schedule(autoRoutineHCS());
         }
-        else if(!help && shot == SecondShotSpot.NORMAL)
-        {
+        else if (!help && shot == SecondShotSpot.NORMAL) {
             schedule(autoRoutineNHS());
         }
-        else if(!help && shot == SecondShotSpot.CORNER)
-        {
+        else if (!help && shot == SecondShotSpot.CORNER) {
             schedule(autoRoutineNHCS());
         }
 
