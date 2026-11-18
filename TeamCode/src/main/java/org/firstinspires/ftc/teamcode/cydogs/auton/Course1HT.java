@@ -79,8 +79,11 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
     private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 123);
     private final Pose ParkA = poseFactory.of(11, 120, 0);   // the current park pose
-    private final Pose ParkB = poseFactory.of(11, 94.5, 0);   // TODO: set the alternate coordinates
+    private final Pose ParkAControl1 = poseFactory.of(36, 120, 0);
+    private final Pose ParkB = poseFactory.of(11, 94.5, 0);   // alternate coordinates
+    private final Pose ParkBControl1 = poseFactory.of(36, 94.5, 0);
     private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+    private final Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6, 72, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
@@ -140,7 +143,8 @@ public abstract class Course1HT extends LinearOpMode {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
     public Path Park() {
-        return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(Shoot3, ParkControl1, Park).linear(Shoot3, Park);
     }
     // Tail B paths
     public Path GardenReverse() {
