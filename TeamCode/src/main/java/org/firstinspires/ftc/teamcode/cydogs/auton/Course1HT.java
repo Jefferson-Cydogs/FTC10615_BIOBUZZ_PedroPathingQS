@@ -15,10 +15,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
+import org.firstinspires.ftc.teamcode.cydogs.core.AutonQuestions;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.cydogs.core.ParkSideSelector;
 import org.firstinspires.ftc.teamcode.cydogs.core.ParkSide;
+import org.firstinspires.ftc.teamcode.cydogs.core.ParkAfterTipSelector;
 
 /**
  * Course 1 with Heads / Tails after the garden.
@@ -42,6 +44,8 @@ public abstract class Course1HT extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
     private ParkSideSelector parkSelector;
+    private ParkAfterTipSelector afterTipPark;
+    private AutonQuestions questions;
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private enum ParkSpot { A, B }
     private ParkSide parkside;
@@ -238,6 +242,14 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, Park())
         );
     }
+
+    private Command tailA_HiveTippedPARK() {
+        return sequential(
+                follow(follower, Shoot2()),
+                skills.turretStraight(),
+                follow(follower, Park())
+        );
+    }
     // ---------- TAIL B: still see basket (no tip) ----------
     // Why this route differs from Tail A: we are not coming from the garden's far end,
     // we reverse back to the near shoot pose (Shoot1), reshoot the garden balls there,
@@ -266,6 +278,17 @@ public abstract class Course1HT extends LinearOpMode {
         );
     }
 
+    private Command tailB_NoTipPARK() {
+        return sequential(
+                skills.turretStraight(),
+                follow(follower, GardenReverse()),   // Garden → Shoot1
+                skills.shootFourPollen(),
+                follow(follower, Shoot3()),
+                skills.turretStraight(),
+                follow(follower, Park())
+        );
+    }
+
     /**
      * After tip check, run exactly one tail.
      * hiveTipped() true  → Tail A
@@ -283,6 +306,18 @@ public abstract class Course1HT extends LinearOpMode {
                 .setDone(() -> true);
     }
 
+    private Command chooseTailPARK() {
+        return Command.build()
+                .setStart(() -> {
+                    if (skills.hiveTipped()) {
+                        schedule(tailA_HiveTippedPARK());
+                    } else {
+                        schedule(tailB_NoTipPARK());
+                    }
+                })
+                .setDone(() -> true);
+    }
+
     public Command autoRoutine() {
         return sequential(
                 head(),
@@ -290,10 +325,21 @@ public abstract class Course1HT extends LinearOpMode {
         );
     }
 
+    public Command autoRoutinePark()  {
+        return sequential(
+                head(),
+                chooseTailPARK()
+        );
+    }
+
     @Override
     public void runOpMode() {
         Scheduler.reset();
         parkSelector = new ParkSideSelector(this);
+        afterTipPark = new ParkAfterTipSelector(this);
+        questions = new AutonQuestions(this);
+        questions.add(parkSelector);
+        questions.add(afterTipPark);
         follower = Constants.create(hardwareMap);
         follower.setPose(Start);
         follower.update();
@@ -304,12 +350,13 @@ public abstract class Course1HT extends LinearOpMode {
 
         // INIT loop: confirm the camera is streaming and sees the hive tag before the match
         while (!isStarted() && !isStopRequested()) {
-            parkSelector.update();       // adds the menu lines to telemetry
+            questions.update();      // adds the menu lines to telemetry
             skills.updateInitVision();  // existing camera check still works
             telemetry.update(); // the init loop still calls update() itself
         }
 
         waitForStart();
+        boolean tipParkChoice = afterTipPark.shouldPark();
         parkside = parkSelector.getSelection();   // LEFT, RIGHT or NONE
         if (parkside == ParkSide.LEFT) {
             PARK_SPOT = ParkSpot.A;
@@ -320,7 +367,12 @@ public abstract class Course1HT extends LinearOpMode {
         else if (parkside == ParkSide.NONE) {
             PARK_SPOT = ParkSpot.A;
         }
-        schedule(autoRoutine());
+        if (tipParkChoice){
+            schedule(autoRoutinePark());
+        }
+        else if (tipParkChoice == false) {
+            schedule(autoRoutine());
+        }
 
         while (opModeIsActive()) {
             follower.update();
