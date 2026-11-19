@@ -67,6 +67,7 @@ public abstract class Course1HT extends LinearOpMode {
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
     private final TagSight.Alliance alliance;
 
+
     // Turret: center = 180. 30° left of center (use 180.0 - 30.0 if left is the other way)
     private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
 
