@@ -73,17 +73,15 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.4, 9, 190); //y was 8.75, h 180
     private final Pose Shoot2 = poseFactory.of(28.5, 126.5, 123);
-    private final Pose Shoot2Control1 = poseFactory.of(28.5, 72, 0);
+    private final Pose Shoot2Control1 = poseFactory.of(50, 96, 0);
     private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
-    private final Pose FlowerCollect = poseFactory.of(49, 124.25, 90);
+    private final Pose FlowerCollect = poseFactory.of(49, 124.15, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
     private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 123);
     private final Pose ParkA = poseFactory.of(11, 120, 0);   // the current park pose
-    private final Pose ParkAControl1 = poseFactory.of(36, 120, 0);
+    private final Pose ParkAControl1 = poseFactory.of(48, 120, 0);
     private final Pose ParkB = poseFactory.of(11, 94.5, 0);   // alternate coordinates
-    private final Pose ParkBControl1 = poseFactory.of(36, 94.5, 0);
-    private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
-    private final Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+    private final Pose ParkBControl1 = poseFactory.of(48, 85, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6, 72, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
@@ -143,6 +141,8 @@ public abstract class Course1HT extends LinearOpMode {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
     public Path Park() {
+        Pose Park = (PARK_SPOT == ParkSpot.B) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
         //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
         return Paths.curve(Shoot3, ParkControl1, Park).linear(Shoot3, Park);
     }
@@ -189,13 +189,11 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, FlowerCollect()),        // pass 1
                 waitMs(FLOWER_COLLECT_WAIT_MS),
                 follow(follower, FlowerCollectShake()),   // shake ramp
-                follow(follower, FlowerCollect()),
-                follow(follower, FlowerNudgeBack()),
-                follow(follower, FlowerNudgeIn()),        //pass 2
+                follow(follower, FlowerCollect()),        //pass 2
                 follow(follower, FlowerNudgeBack()),
                 skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
                 skills.stopIntakeAfter(INTAKE_STOP_DELAY_MS),
-                follow(follower, FlowerNudgeIn()),        // pass 3
+                follow(follower, FlowerNudgeIn()),
                 waitMs(FLOWER_COLLECT_WAIT_MS),
                 skills.stopIntakeAndFeed(),
                 follow(follower, FlowerBackUp()),
