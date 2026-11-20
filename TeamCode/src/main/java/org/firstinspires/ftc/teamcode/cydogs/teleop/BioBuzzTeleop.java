@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public abstract class BioBuzzTeleop extends LinearOpMode {
 
     // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
-    private static final double HIGH_SPEED_DRIVE = 0.9;   // right stick (fast movement)
+    private static final double HIGH_SPEED_DRIVE = 0.95;   // right stick (fast movement)
     private static final double LOW_SPEED_DRIVE = 0.3;    // left stick (slow, precise movement)
     private static final double ROTATE_SPEED_DRIVE = 0.6; // trigger rotation
 
