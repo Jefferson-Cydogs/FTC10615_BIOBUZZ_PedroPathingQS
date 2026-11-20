@@ -162,8 +162,10 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                         LarryTheLauncher.StartLauncher();
                     }
 
-                    telemetry.update();
+
                 }
+
+                telemetry.update();
             }
         }
 
@@ -209,13 +211,13 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
     */
     private void manageDriverControls()
     {
-        if(gamepad1.dpadUpWasPressed()) {
+     /*   if(gamepad1.dpadUpWasPressed()) {
             LarryTheLauncher.IncreaseLaunchPercent();
         }
         else if(gamepad1.dpadDownWasPressed()) {
             LarryTheLauncher.DecreaseLaunchPercent();
         }
-
+*/
         // ----- Sensors switch: left = off, right = on -----
         if(gamepad1.dpadLeftWasPressed()) {
             launchSensingOn = false;
