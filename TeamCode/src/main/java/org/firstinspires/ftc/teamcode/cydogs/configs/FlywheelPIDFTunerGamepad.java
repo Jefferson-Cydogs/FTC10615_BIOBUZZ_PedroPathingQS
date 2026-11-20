@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.cydogs.configs;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -35,6 +36,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * Recommended order:
  *     F -> P -> D only if needed -> I only if needed
  */
+@Disabled
 @TeleOp(
         name = "Flywheel PIDF Tuner - Gamepad + Dashboard",
         group = "Tuning"

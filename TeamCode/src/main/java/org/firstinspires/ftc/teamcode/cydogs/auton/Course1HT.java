@@ -15,10 +15,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.auton.AutoSkills;
+import org.firstinspires.ftc.teamcode.cydogs.core.AutonQuestions;
 import org.firstinspires.ftc.teamcode.cydogs.vision.TagSight;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.cydogs.core.ParkSideSelector;
 import org.firstinspires.ftc.teamcode.cydogs.core.ParkSide;
+import org.firstinspires.ftc.teamcode.cydogs.core.ParkAfterTipSelector;
 
 /**
  * Course 1 with Heads / Tails after the garden.
@@ -42,6 +44,8 @@ public abstract class Course1HT extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
     private ParkSideSelector parkSelector;
+    private ParkAfterTipSelector afterTipPark;
+    private AutonQuestions questions;
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private enum ParkSpot { A, B }
     private ParkSide parkside;
@@ -63,6 +67,7 @@ public abstract class Course1HT extends LinearOpMode {
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
     private final TagSight.Alliance alliance;
 
+
     // Turret: center = 180. 30° left of center (use 180.0 - 30.0 if left is the other way)
     private static final double TIP_LOOK_DEGREES = 180.0 + 30.0;
 
@@ -73,16 +78,15 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose GardenApproachControl1 = poseFactory.of(35, 20, 0);
     private final Pose GardenCollect = poseFactory.of(12.4, 9, 190); //y was 8.75, h 180
     private final Pose Shoot2 = poseFactory.of(28.5, 126.5, 123);
-    private final Pose Shoot2Control1 = poseFactory.of(28.5, 72, 0);
+    private final Pose Shoot2Control1 = poseFactory.of(50, 96, 0);
     private final Pose FlowerApproach = poseFactory.of(49, 115, 90);
-    private final Pose FlowerApproachControl1 = poseFactory.of(56, 110, 0);
-    private final Pose FlowerCollect = poseFactory.of(49, 124.25, 90);
+    private final Pose FlowerCollect = poseFactory.of(49, 124.15, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
     private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 123);
-    private final Pose ParkA = poseFactory.of(11, 120, 0);   // the current park pose
-    private final Pose ParkB = poseFactory.of(11, 94.5, 0);   // TODO: set the alternate coordinates
-    private final Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
-    //private final Pose Park = poseFactory.of(9.8125, 94.5, 0);
+    private final Pose ParkA = poseFactory.of(12, 120, 0);   // the current park pose
+    private final Pose ParkAControl1 = poseFactory.of(48, 120, 0);
+    private final Pose ParkB = poseFactory.of(12, 94.5, 0);   // alternate coordinates
+    private final Pose ParkBControl1 = poseFactory.of(48, 85, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6, 72, 0);
     // FLOWER_NUDGE_INCHES back from FlowerCollect, along the line toward FlowerApproach
@@ -120,7 +124,6 @@ public abstract class Course1HT extends LinearOpMode {
     public Path Shoot2() {
         return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
-    // Full speed: the 40% cap lives on FlowerCollect, the leg that actually touches the flower
     public Path FlowerApproach() {
         return Paths.line(Shoot2, FlowerApproach).linear(Shoot2, FlowerApproach);
     }
@@ -143,7 +146,10 @@ public abstract class Course1HT extends LinearOpMode {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
     public Path Park() {
-        return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(Shoot3, ParkControl1, Park).linear(Shoot3, Park);
     }
     // Tail B paths
     public Path GardenReverse() {
@@ -188,19 +194,16 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, FlowerCollect()),        // pass 1
                 waitMs(FLOWER_COLLECT_WAIT_MS),
                 follow(follower, FlowerCollectShake()),   // shake ramp
-                follow(follower, FlowerCollect()),
-                follow(follower, FlowerNudgeBack()),
-                follow(follower, FlowerNudgeIn()),        //pass 2
+                follow(follower, FlowerCollect()),        //pass 2
                 follow(follower, FlowerNudgeBack()),
                 skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
                 skills.stopIntakeAfter(INTAKE_STOP_DELAY_MS),
-                follow(follower, FlowerNudgeIn()),        // pass 3
+                follow(follower, FlowerNudgeIn()),
                 waitMs(FLOWER_COLLECT_WAIT_MS),
                 skills.stopIntakeAndFeed(),
                 follow(follower, FlowerBackUp()),
                 skills.flowerRampUp()
         );
-
     }
 
     // ---------- HEAD (always runs) ----------
@@ -210,23 +213,17 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, Shoot1()),
                 skills.shootFourPollen(),
                 skills.emptyMagazineWhileDriving(),
-
                 follow(follower, GardenApproach()),
                 skills.startIntakeAndFeed(),
-                //skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
+                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
                 //skills.startIntake(),
                 follow(follower, GardenCollect()),
-                follow(follower, GardenNudgeBack()),
-                skills.stopFeedAfter(FEEDER_STOP_DELAY_MS),
-                follow(follower, GardenCollect()),
-
                 //skills.stopIntakeAndFeed(),
                 //skills.stopIntake(),
                 waitMs(1500),
                 // Lock = basket still up → no tip. No lock → tipped.
                 skills.stopIntakeAndFeed(),
                 skills.checkForTip(alliance, TIP_LOOK_DEGREES)
-
         );
     }
     // ---------- TAIL A: tipped → finish normal route (same route as Course 1) ----------
@@ -236,14 +233,19 @@ public abstract class Course1HT extends LinearOpMode {
                 skills.turretStraight(),
                 skills.shootFourPollen(),
                 skills.emptyMagazineWhileDriving(),
-
                 follow(follower, FlowerApproach()),
                 doFlower(),
-
                 follow(follower, Shoot3()),
                 skills.turretStraight(),
                 skills.shootFourPollen(),
+                follow(follower, Park())
+        );
+    }
 
+    private Command tailA_HiveTippedPARK() {
+        return sequential(
+                follow(follower, Shoot2()),
+                skills.turretStraight(),
                 follow(follower, Park())
         );
     }
@@ -260,10 +262,8 @@ public abstract class Course1HT extends LinearOpMode {
                 follow(follower, GardenReverse()),   // Garden → Shoot1
                 skills.shootFourPollen(),
                 skills.emptyMagazineWhileDriving(),
-
                 follow(follower, FlowerApproachBad()), // Shoot1 → FlowerApproach
                 doFlower(),
-
                 follow(follower, Shoot3()),
                 skills.turretStraight(),
                 skills.checkForTip(alliance, FAR_TIP_LOOK_DEGREES),
@@ -274,6 +274,17 @@ public abstract class Course1HT extends LinearOpMode {
                                 follow(follower, Park())
                         )
                 )
+        );
+    }
+
+    private Command tailB_NoTipPARK() {
+        return sequential(
+                skills.turretStraight(),
+                follow(follower, GardenReverse()),   // Garden → Shoot1
+                skills.shootFourPollen(),
+                follow(follower, Shoot3()),
+                skills.turretStraight(),
+                follow(follower, Park())
         );
     }
 
@@ -294,6 +305,18 @@ public abstract class Course1HT extends LinearOpMode {
                 .setDone(() -> true);
     }
 
+    private Command chooseTailPARK() {
+        return Command.build()
+                .setStart(() -> {
+                    if (skills.hiveTipped()) {
+                        schedule(tailA_HiveTippedPARK());
+                    } else {
+                        schedule(tailB_NoTipPARK());
+                    }
+                })
+                .setDone(() -> true);
+    }
+
     public Command autoRoutine() {
         return sequential(
                 head(),
@@ -301,10 +324,21 @@ public abstract class Course1HT extends LinearOpMode {
         );
     }
 
+    public Command autoRoutinePark()  {
+        return sequential(
+                head(),
+                chooseTailPARK()
+        );
+    }
+
     @Override
     public void runOpMode() {
         Scheduler.reset();
         parkSelector = new ParkSideSelector(this);
+        afterTipPark = new ParkAfterTipSelector(this);
+        questions = new AutonQuestions(this);
+        questions.add(parkSelector);
+        questions.add(afterTipPark);
         follower = Constants.create(hardwareMap);
         follower.setPose(Start);
         follower.update();
@@ -315,37 +349,40 @@ public abstract class Course1HT extends LinearOpMode {
 
         // INIT loop: confirm the camera is streaming and sees the hive tag before the match
         while (!isStarted() && !isStopRequested()) {
-            parkSelector.update();       // adds the menu lines to telemetry
+            questions.update();      // adds the menu lines to telemetry
             skills.updateInitVision();  // existing camera check still works
             telemetry.update(); // the init loop still calls update() itself
         }
 
         waitForStart();
+        boolean tipParkChoice = afterTipPark.shouldPark();
         parkside = parkSelector.getSelection();   // LEFT, RIGHT or NONE
-        if(parkside == ParkSide.LEFT)
-        {
+        if (parkside == ParkSide.LEFT) {
             PARK_SPOT = ParkSpot.A;
         }
-        else if(parkside == ParkSide.RIGHT)
-        {
+        else if (parkside == ParkSide.RIGHT) {
             PARK_SPOT = ParkSpot.B;
         }
-        else if(parkside == ParkSide.NONE)
-        {
+        else if (parkside == ParkSide.NONE) {
             PARK_SPOT = ParkSpot.A;
         }
-        schedule(autoRoutine());
+        if (tipParkChoice){
+            schedule(autoRoutinePark());
+        }
+        else if (tipParkChoice == false) {
+            schedule(autoRoutine());
+        }
 
         while (opModeIsActive()) {
             follower.update();
             skills.update();
             Scheduler.execute();
 
-            telemetry.addData("x", follower.pose().x());
-            telemetry.addData("y", follower.pose().y());
-            telemetry.addData("heading", follower.pose().heading());
+            //telemetry.addData("x", follower.pose().x());
+            //telemetry.addData("y", follower.pose().y());
+            //telemetry.addData("heading", follower.pose().heading());
             telemetry.addData("hiveTipped", skills.hiveTipped());
-            telemetry.addData("follower mode", follower.mode());
+            //telemetry.addData("follower mode", follower.mode());
 
             if (follower.currentPath() != null) {
                 telemetry.addData("path remaining", follower.distanceToEndpoint());

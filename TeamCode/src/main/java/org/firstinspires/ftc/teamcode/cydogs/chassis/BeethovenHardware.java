@@ -50,7 +50,7 @@ public final class BeethovenHardware {
 
         // Teleop speeds and joystick shaping
         public static final double DEAD_ZONE = 0.05;
-        public static final double HIGH_SPEED = 0.8;
+        public static final double HIGH_SPEED = 0.85;
         public static final double LOW_SPEED = 0.3;
         public static final double ROTATE_SPEED = 0.6;
         public static final double ROTATE_LOW_SPEED = 0.3; // bumper rotation
