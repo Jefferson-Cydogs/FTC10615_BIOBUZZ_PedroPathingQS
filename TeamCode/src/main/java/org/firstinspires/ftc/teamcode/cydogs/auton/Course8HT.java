@@ -52,7 +52,6 @@ public abstract class Course8HT extends LinearOpMode {
     private Follower follower;
     private AutoSkills skills;
     private ParkSide parkside;
-
     private enum ParkSpot { A, B }
     private ParkSideSelector parkSelector;
     private ShootBeforeParkSelector shootSelector;
@@ -63,6 +62,8 @@ public abstract class Course8HT extends LinearOpMode {
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.BLUE;
     //private static final TagSight.Alliance ALLIANCE = TagSight.Alliance.RED;
     private final TagSight.Alliance alliance;
+
+    private static ParkSpot PARK_SPOT = ParkSpot.A;
     protected Course8HT(TagSight.Alliance alliance) {
         this.alliance = alliance;
     }
@@ -105,6 +106,11 @@ public abstract class Course8HT extends LinearOpMode {
     private final Pose park = poseFactory.of(9.8125, 121, 0);
     // Tail B: Course 1 route in reverse
     private final Pose shoot2 = poseFactory.of(28.5, 15, 239);
+
+    private final Pose ParkA = poseFactory.of(12, 120, 0);   // the current park pose
+    private final Pose ParkAControl1 = poseFactory.of(48, 120, 0);
+    private final Pose ParkB = poseFactory.of(12, 94.5, 0);   // alternate coordinates
+    private final Pose ParkBControl1 = poseFactory.of(48, 94.5, 0);
 
 
     // -------------------------------------------------------------------------
@@ -150,11 +156,19 @@ public abstract class Course8HT extends LinearOpMode {
     public Path shoot2() {
         return Paths.line(shoot1, shoot2).linear(shoot1, shoot2);
     }
+
     public Path parkTailA() {
-        return Paths.line(shoot1, park).linear(shoot1, park);
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(shoot1, ParkControl1, Park).linear(shoot1, Park);
     }
+
     public Path parkTailB() {
-        return Paths.line(shoot1, park).linear(shoot1, park);
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(shoot1, ParkControl1, Park).linear(shoot1, Park);
     }
 
 
@@ -268,21 +282,21 @@ public abstract class Course8HT extends LinearOpMode {
         }
 
         waitForStart();
-        boolean shootChoice = shootSelector.shouldShoot();
         parkside = parkSelector.getSelection();   // LEFT, RIGHT or NONE
         if (parkside == ParkSide.LEFT) {
-            //nothing yet
+            PARK_SPOT = ParkSpot.A;
         }
         else if (parkside == ParkSide.RIGHT) {
-            //nothing yet
+            PARK_SPOT = ParkSpot.B;
         }
         else if (parkside == ParkSide.NONE) {
-            //nothing yet
+            PARK_SPOT = ParkSpot.A;
         }
+        boolean shootChoice = shootSelector.shouldShoot();
         if (shootChoice){
             schedule(autoRoutine());
         }
-        else if (shootChoice == false) {
+        else {
             schedule(autoRoutinePARK());
         }
 

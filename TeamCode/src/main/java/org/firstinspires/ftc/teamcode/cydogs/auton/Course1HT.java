@@ -124,6 +124,7 @@ public abstract class Course1HT extends LinearOpMode {
     public Path Shoot2() {
         return Paths.curve(GardenCollect, Shoot2Control1, Shoot2).linear(GardenCollect, Shoot2);
     }
+
     public Path FlowerApproach() {
         return Paths.line(Shoot2, FlowerApproach).linear(Shoot2, FlowerApproach);
     }
@@ -145,11 +146,22 @@ public abstract class Course1HT extends LinearOpMode {
     public Path Shoot3() {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
+
+    public Path NoTipPark() {
+        return Paths.line(Shoot1, Shoot3).linear(Shoot1, Shoot3);
+    }
     public Path Park() {
         Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
         Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
         //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
         return Paths.curve(Shoot3, ParkControl1, Park).linear(Shoot3, Park);
+    }
+
+    public Path ParkTip() {
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(Shoot2, ParkControl1, Park).linear(Shoot2, Park);
     }
     // Tail B paths
     public Path GardenReverse() {
@@ -246,7 +258,7 @@ public abstract class Course1HT extends LinearOpMode {
         return sequential(
                 follow(follower, Shoot2()),
                 skills.turretStraight(),
-                follow(follower, Park())
+                follow(follower, ParkTip())
         );
     }
     // ---------- TAIL B: still see basket (no tip) ----------
@@ -282,7 +294,7 @@ public abstract class Course1HT extends LinearOpMode {
                 skills.turretStraight(),
                 follow(follower, GardenReverse()),   // Garden → Shoot1
                 skills.shootFourPollen(),
-                follow(follower, Shoot3()),
+                follow(follower, NoTipPark()),
                 skills.turretStraight(),
                 follow(follower, Park())
         );
@@ -369,7 +381,7 @@ public abstract class Course1HT extends LinearOpMode {
         if (tipParkChoice){
             schedule(autoRoutinePark());
         }
-        else if (tipParkChoice == false) {
+        else {
             schedule(autoRoutine());
         }
 

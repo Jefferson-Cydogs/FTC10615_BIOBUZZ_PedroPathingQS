@@ -69,6 +69,11 @@ public class Launcher extends BaseVelocityMotor {
         SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * launchVelocityPercent);
     }
 
+    public void StartDistantLauncher() {
+        state = State.RUNNING;
+        SetVelocity(BeethovenHardware.Launcher.MAX_TICKS_PER_SECOND * BeethovenHardware.Launcher.LAUNCH_DISTANT_PERCENT);
+    }
+
     public void StartLauncherNectar()
     {
         state = State.RUNNING;
@@ -100,6 +105,14 @@ public class Launcher extends BaseVelocityMotor {
             SetVelocity(spinDownStartTps * (1.0 - fraction));
         }
     }
+
+    /** True while the launcher is holding its launch speed (after StartLauncher() or
+     *  StartLauncherNectar(), and before StopLauncher()). False when stopped or spinning down.
+     *  It doesn't mean the wheel is up to speed yet; use IsLauncherAtSpeed() for that. */
+    public boolean IsRunning() {
+        return state == State.RUNNING;
+    }
+
 
     /** Cuts power right now with no controlled spin-down (the flywheel coasts). Use for emergencies. */
     public void StopLauncherNow() {

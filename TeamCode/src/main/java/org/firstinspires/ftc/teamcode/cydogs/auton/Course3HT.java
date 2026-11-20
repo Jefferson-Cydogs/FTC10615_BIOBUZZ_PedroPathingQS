@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.cydogs.core.AutonQuestions;
 import org.firstinspires.ftc.teamcode.cydogs.core.HelpPartnerSelector;
+import org.firstinspires.ftc.teamcode.cydogs.core.ParkSide;
 import org.firstinspires.ftc.teamcode.cydogs.core.ParkSideSelector;
 import org.firstinspires.ftc.teamcode.cydogs.core.SecondShotSelector;
 import org.firstinspires.ftc.teamcode.cydogs.core.SecondShotSpot;
@@ -57,6 +58,9 @@ public abstract class Course3HT extends LinearOpMode {
     private SecondShotSelector shotSelector;
     private AutonQuestions questions;
 
+    private enum ParkSpot { A, B }
+    private ParkSide parkside;
+    private static ParkSpot PARK_SPOT = ParkSpot.A;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -109,6 +113,10 @@ public abstract class Course3HT extends LinearOpMode {
     // Tail B: Course 1 route in reverse
     private final Pose shoot2 = poseFactory.of(28.5, 15, 239);
 
+    private final Pose ParkA = poseFactory.of(12, 120, 0);   // the current park pose
+    private final Pose ParkAControl1 = poseFactory.of(48, 120, 0);
+    private final Pose ParkB = poseFactory.of(12, 94.5, 0);   // alternate coordinates
+    private final Pose ParkBControl1 = poseFactory.of(48, 94.5, 0);
 
     // -------------------------------------------------------------------------
     // Paths
@@ -157,11 +165,31 @@ public abstract class Course3HT extends LinearOpMode {
     public Path shoot2() {
         return Paths.line(shoot1, shoot2).linear(shoot1, shoot2);
     }
-    public Path parkTailA() {
+    public Path parkTailAold() {
         return Paths.line(shoot1, park).linear(shoot1, park);
     }
-    public Path parkTailB() {
+    public Path parkTailBold() {
         return Paths.line(shoot2, park).linear(shoot2, park);
+    }
+
+    public Path parkTailA() {
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(shoot1, ParkControl1, Park).linear(shoot1, Park);
+    }
+
+    public Path parkTailB() {
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(shoot2, ParkControl1, Park).linear(shoot2, Park);
+    }
+    public Path parkCorner() {
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
+        Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
+        //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
+        return Paths.curve(shoot3, ParkControl1, Park).linear(shoot3, Park);
     }
 
 
@@ -231,7 +259,7 @@ public abstract class Course3HT extends LinearOpMode {
                 skills.turretAngle(TURRET_AIM_ANGLE),
                 waitMs(1000),
                 skills.shootFourPollen(),
-                follow(follower, parkTailA())
+                follow(follower, parkCorner())
         );
     }
 
@@ -314,8 +342,6 @@ public abstract class Course3HT extends LinearOpMode {
         );
     }
 
-
-
     @Override
     public void runOpMode() {
         Scheduler.reset();
@@ -343,6 +369,17 @@ public abstract class Course3HT extends LinearOpMode {
         }
 
         waitForStart();
+        parkside = parkSelector.getSelection();   // LEFT, RIGHT or NONE
+        if (parkside == ParkSide.LEFT) {
+            PARK_SPOT = ParkSpot.A;
+        }
+        else if (parkside == ParkSide.RIGHT) {
+            PARK_SPOT = ParkSpot.B;
+        }
+        else if (parkside == ParkSide.NONE) {
+            PARK_SPOT = ParkSpot.A;
+        }
+
         boolean help = helpSelector.shouldHelpPartner();
         SecondShotSpot shot = shotSelector.getSelection();
         //schedule(autoRoutine());
