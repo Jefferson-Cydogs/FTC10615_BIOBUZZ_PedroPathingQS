@@ -83,9 +83,9 @@ public abstract class Course1HT extends LinearOpMode {
     private final Pose FlowerCollect = poseFactory.of(49, 124.15, 90);
     private final Pose FlowerCollectShake = poseFactory.of(49.5, 124.5, 85);
     private final Pose Shoot3 = poseFactory.of(28.5, 126.5, 123);
-    private final Pose ParkA = poseFactory.of(11, 120, 0);   // the current park pose
+    private final Pose ParkA = poseFactory.of(12, 120, 0);   // the current park pose
     private final Pose ParkAControl1 = poseFactory.of(48, 120, 0);
-    private final Pose ParkB = poseFactory.of(11, 94.5, 0);   // alternate coordinates
+    private final Pose ParkB = poseFactory.of(12, 94.5, 0);   // alternate coordinates
     private final Pose ParkBControl1 = poseFactory.of(48, 85, 0);
     // Tail B only: bend point for the long curve up the left side from Shoot1 to FlowerApproach
     private final Pose FlowerApproachBadControl1 = poseFactory.of(6, 72, 0);
