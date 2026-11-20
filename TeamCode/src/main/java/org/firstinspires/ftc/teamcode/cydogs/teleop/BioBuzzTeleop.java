@@ -155,7 +155,15 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 //telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
                 telemetry.addData("mode", myTurret.getMode());
 
-                telemetry.update();
+                if (LarryTheLauncher.IsRunning()) {
+                    if (myTurret.getEyes().rangeInches > 60) {
+                        LarryTheLauncher.StartDistantLauncher();
+                    } else {
+                        LarryTheLauncher.StartLauncher();
+                    }
+
+                    telemetry.update();
+                }
             }
         }
 
