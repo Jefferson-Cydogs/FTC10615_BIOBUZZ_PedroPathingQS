@@ -155,14 +155,14 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 //telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
                 telemetry.addData("mode", myTurret.getMode());
 
-                if (LarryTheLauncher.IsRunning()) {
-                    if (myTurret.getEyes().rangeInches > 60) {
+                if (LarryTheLauncher.IsRunning() && myTurret.getEyes().hasTarget) {
+                    double range = myTurret.getEyes().rangeInches;
+                    if (range > 62) {
                         LarryTheLauncher.StartDistantLauncher();
-                    } else {
+                    } else if (range < 58) {
                         LarryTheLauncher.StartLauncher();
                     }
-
-
+                    // Between 58 and 62, or with no tag in view, keep whatever speed it already has.
                 }
 
                 telemetry.update();
