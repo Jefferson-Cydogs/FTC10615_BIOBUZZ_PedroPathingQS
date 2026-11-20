@@ -146,7 +146,7 @@ public abstract class Course1HT extends LinearOpMode {
         return Paths.line(FlowerApproach, Shoot3).linear(FlowerApproach, Shoot3);
     }
     public Path Park() {
-        Pose Park = (PARK_SPOT == ParkSpot.B) ? ParkA : ParkB;
+        Pose Park = (PARK_SPOT == ParkSpot.A) ? ParkA : ParkB;
         Pose ParkControl1 = (PARK_SPOT == ParkSpot.A) ? ParkAControl1 : ParkBControl1;
         //return Paths.line(Shoot3, Park).linear(Shoot3, Park);
         return Paths.curve(Shoot3, ParkControl1, Park).linear(Shoot3, Park);
