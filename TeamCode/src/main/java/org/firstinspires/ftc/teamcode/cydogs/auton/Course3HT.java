@@ -406,10 +406,10 @@ public abstract class Course3HT extends LinearOpMode {
             telemetry.addData("heading", follower.pose().heading());*/
             telemetry.addData("hiveTipped", skills.hiveTipped());
 
-            if (follower.currentPath() != null) {
+            /*if (follower.currentPath() != null) {
                 telemetry.addData("path remaining", follower.distanceToEndpoint());
                 telemetry.addData("path number", follower.pathIndex());
-            }
+            }*/
 
             telemetry.update();
         }
