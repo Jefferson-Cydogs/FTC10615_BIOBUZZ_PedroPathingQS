@@ -285,7 +285,6 @@ public abstract class Course8HT extends LinearOpMode {
         else if (shootChoice == false) {
             schedule(autoRoutinePARK());
         }
-        schedule(autoRoutine());
 
         while (opModeIsActive()) {
             follower.update();
