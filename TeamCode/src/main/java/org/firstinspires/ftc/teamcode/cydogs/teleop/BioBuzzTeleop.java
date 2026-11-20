@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public abstract class BioBuzzTeleop extends LinearOpMode {
 
     // Drive speeds passed to the chassis for teleop (0 to 1). Change them here.
-    private static final double HIGH_SPEED_DRIVE = 0.85;   // right stick (fast movement)
+    private static final double HIGH_SPEED_DRIVE = 0.9;   // right stick (fast movement)
     private static final double LOW_SPEED_DRIVE = 0.3;    // left stick (slow, precise movement)
     private static final double ROTATE_SPEED_DRIVE = 0.6; // trigger rotation
 
@@ -143,17 +143,17 @@ public abstract class BioBuzzTeleop extends LinearOpMode {
                 telemetry.addData("launcher actual %:", LarryTheLauncher.GetLaunchVelocityPercent());
                 telemetry.addData("is launcher at speed:", isLauncherAtSpeed);
                 //telemetry.addData("launcher size servo:", String.format("%.2f", LauncherSize.GetPosition()));
-                telemetry.addData("launch sensing", sensingStatus());
-                telemetry.addData("feed assist", feedStatus);
-                telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
-                telemetry.addData("next sensor last saw:", flingyMag.flingyNext);
-                telemetry.addData("last sensor pass ms:", lastSensorPassMs);
+                //telemetry.addData("launch sensing", sensingStatus());
+                //telemetry.addData("feed assist", feedStatus);
+                //telemetry.addData("launcher sensor last saw:", flingyMag.flingyReady);
+                //telemetry.addData("next sensor last saw:", flingyMag.flingyNext);
+                //telemetry.addData("last sensor pass ms:", lastSensorPassMs);
                 // TEMP: vision debugging (remove when search is fixed)
-                telemetry.addData("tag seen", myTurret.getEyes().hasTarget);
-                telemetry.addData("range (in.)", "%.1f", myTurret.getEyes().rangeInches);
+                //telemetry.addData("tag seen", myTurret.getEyes().hasTarget);
+                //telemetry.addData("range (in.)", "%.1f", myTurret.getEyes().rangeInches);
                 //telemetry.addData("bearing", "%.1f", myTurret.getEyes().bearingDegrees);
                 //telemetry.addData("turret deg", "%.1f", myTurret.getTurret().getTurretDegrees());
-                telemetry.addData("mode", myTurret.getMode());
+                //telemetry.addData("mode", myTurret.getMode());
 
                 telemetry.update();
             }
